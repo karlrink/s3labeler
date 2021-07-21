@@ -1,0 +1,31 @@
+
+
+curl http://127.0.0.1:8880/s3 #list all buckets
+
+curl http://127.0.0.1:8880/s3/ninfo-property-images/rekogniton/
+
+curl http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg
+
+curl http://127.0.0.1:8880/s3/ninfo-property-images/rekognition/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg.json
+
+
+---
+
+
+using boto3!  fun...
+
+
+is a wrapper around https call to amazon aws
+
+NotFound:
+<class 'dict'>
+{'ResponseMetadata': {'RequestId': 'H13JBD13AT9F0HQA', 'HostId': 'q8PY5ZFxb4r5b4NhS+RWEofllDA4hNP0U64t0UWsodkjxUW2L5sYquoN5PWN/GtXuw81uNURJW4=', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': 'q8PY5ZFxb4r5b4NhS+RWEofllDA4hNP0U64t0UWsodkjxUW2L5sYquoN5PWN/GtXuw81uNURJW4=', 'x-amz-request-id': 'H13JBD13AT9F0HQA', 'date': 'Wed, 21 Jul 2021 21:33:43 GMT', 'x-amz-bucket-region': 'us-west-2', 'content-type': 'application/xml', 'transfer-encoding': 'chunked', 'server': 'AmazonS3'}, 'RetryAttempts': 1}, 'IsTruncated': False, 'Name': 'ninfo-property-images', 'Prefix': '2eece964b6f902124052810e5a92d6f9ca715c1b.jpgX', 'Delimiter': '/', 'MaxKeys': 1000, 'EncodingType': 'url', 'KeyCount': 0}
+
+Found:
+<class 'dict'>
+{'ResponseMetadata': {'RequestId': 'YJMPHAD7MWZWE00Z', 'HostId': 'MR/hRnlYLoYTvR0fhnXEBVYZGFm1mpzzXfGgHjfndt/3r0DWQZjy1/71EzyHozcYExxbAl8vlbs=', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': 'MR/hRnlYLoYTvR0fhnXEBVYZGFm1mpzzXfGgHjfndt/3r0DWQZjy1/71EzyHozcYExxbAl8vlbs=', 'x-amz-request-id': 'YJMPHAD7MWZWE00Z', 'date': 'Wed, 21 Jul 2021 21:35:18 GMT', 'x-amz-bucket-region': 'us-west-2', 'content-type': 'application/xml', 'transfer-encoding': 'chunked', 'server': 'AmazonS3'}, 'RetryAttempts': 1}, 'IsTruncated': False, 'Contents': [{'Key': '2eece964b6f902124052810e5a92d6f9ca715c1b.jpg', 'LastModified': datetime.datetime(2021, 5, 6, 3, 14, 35, tzinfo=tzutc()), 'ETag': '"5ed2d72d5f204d1d6a26b54f06f10bbf"', 'Size': 163861, 'StorageClass': 'STANDARD'}], 'Name': 'ninfo-property-images', 'Prefix': '2eece964b6f902124052810e5a92d6f9ca715c1b.jpg', 'Delimiter': '/', 'MaxKeys': 1000, 'EncodingType': 'url', 'KeyCount': 1}
+
+if not 'Contents': [{'Key': '2eece964b6f902124052810e5a92d6f9ca715c1b.jpg',
+
+
+
