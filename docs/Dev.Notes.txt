@@ -28,4 +28,19 @@ Found:
 if not 'Contents': [{'Key': '2eece964b6f902124052810e5a92d6f9ca715c1b.jpg',
 
 
+---
+
+The inbuilt boto3 Paginator class is the easiest way to overcome the 1000 record limitation of list-objects-v2
+
+s3 = boto3.client('s3')
+
+paginator = s3.get_paginator('list_objects_v2')
+pages = paginator.paginate(Bucket='bucket', Prefix='prefix')
+
+for page in pages:
+    for obj in page['Contents']:
+        print(obj['Size'])
+
+
+
 
