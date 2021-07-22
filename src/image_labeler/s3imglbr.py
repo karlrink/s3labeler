@@ -17,6 +17,7 @@ app = Flask(__name__)
 
 import boto3
 import botocore
+#from botocore.exceptions import ClientError
 
 import json
 
@@ -95,6 +96,8 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             # /rekognition/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg.json
 
             rekognition_json_content = get_rekognition_json(s3bucket, s3object)
+            #print(str(rekognition_json_content))
+
             #print('DEV.TEST')
             #print(str(type(rekognition_json_content))) #<class 'bytes'>
             #print(str(rekognition_json_content))       #b'{\n    "Labels": [\n        {\n            "Name": "Tree",\n 
@@ -108,7 +111,12 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             #print(jdata)
 
             #return jsonify(rekognition_json_content), 200, {'Content-Type':'application/json;charset=utf-8'}
-            return rekognition_json_content, 200, {'Content-Type':'application/json;charset=utf-8'}
+
+            if rekognition_json_content:
+                return rekognition_json_content, 200, {'Content-Type':'application/json;charset=utf-8'}
+            else:
+                location_str = 'rekognition/' + s3object + '.json'
+                return jsonify(status=404, message="Not Found", existing=False, rekognition_json_location=location_str), 404, {'Content-Type':'application/json;charset=utf-8'}
 
 
             
@@ -267,7 +275,20 @@ def get_rekognition_json(s3bucket, s3object):
 def get_s3object_body(s3bucket, s3object):
     s3 = boto3.resource('s3')
     obj = s3.Object(s3bucket, s3object)
-    body = obj.get()['Body'].read()
+    try:
+        body = obj.get()['Body'].read()
+    #except botocore.errorfactory.NoSuchKey:
+    #except s3.botocore.errorfactory.NoSuchKey:
+    #except s3.exceptions.NoSuchKey:
+    #from botocore.exceptions import ClientError
+    #except ClientError as ex:
+    except botocore.exceptions.ClientError as ex:
+        print('ClientError ' + str(ex))
+        #if ex.response['Error']['Code'] == 'NoSuchKey':
+        #    print('NoSuchKey')
+        #    return None
+        return None
+
     #return body                #<class 'bytes'>
     return body.decode('utf-8') #<class 'str'>
 
