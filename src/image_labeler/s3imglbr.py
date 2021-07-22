@@ -15,52 +15,22 @@ from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__)
 
-#import request
-
 import boto3
 
-#s3 = boto3.resource('s3')
-
-#my_bucket = s3.Bucket('some/path/')
-
-#GET    /                             # Show status
+#GET    /                             # Show version
 @app.route("/", methods=['GET'])
 def root():
     return jsonify(status=200, message="OK", version=__version__), 200
 
 
-#GET    /tag/<image>                  #
-#@app.route("/tag/<image>", methods=['GET'])
-#def get_tag(image=None):
-#    assert image == request.view_args['image']
-#
-#    #check if file exist
-#
-#    #check if lagels already exist
-#
-#    url = ''
-#
-#    return jsonify(status=200, message="TAG", image=image), 200
-
-#GET    /s3/<s3object>
-#@app.route("/s3/<s3object>", methods=['GET'])
-#def get_tag(s3object=None):
-#    assert s3object == request.view_args['s3object']
-
-
-#@app.route("/s3", methods=['GET'])
-#def get_s3():
-#    region = None
-#    s3 = get_s3resource(region)
-#    list_my_buckets(s3)
-#    return jsonify(status=200, message="OK", success=True), 200
-
+#GET    /s3                           # Show OK
 @app.route("/s3", methods=['GET'])
 def get_s3():
     return jsonify(status=200, message="OK", path="/s3"), 200
 
 
-@app.route("/s3/", methods=['GET']) # list all buckets
+#GET    /s3/                          # List all buckets
+@app.route("/s3/", methods=['GET'])
 def get_s3buckets(region=None):
 
     s3 = boto3.resource('s3', region_name=region)
@@ -76,6 +46,7 @@ def get_s3buckets(region=None):
 
 
 
+#GET    /s3/<s3bucket>/<s3object>     # List object
 @app.route("/s3/<s3bucket>/<s3object>", methods=['GET'])
 def get_s3bucketobject(s3bucket=None,s3object=None):
     assert s3bucket == request.view_args['s3bucket']
@@ -104,6 +75,7 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
     return jsonify(status=200, message="OK", existing=_exist, key=_k), 200
 
 
+#GET    /s3/<s3bucket>/<s3subdir>/<s3object> # List object
 @app.route("/s3/<s3bucket>/<s3subdir>/<s3object>", methods=['GET'])
 def get_s3bucketsubdirobject(s3bucket=None,s3subdir=None,s3object=None):
     assert s3bucket == request.view_args['s3bucket']
@@ -135,17 +107,19 @@ def get_s3bucketsubdirobject(s3bucket=None,s3subdir=None,s3object=None):
         return jsonify(status=404, message="Not Found", existing=_exist, key=_k), 404
 
     return jsonify(status=200, message="OK", existing=_exist, key=_k), 200
-    
-@app.route("/s3/<s3bucket>/<s3subdir>/", methods=['GET'])  #list directory files
-def get_s3bucketsubdir(s3bucket=None,s3subdir=None):       #this method has 1000 return limit
+
+
+#GET    /s3/<s3bucket>/<s3subdir>/                         # List bucket directory files (1000 limit)
+@app.route("/s3/<s3bucket>/<s3subdir>/", methods=['GET'])
+def get_s3bucketsubdir(s3bucket=None,s3subdir=None):       
     assert s3bucket == request.view_args['s3bucket']
     assert s3subdir == request.view_args['s3subdir']
 
     #print(s3bucket)
     #print(s3subdir)
 
-    #bucket      = "ninfo-property-images"
-    #prefix      = "rekognition/"
+    #bucket      = "bucket-name"
+    #prefix      = "folder/"
 
     prefix = s3subdir + '/'
 
@@ -168,8 +142,10 @@ def get_s3bucketsubdir(s3bucket=None,s3subdir=None):       #this method has 1000
     #return jsonify(status=200, message="OK", prefix=prefix), 200
     return jsonify(s3objects), 200
      
-@app.route("/s3/<s3bucket>/", methods=['GET'])  #list bucket directory files
-def get_s3bucketdir(s3bucket=None):             #this method has 1000 return limit
+
+#GET    /s3/<s3bucket>/                         # List bucket directory files (1000 limit)
+@app.route("/s3/<s3bucket>/", methods=['GET'])
+def get_s3bucketdir(s3bucket=None):             
     assert s3bucket == request.view_args['s3bucket']
 
     #print(s3bucket)
@@ -177,13 +153,7 @@ def get_s3bucketdir(s3bucket=None):             #this method has 1000 return lim
     s3_client   = boto3.client('s3')
 
     try:
-        import botocore
         s3_result =  s3_client.list_objects_v2(Bucket=s3bucket, Delimiter = "/")
-    #except botocore.errorfactory.NoSuchBucket as e:
-    #except errorfactory.NoSuchBucket as e:
-    #except NoSuchBucket as e:
-    #except s3_client.botocore.errorfactory.NoSuchBucket as e:
-    #except s3_client.exceptions.NotFoundException as e:
     except s3_client.exceptions.NoSuchBucket as e:
         return jsonify(status=404, message="No Such Bucket", s3bucket=s3bucket), 404
 
@@ -202,13 +172,12 @@ def get_s3bucketdir(s3bucket=None):             #this method has 1000 return lim
      
 
 
-
-
 @app.errorhandler(404)
 def not_found(error=None):
     message = { 'status': 404, 'errorType': 'Not Found: ' + request.url }
     return jsonify(message), 404
 
+#######################################################################################################
 
 def get_s3resource(region=None):
     """
@@ -220,6 +189,7 @@ def get_s3resource(region=None):
 def list_my_buckets(s3):
     print('Buckets:\n\t', *[b.name for b in s3.buckets.all()], sep="\n\t")
 
+#######################################################################################################
 
 def main():
     app.run(port=8880, debug=False)    
@@ -230,5 +200,6 @@ if __name__ == "__main__":
 
 
 #https://docs.aws.amazon.com/code-samples/latest/catalog/python-s3-s3_basics-demo_bucket_basics.py.html
+#https://docs.aws.amazon.com/rekognition/latest/dg/labels-detect-labels-image.html
 
 

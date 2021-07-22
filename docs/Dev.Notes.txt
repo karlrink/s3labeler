@@ -1,6 +1,6 @@
 
 
-curl http://127.0.0.1:8880/s3 #list all buckets
+curl http://127.0.0.1:8880/s3/ #list all buckets
 
 curl http://127.0.0.1:8880/s3/ninfo-property-images/rekogniton/
 
@@ -40,6 +40,13 @@ pages = paginator.paginate(Bucket='bucket', Prefix='prefix')
 for page in pages:
     for obj in page['Contents']:
         print(obj['Size'])
+
+
+
+---
+
+boto rekognition
+https://docs.aws.amazon.com/rekognition/latest/dg/labels-detect-labels-image.html
 
 
 
