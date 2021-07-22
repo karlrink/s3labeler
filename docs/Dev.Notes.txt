@@ -50,4 +50,6 @@ https://docs.aws.amazon.com/rekognition/latest/dg/labels-detect-labels-image.htm
 
 
 
+---
+
 

@@ -15,7 +15,7 @@ curl http://127.0.0.1:8880/s3/ninfo-property-images/
 
 ### list files in a bucket subdirectory (1000 record limit)
 ```
-curl http://127.0.0.1:8880/s3/ninfo-property-images/rekogniton/
+curl http://127.0.0.1:8880/s3/ninfo-property-images/rekognition/
 ```
 
 ### list file
@@ -26,6 +26,16 @@ curl http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92
 ### list file
 ```
 curl http://127.0.0.1:8880/s3/ninfo-property-images/rekognition/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg.json
+```
+
+### list file s3object tags
+```
+curl http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?tags=s3
+```
+
+### list file rekognition json
+```
+curl http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?tags=rekognition
 ```
 
 
@@ -58,8 +68,12 @@ runs an image through rekognition only once (to prevent redundant charges/costs)
 ---
 
 tech notes   
- - aws rekognition detect-labels leverages amazons own ML model for image recognition
- - image file bytes are not transfered or processed through this interface.  this interface simply controls rekognition and s3 backend
+ - aws rekognition detect-labels leverages amazons own ML model for image recognition   
+ - image file bytes are not transfered or processed through this interface.  this interface simply controls rekognition and s3 backend    
+
+
+
+
 
 
 
