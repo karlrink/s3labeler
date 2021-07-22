@@ -92,6 +92,12 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             #retrieve corresponding rekognition json file
             # /rekognition/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg.json
 
+            rekognition_json_content = get_rekognition_json(s3bucket, s3object)
+            print('DEV.TEST')
+            print(str(type(rekognition_json_content))) #<class 'bytes'>
+            print(str(rekognition_json_content))       #b'{\n    "Labels": [\n        {\n            "Name": "Tree",\n 
+
+
 
     return jsonify(status=200, message="OK", existing=True, key=_k), 200, {'Content-Type':'application/json;charset=utf-8'}
 
@@ -199,7 +205,7 @@ def get_s3bucketdir(s3bucket=None):
 
     #print(s3bucket)
 
-    s3_client   = boto3.client('s3')
+    s3_client = boto3.client('s3')
 
     try:
         s3_result =  s3_client.list_objects_v2(Bucket=s3bucket, Delimiter = "/")
@@ -225,6 +231,28 @@ def get_s3bucketdir(s3bucket=None):
 def not_found(error=None):
     message = { 'status': 404, 'errorType': 'Not Found: ' + request.url }
     return jsonify(message), 404, {'Content-Type':'application/json;charset=utf-8'}
+
+###############################################################################################################################################
+
+def get_rekognition_json(s3bucket, s3object):
+    rekognition_json_file = 'rekognition/' + s3object + '.json'
+    #s3 = boto3.resource('s3')
+    #getobject = s3.Object('bucket_name','key')
+    #getobject = s3.Object(s3bucket, s3object)
+    #print(str(type(getobject))) #<class 'boto3.resources.factory.s3.Object'>
+    #print(str(getobject))       #s3.Object(bucket_name='ninfo-property-images', key='2eece964b6f902124052810e5a92d6f9ca715c1b.jpg')
+    #return getobject
+    #obj = s3.Object(s3bucket, s3object)
+    #body = obj.get()['Body'].read()
+
+    return get_s3object_body(s3bucket, rekognition_json_file)
+
+
+def get_s3object_body(s3bucket, s3object):
+    s3 = boto3.resource('s3')
+    obj = s3.Object(s3bucket, s3object)
+    body = obj.get()['Body'].read()
+    return body
 
 
 def main():

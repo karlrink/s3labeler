@@ -13,7 +13,10 @@ s3_result = s3_client.get_object_tagging(Bucket=s3bucket, Key=s3key)
 #print(str(s3_result))
 
 for key in s3_result['TagSet']:
-    print(key['Key'])
+    #print(key['Key'])
+    #print(key['Value'])
+    print(key['Key'], key['Value'])
+
 
 
 #print(str(s3_result))
