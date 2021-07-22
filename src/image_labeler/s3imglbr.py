@@ -18,6 +18,8 @@ app = Flask(__name__)
 import boto3
 import botocore
 
+import json
+
 #GET    /                             # Show version
 @app.route("/", methods=['GET'])
 def root():
@@ -93,9 +95,23 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             # /rekognition/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg.json
 
             rekognition_json_content = get_rekognition_json(s3bucket, s3object)
-            print('DEV.TEST')
-            print(str(type(rekognition_json_content))) #<class 'bytes'>
-            print(str(rekognition_json_content))       #b'{\n    "Labels": [\n        {\n            "Name": "Tree",\n 
+            #print('DEV.TEST')
+            #print(str(type(rekognition_json_content))) #<class 'bytes'>
+            #print(str(rekognition_json_content))       #b'{\n    "Labels": [\n        {\n            "Name": "Tree",\n 
+
+            #print(str(type(rekognition_json_content))) #<class 'str'>
+            #print(str(rekognition_json_content))       #{ "Labels": [ { "Name": "Tree", 
+
+            #print(rekognition_json_content)
+
+            #jdata = json.loads(rekognition_json_content)
+            #print(jdata)
+
+            #return jsonify(rekognition_json_content), 200, {'Content-Type':'application/json;charset=utf-8'}
+            return rekognition_json_content, 200, {'Content-Type':'application/json;charset=utf-8'}
+
+
+            
 
 
 
@@ -252,7 +268,8 @@ def get_s3object_body(s3bucket, s3object):
     s3 = boto3.resource('s3')
     obj = s3.Object(s3bucket, s3object)
     body = obj.get()['Body'].read()
-    return body
+    #return body                #<class 'bytes'>
+    return body.decode('utf-8') #<class 'str'>
 
 
 def main():
