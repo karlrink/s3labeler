@@ -77,7 +77,7 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             _k = key['Key']
     except KeyError as e:
         _k = s3_result['Prefix']
-        return jsonify(status=404, message="Not Found", existing=False, key=_k), 404, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=404, message="Not Found", s3object=False, name=_k), 404, {'Content-Type':'application/json;charset=utf-8'}
 
     if _k != s3object:
         return jsonify(status=569, message="Objects Do Not Match", object1=str(_k), ojbect2=str(s3object)), 569, {'Content-Type':'application/json;charset=utf-8'}
@@ -135,14 +135,14 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
                 return rekognition_json_content, 200, {'Content-Type':'application/json;charset=utf-8'}
             else:
                 location_str = 'rekognition/' + s3object + '.json'
-                return jsonify(status=404, message="Not Found", existing=False, rekognition_json_location=location_str), 404, {'Content-Type':'application/json;charset=utf-8'}
+                return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=location_str), 404, {'Content-Type':'application/json;charset=utf-8'}
 
 
             
 
 
 
-    return jsonify(status=200, message="OK", existing=True, key=_k), 200, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(status=200, message="OK", s3object=True, name=_k), 200, {'Content-Type':'application/json;charset=utf-8'}
 
 
 
@@ -202,9 +202,9 @@ def get_s3bucketsubdirobject(s3bucket=None,s3subdir=None,s3object=None):
             _exist=True
     except KeyError as e:
         _k = s3_result['Prefix']
-        return jsonify(status=404, message="Not Found", existing=_exist, key=_k), 404, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=404, message="Not Found", s3object=_exist, name=_k), 404, {'Content-Type':'application/json;charset=utf-8'}
 
-    return jsonify(status=200, message="OK", existing=_exist, key=_k), 200, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(status=200, message="OK", s3object=_exist, key=_k), 200, {'Content-Type':'application/json;charset=utf-8'}
 
 
 #GET    /s3/<s3bucket>/<s3subdir>/                         # List bucket directory files (1000 limit)
@@ -234,7 +234,7 @@ def get_s3bucketsubdir(s3bucket=None,s3subdir=None):
 
     print(len(s3objects))
     if len(s3objects) < 0:
-        return jsonify(status=404, message="Not Found", existing=False, prefix=prefix), 404, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=404, message="Not Found", s3object=False, prefix=prefix), 404, {'Content-Type':'application/json;charset=utf-8'}
 
     #return jsonify(status=200, message="OK", existing=_exist, key=None), 200
     #return jsonify(status=200, message="OK", prefix=prefix), 200
