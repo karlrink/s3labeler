@@ -90,8 +90,27 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             print('s3tags')
             #aws s3api get-object-tagging --bucket ninfo-property-images --key 2eece964b6f902124052810e5a92d6f9ca715c1b.jpg
 
+            get_s3tags = get_s3object_tags(s3bucket, s3object)
+            #s3tags = get_s3object_tags(s3bucket, s3object)
+            #print(s3tags)
+
+            #for key in s3tags['TagSet']:
+            #    #print(key)
+            #    print(key['Key'], key['Value'])
+
+            #print(str(s3tags['TagSet']))
+
+            s3Tags = {}
+            for key in get_s3tags['TagSet']:
+                __k = key['Key']
+                __v = key['Value']
+                s3Tags[__k]=__v
+
+            return jsonify(s3Tags), 200, {'Content-Type':'application/json;charset=utf-8'}
+
+
         if tags == 'rekognition':
-            print('rekognition json')
+            #print('rekognition json')
             #retrieve corresponding rekognition json file
             # /rekognition/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg.json
 
@@ -291,6 +310,14 @@ def get_s3object_body(s3bucket, s3object):
 
     #return body                #<class 'bytes'>
     return body.decode('utf-8') #<class 'str'>
+
+def get_s3object_tags(s3bucket, s3object):
+
+    s3_client = boto3.client('s3')
+    s3_result = s3_client.get_object_tagging(Bucket=s3bucket, Key=s3object)
+
+    return s3_result
+
 
 
 def main():
