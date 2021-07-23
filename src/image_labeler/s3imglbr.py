@@ -14,9 +14,9 @@ from flask import jsonify
 from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__)
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True #default False
-#app.config['JSON_SORT_KEYS'] = True #default True
-#app.config['JSONIFY_MIMETYPE'] = 'application/json' #default 'application/json'
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True    #default False
+app.config['JSON_SORT_KEYS'] = True                 #default True
+app.config['JSONIFY_MIMETYPE'] = 'application/json' #default 'application/json'
 
 import boto3
 import botocore
@@ -177,12 +177,25 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
 #PUT      /s3/<s3bucket>/<s3object>         # set s3object tag set keys and values   
 @app.route("/s3/<s3bucket>/<s3object>", methods=['PUT'])
-def get_s3bucketobject(s3bucket=None,s3object=None):
+def set_s3bucketobject(s3bucket=None,s3object=None):
 
     assert s3bucket == request.view_args['s3bucket']
     assert s3object == request.view_args['s3object']
 
+    if not request.headers['Content-Type'] == 'application/json':
+        return jsonify(status=412, errorType="Precondition Failed"), 412
 
+    jpost = request.get_json()
+
+    #print(str(type(post))) #<class 'dict'>
+    #print(str(post))       #{'labler': 'karl...
+    
+    #jsondata = json.loads('{}')
+
+    #settagset = set_s3object_tags(s3bucket, s3object, jsondata)
+    settagset = set_s3object_tags(s3bucket, s3object, jpost)
+
+    print(settagset)
 
 
     return jsonify(status=200, message="OK", name=s3object, method="PUT"), 200, {'Content-Type':'application/json;charset=utf-8'}
@@ -283,13 +296,47 @@ def get_s3bucketdir(s3bucket=None):
         return jsonify(status=404, message="Not Found", s3objects=0, s3bucket=s3bucket), 404, {'Content-Type':'application/json;charset=utf-8'}
 
     return jsonify(s3objects), 200, {'Content-Type':'application/json;charset=utf-8'}
-     
+
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+
+    if isinstance(e, HTTPException):
+        return jsonify(status=e.code, errorType="HTTPException", errorMessage=str(e)), e.code, {'Content-Type':'application/json;charset=utf-8'}
+
+    return jsonify(status=599, errorType="Exception", errorMessage=str(e)), 599, {'Content-Type':'application/json;charset=utf-8'}
 
 
 @app.errorhandler(404)
 def not_found(error=None):
     message = { 'status': 404, 'errorType': 'Not Found: ' + request.url }
     return jsonify(message), 404, {'Content-Type':'application/json;charset=utf-8'}
+
+
+
+#@app.errorhandler(Exception)
+#def handle_exception(e):
+#
+#    if isinstance(e, HTTPException):
+#        return jsonify(status=e.code, errorType="HTTP Exception", errorMessage=str(e)), e.code
+#
+#    if type(e).__name__ == 'OperationalError':
+#        return jsonify(status=512, errorType="OperationalError", errorMessage=str(e)), 512
+#
+#    if type(e).__name__ == 'InterfaceError':
+#        return jsonify(status=512, errorType="InterfaceError", errorMessage=str(e)), 512
+#
+#    if type(e).__name__ == 'ProgrammingError':
+#        return jsonify(status=512, errorType="ProgrammingError", errorMessage=str(e)), 512
+#
+#    if type(e).__name__ == 'AttributeError':
+#        return jsonify(status=512, errorType="AttributeError", errorMessage=str(e)), 512
+#
+#    res = {'status': 500, 'errorType': 'Internal Server Error'}
+#    res['errorMessage'] = str(e)
+#    return jsonify(res), 500
+#
+
 
 ###############################################################################################################################################
 
@@ -327,15 +374,19 @@ def get_s3object_tags(s3bucket, s3object):
     s3_result = s3_client.get_object_tagging(Bucket=s3bucket, Key=s3object)
     return s3_result
 
-def set_s3object_tags(s3bucket, s3object, jsondata):
+def set_s3object_tags(s3bucket, s3object, jpost):
 
     s3_client = boto3.client('s3')
+
+    print(str(jpost))
 
     #s3_result = s3_client.put_object_tagging(
     #        Bucket=s3bucket,
     #        Key=s3object,
     #        Tagging={'TagSet':[]}
     #        )
+
+    return None
 
 #put_tags_response = s3_client.put_object_tagging(
 #    Bucket='your-bucket-name',
