@@ -386,6 +386,30 @@ def set_s3object_tags(s3bucket, s3object, jpost):
     #        Tagging={'TagSet':[]}
     #        )
 
+    # {},{} #nested python dict
+
+    #_Ts = { 'TagSet': [ {'Key': 'tag-key', 'Value': 'tag-value'} ] }
+    #_Ts = { 'TagSet': [ {'Key': 'tag-key', 'Value': 'tag-value'}, {'Key': 'tag-key2', 'Value': 'tag-value2'} ] }
+
+    KeyValList = []
+
+    for k,v in jpost.items():
+        #print(' jpost ' + k,v)
+        kvs={}
+        kvs['Key']   = k
+        kvs['Value'] = v
+
+        KeyValList.append(kvs)
+
+    _Ts = { 'TagSet': KeyValList }
+    print(_Ts)
+
+    s3_result = s3_client.put_object_tagging(
+            Bucket=s3bucket,
+            Key=s3object,
+            Tagging=_Ts
+            )
+
     return None
 
 #put_tags_response = s3_client.put_object_tagging(
