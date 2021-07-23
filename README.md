@@ -46,6 +46,17 @@ curl -X PUT \
      http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg    
 ```   
 
+---
+
+#### get rekognition json HTTP GET (same as ?tags=rekognition)
+```
+curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?rekognition=json"
+```
+
+#### get rekognition words HTTP GET
+```
+curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?rekognition=words"
+```
  
 
 ---
