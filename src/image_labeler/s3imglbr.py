@@ -14,6 +14,9 @@ from flask import jsonify
 from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__)
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+app.config['JSON_SORT_KEYS'] = True
+app.config['JSONIFY_MIMETYPE'] = 'application/json'
 
 import boto3
 import botocore
@@ -330,5 +333,7 @@ if __name__ == "__main__":
 
 #https://docs.aws.amazon.com/code-samples/latest/catalog/python-s3-s3_basics-demo_bucket_basics.py.html
 #https://docs.aws.amazon.com/rekognition/latest/dg/labels-detect-labels-image.html
+
+#https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html
 
 
