@@ -1,0 +1,73 @@
+
+put replaces entire tag set
+
+#https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.put_object_tagging
+
+put_object_tagging(**kwargs)
+
+🧨 karl.rink@Karl-MacBook-Pro ~ % curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?tags=s3"
+{
+  "labeler": "karl.rink@nationsinfocorp.com", 
+  "rekognition_json_location": "rekognition/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg.json", 
+  "type": "jpg"
+}
+
+
+🧨 karl.rink@Karl-MacBook-Pro t % ./bototag.py ninfo-property-images 2eece964b6f902124052810e5a92d6f9ca715c1b.jpg labeler 'karl.rink'
+
+put_tags_response = s3_client.put_object_tagging(
+    Bucket=s3bucket,
+    Key=s3object,
+    Tagging={
+        'TagSet': [
+            {
+                'Key': 'labeler',
+                'Value': 'karl.rink'
+            },
+        ]
+    }
+)
+
+
+
+
+curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?tags=s3"
+{
+  "labeler": "karl.rink"
+}
+
+
+
+
+
+https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.put_object_tagging
+
+
+For tagging-related restrictions related to characters and encodings, see Tag Restrictions . Note that Amazon S3 limits the maximum number of tags to 10 tags per object.
+
+
+https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/allocation-tag-restrictions.html
+
+
+response = client.put_object_tagging(
+    Bucket='string',
+    Key='string',
+    VersionId='string',
+    ContentMD5='string',
+    Tagging={
+        'TagSet': [
+            {
+                'Key': 'string',
+                'Value': 'string'
+            },
+        ]
+    },
+    ExpectedBucketOwner='string',
+    RequestPayer='requester'
+)
+
+
+
+
+
+

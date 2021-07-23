@@ -175,6 +175,20 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 #    return jsonify(status=200, message="OK", existing=True, key=_k), 200
 
 
+#PATCH    /s3/<s3bucket>/<s3object>         # set s3object tag key/value   
+@app.route("/s3/<s3bucket>/<s3object>", methods=['PATCH'])
+def get_s3bucketobject(s3bucket=None,s3object=None):
+
+    assert s3bucket == request.view_args['s3bucket']
+    assert s3object == request.view_args['s3object']
+
+
+
+
+    return jsonify(status=200, message="OK", name=s3object, method="PATCH"), 200, {'Content-Type':'application/json;charset=utf-8'}
+
+
+
 #GET    /s3/<s3bucket>/<s3subdir>/<s3object> # List object
 @app.route("/s3/<s3bucket>/<s3subdir>/<s3object>", methods=['GET'])
 def get_s3bucketsubdirobject(s3bucket=None,s3subdir=None,s3object=None):
