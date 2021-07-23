@@ -38,14 +38,11 @@ curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a9
 curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?tags=rekognition"
 ```
 
----
-
-#### update s3object tag HTTP PATCH
+#### update s3object tag set HTTP PUT
 ```   
-curl -X PATCH \   
-     -H "Content-Type: application/json" \   
-     -H "Accept: application/json"  \   
-     -d '{"labler": "karl.rink@nationsinfocorp.com"}' \   
+curl -X PUT \
+     -H "Content-Type: application/json" \
+     -d '{"labler":"karl.rink@nationsinfocorp.com","image_url":"https://ninfo-property-images.s3.us-west-2.amazonaws.com/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg"}' \
      http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg    
 ```   
 

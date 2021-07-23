@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.0.0.a1'
+__version__ = '0.0.0.a2'
 
 import sys
 
@@ -175,8 +175,8 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 #    return jsonify(status=200, message="OK", existing=True, key=_k), 200
 
 
-#PATCH    /s3/<s3bucket>/<s3object>         # set s3object tag key/value   
-@app.route("/s3/<s3bucket>/<s3object>", methods=['PATCH'])
+#PUT      /s3/<s3bucket>/<s3object>         # set s3object tag set keys and values   
+@app.route("/s3/<s3bucket>/<s3object>", methods=['PUT'])
 def get_s3bucketobject(s3bucket=None,s3object=None):
 
     assert s3bucket == request.view_args['s3bucket']
@@ -185,7 +185,7 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
 
 
-    return jsonify(status=200, message="OK", name=s3object, method="PATCH"), 200, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(status=200, message="OK", name=s3object, method="PUT"), 200, {'Content-Type':'application/json;charset=utf-8'}
 
 
 
@@ -307,16 +307,11 @@ def get_rekognition_json(s3bucket, s3object):
     return get_s3object_body(s3bucket, rekognition_json_file)
 
 
-def get_s3object_body(s3bucket, s3object):
+def get_s3object_body(s3bucket, s3object): #gets file contents data
     s3 = boto3.resource('s3')
     obj = s3.Object(s3bucket, s3object)
     try:
         body = obj.get()['Body'].read()
-    #except botocore.errorfactory.NoSuchKey:
-    #except s3.botocore.errorfactory.NoSuchKey:
-    #except s3.exceptions.NoSuchKey:
-    #from botocore.exceptions import ClientError
-    #except ClientError as ex:
     except botocore.exceptions.ClientError as ex:
         print('ClientError ' + str(ex))
         #if ex.response['Error']['Code'] == 'NoSuchKey':
@@ -328,11 +323,32 @@ def get_s3object_body(s3bucket, s3object):
     return body.decode('utf-8') #<class 'str'>
 
 def get_s3object_tags(s3bucket, s3object):
-
     s3_client = boto3.client('s3')
     s3_result = s3_client.get_object_tagging(Bucket=s3bucket, Key=s3object)
-
     return s3_result
+
+def set_s3object_tags(s3bucket, s3object, jsondata):
+
+    s3_client = boto3.client('s3')
+
+    #s3_result = s3_client.put_object_tagging(
+    #        Bucket=s3bucket,
+    #        Key=s3object,
+    #        Tagging={'TagSet':[]}
+    #        )
+
+#put_tags_response = s3_client.put_object_tagging(
+#    Bucket='your-bucket-name',
+#    Key='folder-if-any/file-name.extension',
+#    Tagging={
+#        'TagSet': [
+#            {
+#                'Key': 'tag-key',
+#                'Value': 'tag-value'
+#            },
+#        ]
+#    }
+#)
 
 
 
