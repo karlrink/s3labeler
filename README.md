@@ -38,11 +38,20 @@ curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a9
 curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?tags=rekognition"
 ```
 
-#### update s3object tag set HTTP PUT
+#### update/set s3object tag HTTP PATCH (single key/value)
+```   
+curl -X PATCH \
+     -H "Content-Type: application/json" \
+     -d '{"labeler":"karl.rink"}' \
+     http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg    
+```   
+
+
+#### set s3object tag set HTTP PUT (Warning: this method overwrites the entire tagset)
 ```   
 curl -X PUT \
      -H "Content-Type: application/json" \
-     -d '{"labler":"karl.rink@nationsinfocorp.com","image_url":"https://ninfo-property-images.s3.us-west-2.amazonaws.com/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg"}' \
+     -d '{"labeler":"karl.rink@nationsinfocorp.com","image_url":"https://ninfo-property-images.s3.us-west-2.amazonaws.com/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg"}' \
      http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg    
 ```   
 
@@ -58,8 +67,17 @@ curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a9
 curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?rekognition=words"
 ```
  
+---
+
+#### set rekognition words to s3object tag set
+```
+curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?rekognition=words&write=s3tag"
+```
+
 
 ---
+
+
 
 
 ### run image through aws rekognition

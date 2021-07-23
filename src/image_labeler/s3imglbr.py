@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.0.0.a3'
+__version__ = '0.0.0.a4'
 
 import sys
 
@@ -450,21 +450,11 @@ def set_s3object_tags(s3bucket, s3object, jpost):
 
 def extract_rekognition_words(rekognition_json_content):
 
-    print(rekognition_json_content)
-    print(str(type(rekognition_json_content)))
-
     data = json.loads(rekognition_json_content)
-    print(str(data))
-    print(str(type(data))) #<class 'dict'>
-
-    #for key in rekognition_json_content['Labels']:
-    #    print(str(key['Name']))
 
     List = []
 
     for key in data['Labels']:
-        #print(str(key))
-        #print(str(key['Name']))
         List.append(str(key['Name']))
 
 #order matters...
