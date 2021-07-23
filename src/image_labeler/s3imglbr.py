@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.0.0'
+__version__ = '0.0.0.a1'
 
 import sys
 
@@ -14,9 +14,9 @@ from flask import jsonify
 from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__)
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
-app.config['JSON_SORT_KEYS'] = True
-app.config['JSONIFY_MIMETYPE'] = 'application/json'
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True #default False
+#app.config['JSON_SORT_KEYS'] = True #default True
+#app.config['JSONIFY_MIMETYPE'] = 'application/json' #default 'application/json'
 
 import boto3
 import botocore
@@ -36,8 +36,8 @@ def get_s3():
     return jsonify(status=200, message="OK", path="/s3"), 200, {'Content-Type':'application/json;charset=utf-8'}
 
 
-#GET    /s3/                          # List all buckets
-@app.route("/s3/", methods=['GET'])
+#GET    /s3/                          # List all buckets (limt 1000?)
+@app.route("/s3/", methods=['GET'])   # fun, this method has a "Bucket List"
 def get_s3buckets(region=None):
 
     s3 = boto3.resource('s3', region_name=region)
@@ -54,10 +54,9 @@ def get_s3buckets(region=None):
 
 #GET    /s3/<s3bucket>/<s3object>     # List object
 #GET    /s3/<s3bucket>/<s3object>?q=  # rekognition=detect-labels
-
 #GET    /s3/<s3bucket>/<s3object>?q=  # tags=s3|rekognition
 
-
+#GET    /s3/<s3bucket>/<s3object>?q=
 @app.route("/s3/<s3bucket>/<s3object>", methods=['GET'])
 def get_s3bucketobject(s3bucket=None,s3object=None):
 
