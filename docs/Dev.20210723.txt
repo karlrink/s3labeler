@@ -1,4 +1,33 @@
 
+getting funner...
+
+88305664, 'Instances': [], 'Parents': []}], 'LabelModelVersion': '2.0'}
+<class 'dict'>
+{'Name': 'Tree', 'Confidence': 90.44393920898438, 'Instances': [], 'Parents': [{'Name': 'Plant'}]}
+{'Name': 'Plant', 'Confidence': 90.44393920898438, 'Instances': [], 'Parents': []}
+{'Name': 'Urban', 'Confidence': 85.79068756103516, 'Instances': [], 'Parents': []}
+{'Name': 'Building', 'Confidence': 74.22905731201172, 'Instances': [], 'Parents': []}
+{'Name': 'Flagstone', 'Confidence': 72.1240005493164, 'Instances': [], 'Parents': []}
+{'Name': 'Vegetation', 'Confidence': 71.17005920410156, 'Instances': [], 'Parents': [{'Name': 'Plant'}]}
+{'Name': 'Garage', 'Confidence': 66.02606964111328, 'Instances': [], 'Parents': []}
+{'Name': 'Housing', 'Confidence': 65.3967056274414, 'Instances': [], 'Parents': [{'Name': 'Building'}]}
+{'Name': 'Tarmac', 'Confidence': 64.69490814208984, 'Instances': [], 'Parents': []}
+{'Name': 'Asphalt', 'Confidence': 64.69490814208984, 'Instances': [], 'Parents': []}
+{'Name': 'Home Decor', 'Confidence': 62.33171081542969, 'Instances': [], 'Parents': []}
+{'Name': 'Walkway', 'Confidence': 58.68953323364258, 'Instances': [], 'Parents': [{'Name': 'Path'}]}
+{'Name': 'Path', 'Confidence': 58.68953323364258, 'Instances': [], 'Parents': []}
+{'Name': 'Suburb', 'Confidence': 57.164859771728516, 'Instances': [], 'Parents': [{'Name': 'Urban'}, {'Name': 'Building'}]}
+{'Name': 'Bush', 'Confidence': 56.60989761352539, 'Instances': [], 'Parents': [{'Name': 'Vegetation'}, {'Name': 'Plant'}]}
+{'Name': 'Slate', 'Confidence': 56.16239547729492, 'Instances': [], 'Parents': []}
+{'Name': 'Concrete', 'Confidence': 55.33432388305664, 'Instances': [], 'Parents': []}
+[]
+127.0.0.1 - - [23/Jul/2021 16:15:07] "GET /s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?rekognition=words HTTP/1.1" 200 -
+
+
+
+
+
+
 blam.  ok.  we just want the key words...  Tree, Plant, Urban, Building, ...
 
 🧨 karl.rink@Karl-MacBook-Pro image_labeler % curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?tags=rekognition"

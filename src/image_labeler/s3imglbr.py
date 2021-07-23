@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.0.0.a2'
+__version__ = '0.0.0.a3'
 
 import sys
 
@@ -53,7 +53,7 @@ def get_s3buckets(region=None):
 
 
 #GET    /s3/<s3bucket>/<s3object>     # List object
-#GET    /s3/<s3bucket>/<s3object>?q=  # rekognition=detect-labels
+#GET    /s3/<s3bucket>/<s3object>?q=  # rekognition=json|words|detect-labels
 #GET    /s3/<s3bucket>/<s3object>?q=  # tags=s3|rekognition
 
 #GET    /s3/<s3bucket>/<s3object>?q=
@@ -112,36 +112,55 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
 
         if tags == 'rekognition':
-            #print('rekognition json')
-            #retrieve corresponding rekognition json file
-            # /rekognition/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg.json
 
-            rekognition_json_content = get_rekognition_json(s3bucket, s3object)
-            #print(str(rekognition_json_content))
+            rekognition_json_file = 'rekognition/' + s3object + '.json'
 
-            #print('DEV.TEST')
-            #print(str(type(rekognition_json_content))) #<class 'bytes'>
-            #print(str(rekognition_json_content))       #b'{\n    "Labels": [\n        {\n            "Name": "Tree",\n 
-
-            #print(str(type(rekognition_json_content))) #<class 'str'>
-            #print(str(rekognition_json_content))       #{ "Labels": [ { "Name": "Tree", 
-
-            #print(rekognition_json_content)
-
-            #jdata = json.loads(rekognition_json_content)
-            #print(jdata)
-
-            #return jsonify(rekognition_json_content), 200, {'Content-Type':'application/json;charset=utf-8'}
+            rekognition_json_content = get_rekognition_json(s3bucket, rekognition_json_file)
 
             if rekognition_json_content:
                 return rekognition_json_content, 200, {'Content-Type':'application/json;charset=utf-8'}
             else:
-                location_str = 'rekognition/' + s3object + '.json'
-                return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=location_str), 404, {'Content-Type':'application/json;charset=utf-8'}
+                return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404, {'Content-Type':'application/json;charset=utf-8'}
 
 
-            
+    if rekognition:
 
+        if rekognition == 'json':
+            rekognition_json_file = 'rekognition/' + s3object + '.json'
+            rekognition_json_content = get_rekognition_json(s3bucket, rekognition_json_file)
+            if rekognition_json_content:
+                return rekognition_json_content, 200, {'Content-Type':'application/json;charset=utf-8'}
+            else:
+                return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404, {'Content-Type':'application/json;charset=utf-8'}
+
+        if rekognition == 'words':
+
+            rekognition_json_file = 'rekognition/' + s3object + '.json'
+            rekognition_json_content = get_rekognition_json(s3bucket, rekognition_json_file)
+
+            #print(str(type(rekognition_json_content)))
+            #print(str(rekognition_json_content))
+
+            #_wL = extract_rekognition_words(rekognition_json_content)
+            #print(str(_wL))
+
+            if rekognition_json_content:
+
+                #wordList = [ 'Tree', 'Garage', 'Donuts' ]
+
+                wordList = extract_rekognition_words(rekognition_json_content)
+                print(str(wordList))
+
+                return jsonify(wordList), 200, {'Content-Type':'application/json;charset=utf-8'}
+            else:
+                return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404, {'Content-Type':'application/json;charset=utf-8'}
+
+
+            #wordList = [ 'Tree', 'Garage', 'Donuts' ]
+            #if len(wordList) > 0:
+            #    return jsonify(wordList), 200, {'Content-Type':'application/json;charset=utf-8'}
+            #else:
+            #    return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404, {'Content-Type':'application/json;charset=utf-8'}
 
 
     return jsonify(status=200, message="OK", s3object=True, name=_k), 200, {'Content-Type':'application/json;charset=utf-8'}
@@ -341,7 +360,9 @@ def not_found(error=None):
 ###############################################################################################################################################
 
 def get_rekognition_json(s3bucket, s3object):
-    rekognition_json_file = 'rekognition/' + s3object + '.json'
+
+    #rekognition_json_file = 'rekognition/' + s3object + '.json'
+
     #s3 = boto3.resource('s3')
     #getobject = s3.Object('bucket_name','key')
     #getobject = s3.Object(s3bucket, s3object)
@@ -351,7 +372,8 @@ def get_rekognition_json(s3bucket, s3object):
     #obj = s3.Object(s3bucket, s3object)
     #body = obj.get()['Body'].read()
 
-    return get_s3object_body(s3bucket, rekognition_json_file)
+    #return get_s3object_body(s3bucket, rekognition_json_file)
+    return get_s3object_body(s3bucket, s3object)
 
 
 def get_s3object_body(s3bucket, s3object): #gets file contents data
@@ -425,6 +447,66 @@ def set_s3object_tags(s3bucket, s3object, jpost):
 #    }
 #)
 
+
+def extract_rekognition_words(rekognition_json_content):
+
+    print(rekognition_json_content)
+    print(str(type(rekognition_json_content)))
+
+    data = json.loads(rekognition_json_content)
+    print(str(data))
+    print(str(type(data))) #<class 'dict'>
+
+    #for key in rekognition_json_content['Labels']:
+    #    print(str(key['Name']))
+
+    List = []
+
+    for key in data['Labels']:
+        #print(str(key))
+        #print(str(key['Name']))
+        List.append(str(key['Name']))
+
+#order matters...
+#{'Name': 'Tree', 'Confidence': 90.44393920898438, 'Instances': [], 'Parents': [{'Name': 'Plant'}]}
+#{'Name': 'Plant', 'Confidence': 90.44393920898438, 'Instances': [], 'Parents': []}
+#{'Name': 'Urban', 'Confidence': 85.79068756103516, 'Instances': [], 'Parents': []}
+#{'Name': 'Building', 'Confidence': 74.22905731201172, 'Instances': [], 'Parents': []}
+#{'Name': 'Flagstone', 'Confidence': 72.1240005493164, 'Instances': [], 'Parents': []}
+#{'Name': 'Vegetation', 'Confidence': 71.17005920410156, 'Instances': [], 'Parents': [{'Name': 'Plant'}]}
+#{'Name': 'Garage', 'Confidence': 66.02606964111328, 'Instances': [], 'Parents': []}
+#{'Name': 'Housing', 'Confidence': 65.3967056274414, 'Instances': [], 'Parents': [{'Name': 'Building'}]}
+#{'Name': 'Tarmac', 'Confidence': 64.69490814208984, 'Instances': [], 'Parents': []}
+#{'Name': 'Asphalt', 'Confidence': 64.69490814208984, 'Instances': [], 'Parents': []}
+#{'Name': 'Home Decor', 'Confidence': 62.33171081542969, 'Instances': [], 'Parents': []}
+#{'Name': 'Walkway', 'Confidence': 58.68953323364258, 'Instances': [], 'Parents': [{'Name': 'Path'}]}
+#{'Name': 'Path', 'Confidence': 58.68953323364258, 'Instances': [], 'Parents': []}
+#{'Name': 'Suburb', 'Confidence': 57.164859771728516, 'Instances': [], 'Parents': [{'Name': 'Urban'}, {'Name': 'Building'}]}
+#{'Name': 'Bush', 'Confidence': 56.60989761352539, 'Instances': [], 'Parents': [{'Name': 'Vegetation'}, {'Name': 'Plant'}]}
+#{'Name': 'Slate', 'Confidence': 56.16239547729492, 'Instances': [], 'Parents': []}
+#{'Name': 'Concrete', 'Confidence': 55.33432388305664, 'Instances': [], 'Parents': []}
+
+#[
+#  "Tree", 
+#  "Plant", 
+#  "Urban", 
+#  "Building", 
+#  "Flagstone", 
+#  "Vegetation", 
+#  "Garage", 
+#  "Housing", 
+#  "Tarmac", 
+#  "Asphalt", 
+#  "Home Decor", 
+#  "Walkway", 
+#  "Path", 
+#  "Suburb", 
+#  "Bush", 
+#  "Slate", 
+#  "Concrete"
+#]
+
+    return List
 
 
 def main():
