@@ -651,12 +651,12 @@ def extract_rekognition_words(rekognition_json_content):
     return List
 
 
-def server():
+def main():
     app.run(port=8880, debug=False)    
 
 
 if __name__ == "__main__":
-    server()
+    main()
 
 
 #https://docs.aws.amazon.com/code-samples/latest/catalog/python-s3-s3_basics-demo_bucket_basics.py.html
