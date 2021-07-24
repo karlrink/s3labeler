@@ -4,4 +4,3 @@
 from .s3labeler import main
 main()
 
-

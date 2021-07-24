@@ -8,6 +8,21 @@ import sys
 if sys.version_info < (3, 8, 1):
     raise RuntimeError('Requires Python version 3.8.1 or higher. This version: ' + str(sys.version_info))
 
+usage = "Usage: " + sys.argv[0] + " option" + """
+
+    options:
+
+        get <s3bucket> <s3object>
+        set <s3bucket> <s3object> '{"label":"value"}'
+        del <s3bucket> <s3object> label
+
+        server
+
+        --help
+        --version
+"""
+
+
 from flask import Flask
 from flask import request
 from flask import jsonify
@@ -23,6 +38,7 @@ import botocore
 #from botocore.exceptions import ClientError
 
 import json
+
 
 #GET    /                             # Show version
 @app.route("/", methods=['GET'])
@@ -652,8 +668,30 @@ def extract_rekognition_words(rekognition_json_content):
 
 
 def main():
-    app.run(port=8880, debug=False)    
 
+    if sys.argv[1:]:
+
+        if sys.argv[1] == "--help":
+            sys.exit(print(usage))
+
+        if sys.argv[1] == "--version":
+            sys.exit(print(__version__))
+
+        if sys.argv[1] == "get":
+            print('get')
+            s3bucket = sys.argv[2]
+            s3object = sys.argv[3]
+
+            print(s3bucket)
+            print(s3object)
+            
+            sys.exit()
+
+        if sys.argv[1] == "server":
+            app.run(port=8880, debug=False)    
+
+    else:
+        sys.exit(print(usage))
 
 if __name__ == "__main__":
     main()
