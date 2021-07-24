@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.0.0.a5'
+__version__ = '0.0.0.a6'
 
 import sys
 
@@ -417,19 +417,6 @@ def not_found(error=None):
 ###############################################################################################################################################
 
 def get_rekognition_json(s3bucket, s3object):
-
-    #rekognition_json_file = 'rekognition/' + s3object + '.json'
-
-    #s3 = boto3.resource('s3')
-    #getobject = s3.Object('bucket_name','key')
-    #getobject = s3.Object(s3bucket, s3object)
-    #print(str(type(getobject))) #<class 'boto3.resources.factory.s3.Object'>
-    #print(str(getobject))       #s3.Object(bucket_name='ninfo-property-images', key='2eece964b6f902124052810e5a92d6f9ca715c1b.jpg')
-    #return getobject
-    #obj = s3.Object(s3bucket, s3object)
-    #body = obj.get()['Body'].read()
-
-    #return get_s3object_body(s3bucket, rekognition_json_file)
     return get_s3object_body(s3bucket, s3object)
 
 
@@ -458,39 +445,31 @@ def set_s3object_tags(s3bucket, s3object, post):
 
     s3_client = boto3.client('s3')
 
-    #print(str(post))
-
-    #s3_result = s3_client.put_object_tagging(
-    #        Bucket=s3bucket,
-    #        Key=s3object,
-    #        Tagging={'TagSet':[]}
-    #        )
-
-    # {},{} #nested python dict
-
-    #_Ts = { 'TagSet': [ {'Key': 'tag-key', 'Value': 'tag-value'} ] }
-    #_Ts = { 'TagSet': [ {'Key': 'tag-key', 'Value': 'tag-value'}, {'Key': 'tag-key2', 'Value': 'tag-value2'} ] }
-
     KeyValList = []
 
     for k,v in post.items():
-        #print(' jpost ' + k,v)
         kvs={}
         kvs['Key']   = k
         kvs['Value'] = v
 
         KeyValList.append(kvs)
 
-    _Ts = { 'TagSet': KeyValList }
-    print(_Ts)
+    TagSet = { 'TagSet': KeyValList }
 
     s3_result = s3_client.put_object_tagging(
             Bucket=s3bucket,
             Key=s3object,
-            Tagging=_Ts
+            Tagging=TagSet
             )
+    status_code = s3_result['ResponseMetadata']['HTTPStatusCode']
 
-    return None
+    if int(status_code) == 200:
+        return True
+    else:
+        return False
+    #return None
+
+
 
 def update_s3object_tag(s3bucket, s3object, tag, value):
     """ single key/value """
@@ -509,10 +488,10 @@ def update_s3object_tag(s3bucket, s3object, tag, value):
         __v = key['Value']
         s3Tags[__k]=__v
 
-    #overwrite existing key/value w/ new 
+    # overwrite existing key/value w/ new 
     s3Tags[tag]=value
 
-    #write out new dict
+    # write out new dic
     KeyValList = []
     for k,v in s3Tags.items():
         kvs={}
@@ -522,6 +501,7 @@ def update_s3object_tag(s3bucket, s3object, tag, value):
 
     TagSet = { 'TagSet': KeyValList }
 
+    # put new dict
     put_tags_response = s3_client.put_object_tagging(
         Bucket=s3bucket,
         Key=s3object,
@@ -529,7 +509,6 @@ def update_s3object_tag(s3bucket, s3object, tag, value):
     )
 
     #print(str(put_tags_response))
-
     #for key in put_tags_response['ResponseMetadata']:
 
     status_code = put_tags_response['ResponseMetadata']['HTTPStatusCode']
@@ -567,6 +546,9 @@ def delete_s3object_tag(s3bucket, s3object, tag):
         Bucket=s3bucket,
         Key=s3object,
     )
+    get_tags_response_code = get_tags_response['ResponseMetadata']['HTTPStatusCode']
+    if int(get_tags_response_code) != 200:
+        return False
 
     # get existing tags
     s3Tags = {}
@@ -605,23 +587,15 @@ def delete_s3object_tag(s3bucket, s3object, tag):
         Tagging=TagSet
     )
 
-    print(str(put_tags_response))
-
+    #print(str(put_tags_response))
     #for key in put_tags_response['ResponseMetadata']:
 
-    status_code = put_tags_response['ResponseMetadata']['HTTPStatusCode']
+    put_tags_response_code = put_tags_response['ResponseMetadata']['HTTPStatusCode']
 
-    if int(status_code) == 200:
+    if int(put_tags_response_code) == 200:
         return True
     else:
         return False
-
-    #return True
-    #if delete:
-    #    return True
-    #else:
-    #    return False
-    #return True
 
 
 
