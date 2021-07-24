@@ -1,7 +1,7 @@
 
 # Image Labeling Tool
 
-## s3 http rest api
+## s3 rest api
 
 #### list all buckets HTTP GET
 ```
@@ -38,12 +38,17 @@ curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a9
 curl "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?tags=rekognition"
 ```
 
-#### update/set s3object tag HTTP PATCH (single key/value)
+#### set or update s3object tag HTTP PATCH (single key/value)
 ```   
 curl -X PATCH \
      -H "Content-Type: application/json" \
      -d '{"labeler":"karl.rink"}' \
      http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg    
+```   
+
+#### delete s3object tag HTTP DELETE
+```   
+curl -X DELETE "http://127.0.0.1:8880/s3/ninfo-property-images/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg?tag=tag_name"
 ```   
 
 
