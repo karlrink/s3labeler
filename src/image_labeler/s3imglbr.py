@@ -216,8 +216,31 @@ def set_s3bucketobject(s3bucket=None,s3object=None):
 
     print(settagset)
 
-
     return jsonify(status=200, message="OK", name=s3object, method="PUT"), 200, {'Content-Type':'application/json;charset=utf-8'}
+
+#DELETE      /s3/<s3bucket>/<s3object>?tag=name      # delete s3object tag 
+@app.route("/s3/<s3bucket>/<s3object>", methods=['DELETE'])
+def delete_s3bucketobjecttag(s3bucket=None,s3object=None):
+
+    assert s3bucket == request.view_args['s3bucket']
+    assert s3object == request.view_args['s3object']
+
+    tag = request.args.get("tag", None)
+
+    if tag:
+        #return jsonify(status=466, message="No Such Tag", name=s3object, tag=tag, method="DELETE", delete=False), 466, {'Content-Type':'application/json;charset=utf-8'}
+        #return jsonify(status=466, message="No Such Tag", name=s3object, tag=tag, method="DELETE", delete=False), 466, {'Content-Type':'application/json;charset=utf-8'}
+
+        delete_tag = delete_s3object_tag(s3bucket, s3object, tag)
+
+        if delete_tag is True:
+
+            return jsonify(status=211, message="Deleted", name=s3object, tag=tag, method="DELETE", delete=True), 211, {'Content-Type':'application/json;charset=utf-8'}
+
+
+    #return jsonify(status=211, message="Deleted", name=s3object, tag=tag, method="DELETE", delete=True), 211, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(status=466, message="Failed Delete", name=s3object, tag=tag, method="DELETE", delete=False), 466, {'Content-Type':'application/json;charset=utf-8'}
+
 
 
 
@@ -447,6 +470,75 @@ def set_s3object_tags(s3bucket, s3object, jpost):
 #    }
 #)
 
+def delete_s3object_tag(s3bucket, s3object, tag):
+    
+    s3_client = boto3.client('s3',
+    #region_name='region-name',
+    #aws_access_key_id='aws-access-key-id',
+    #aws_secret_access_key='aws-secret-access-key',
+    )
+
+    get_tags_response = s3_client.get_object_tagging(
+        Bucket=s3bucket,
+        Key=s3object,
+    )
+
+    # get existing tags
+    s3Tags = {}
+    for key in get_tags_response['TagSet']:
+        __k = key['Key']
+        __v = key['Value']
+        s3Tags[__k]=__v
+
+    #overwrite existing key/value w/ new 
+    #s3Tags[tagkey]=tagval
+
+    # delete the key regardless
+    #s3Tags.pop(tag, None)
+
+    if tag not in s3Tags:
+        return False
+
+    # delete the key regardless
+    delete = s3Tags.pop(tag, None)
+    if delete is None:
+        return False
+
+    #write out new dict
+    KeyValList = []
+    for k,v in s3Tags.items():
+        kvs={}
+        kvs['Key']   = k
+        kvs['Value'] = v
+        KeyValList.append(kvs)
+
+    TagSet = { 'TagSet': KeyValList }
+
+    put_tags_response = s3_client.put_object_tagging(
+        Bucket=s3bucket,
+        Key=s3object,
+        Tagging=TagSet
+    )
+
+    print(str(put_tags_response))
+
+    #for key in put_tags_response['ResponseMetadata']:
+
+    status_code = put_tags_response['ResponseMetadata']['HTTPStatusCode']
+
+    if int(status_code) == 200:
+        return True
+    else:
+        return False
+
+    #return True
+    #if delete:
+    #    return True
+    #else:
+    #    return False
+    #return True
+
+
 
 def extract_rekognition_words(rekognition_json_content):
 
@@ -458,6 +550,7 @@ def extract_rekognition_words(rekognition_json_content):
         List.append(str(key['Name']))
 
 #order matters...
+# dict
 #{'Name': 'Tree', 'Confidence': 90.44393920898438, 'Instances': [], 'Parents': [{'Name': 'Plant'}]}
 #{'Name': 'Plant', 'Confidence': 90.44393920898438, 'Instances': [], 'Parents': []}
 #{'Name': 'Urban', 'Confidence': 85.79068756103516, 'Instances': [], 'Parents': []}
@@ -499,17 +592,20 @@ def extract_rekognition_words(rekognition_json_content):
     return List
 
 
-def main():
+def server():
     app.run(port=8880, debug=False)    
 
 
 if __name__ == "__main__":
-    main()
+    server()
 
 
 #https://docs.aws.amazon.com/code-samples/latest/catalog/python-s3-s3_basics-demo_bucket_basics.py.html
 #https://docs.aws.amazon.com/rekognition/latest/dg/labels-detect-labels-image.html
 
 #https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html
+
+
+#https://boto3.amazonaws.com/v1/documentation/api/latest/guide/error-handling.html
 
 

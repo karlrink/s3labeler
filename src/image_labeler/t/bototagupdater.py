@@ -57,6 +57,16 @@ put_tags_response = s3_client.put_object_tagging(
 
 print(str(put_tags_response))
 
+#for key in put_tags_response['ResponseMetadata']:
+    #print(key, key[HTTPStatusCode])
+    #print(key['HTTPStatusCode'])
+    #if key == 'HTTPStatusCode':
+    #    print(key)
+    #    print(key['HTTPStatusCode'])
+
+print(put_tags_response['ResponseMetadata']['HTTPStatusCode'])
+
+
 
 #🧨 karl.rink@Karl-MacBook-Pro t % ./bototagupdater.py ninfo-property-images 2eece964b6f902124052810e5a92d6f9ca715c1b.jpg thiskey thisvalue
 
