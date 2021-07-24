@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.0.0.a4'
+__version__ = '0.0.0.a5'
 
 import sys
 
@@ -204,7 +204,7 @@ def set_s3bucketobject(s3bucket=None,s3object=None):
     if not request.headers['Content-Type'] == 'application/json':
         return jsonify(status=412, errorType="Precondition Failed"), 412
 
-    jpost = request.get_json()
+    post = request.get_json()
 
     #print(str(type(post))) #<class 'dict'>
     #print(str(post))       #{'labler': 'karl...
@@ -212,11 +212,45 @@ def set_s3bucketobject(s3bucket=None,s3object=None):
     #jsondata = json.loads('{}')
 
     #settagset = set_s3object_tags(s3bucket, s3object, jsondata)
-    settagset = set_s3object_tags(s3bucket, s3object, jpost)
+    settagset = set_s3object_tags(s3bucket, s3object, post)
 
     print(settagset)
 
     return jsonify(status=200, message="OK", name=s3object, method="PUT"), 200, {'Content-Type':'application/json;charset=utf-8'}
+
+
+#PATCH    /s3/<s3bucket>/<s3object>         # set s3object tag    
+@app.route("/s3/<s3bucket>/<s3object>", methods=['PATCH'])
+def set_s3bucketobjectpatch(s3bucket=None,s3object=None):
+
+    assert s3bucket == request.view_args['s3bucket']
+    assert s3object == request.view_args['s3object']
+
+    if not request.headers['Content-Type'] == 'application/json':
+        return jsonify(status=412, errorType="Precondition Failed"), 412
+
+    post = request.get_json()
+
+    if len(post) > 1:
+        return jsonify(status=405, errorType="Method Not Allowed", errorMessage="Single Key-Value Only", update=False), 405
+
+    print(post)
+    for k,v in post.items():
+        tag=k
+        value=v
+
+    update = update_s3object_tag(s3bucket, s3object, tag, value)
+   
+    print(update)
+
+    if update is True:
+        return jsonify(status=200, message="OK", name=s3object, method="PATCH"), 200, {'Content-Type':'application/json;charset=utf-8'}
+
+    #return jsonify(status=200, message="OK", name=s3object, method="PUT"), 200, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(status=465, message="Failed Patch", name=s3object, tag=tag, method="PATCH", update=False), 465, {'Content-Type':'application/json;charset=utf-8'}
+
+
+
 
 #DELETE      /s3/<s3bucket>/<s3object>?tag=name      # delete s3object tag 
 @app.route("/s3/<s3bucket>/<s3object>", methods=['DELETE'])
@@ -419,11 +453,12 @@ def get_s3object_tags(s3bucket, s3object):
     s3_result = s3_client.get_object_tagging(Bucket=s3bucket, Key=s3object)
     return s3_result
 
-def set_s3object_tags(s3bucket, s3object, jpost):
+def set_s3object_tags(s3bucket, s3object, post):
+    """ multi key/value """
 
     s3_client = boto3.client('s3')
 
-    print(str(jpost))
+    #print(str(post))
 
     #s3_result = s3_client.put_object_tagging(
     #        Bucket=s3bucket,
@@ -438,7 +473,7 @@ def set_s3object_tags(s3bucket, s3object, jpost):
 
     KeyValList = []
 
-    for k,v in jpost.items():
+    for k,v in post.items():
         #print(' jpost ' + k,v)
         kvs={}
         kvs['Key']   = k
@@ -456,6 +491,56 @@ def set_s3object_tags(s3bucket, s3object, jpost):
             )
 
     return None
+
+def update_s3object_tag(s3bucket, s3object, tag, value):
+    """ single key/value """
+
+    s3_client = boto3.client('s3')
+
+    get_tags_response = s3_client.get_object_tagging(
+        Bucket=s3bucket,
+        Key=s3object,
+    )
+
+    # get existing tags
+    s3Tags = {}
+    for key in get_tags_response['TagSet']:
+        __k = key['Key']
+        __v = key['Value']
+        s3Tags[__k]=__v
+
+    #overwrite existing key/value w/ new 
+    s3Tags[tag]=value
+
+    #write out new dict
+    KeyValList = []
+    for k,v in s3Tags.items():
+        kvs={}
+        kvs['Key']   = k
+        kvs['Value'] = v
+        KeyValList.append(kvs)
+
+    TagSet = { 'TagSet': KeyValList }
+
+    put_tags_response = s3_client.put_object_tagging(
+        Bucket=s3bucket,
+        Key=s3object,
+        Tagging=TagSet
+    )
+
+    #print(str(put_tags_response))
+
+    #for key in put_tags_response['ResponseMetadata']:
+
+    status_code = put_tags_response['ResponseMetadata']['HTTPStatusCode']
+
+    if int(status_code) == 200:
+        return True
+    else:
+        return False
+
+
+
 
 #put_tags_response = s3_client.put_object_tagging(
 #    Bucket='your-bucket-name',
