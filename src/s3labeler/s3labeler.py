@@ -676,13 +676,14 @@ def list_s3buckets():
     return bucket_list
 
 
-def get_s3bucket_objects(s3path):
+#def get_s3bucket_objects(s3path):
+def get_s3bucket_objects(s3bucket, s3object):
 
-    s3bucket = s3path.split("/", 1)[0]
-    try:
-        s3prefix = s3path.split("/", 1)[1]
-    except IndexError as e:
-        s3prefix = ''
+    #s3bucket = s3path.split("/", 1)[0]
+    #try:
+    #    s3prefix = s3path.split("/", 1)[1]
+    #except IndexError as e:
+    #    s3prefix = ''
 
     #print(s3bucket)
     #print(s3prefix)
@@ -692,7 +693,7 @@ def get_s3bucket_objects(s3path):
     s3_result = {}
 
     try:
-        s3_result = s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3prefix, Delimiter = "/")
+        s3_result = s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3object, Delimiter = "/")
 
     #except botocore.exceptions.ClientError as ex:
     #    raise RuntimeError('s3 ClientError: ' + str(ex))
@@ -732,10 +733,68 @@ def main():
             sys.exit(print(json.dumps(buckets, indent=2)))
 
         if sys.argv[1] == "ls":
+            s3path = sys.argv[2]
+            s3bucket = s3path.split("/", 1)[0]
+            s3object = s3path.split("/", 1)[1]
+
+            if s3path.endswith("/"):
+                #list all files
+                #list_objects = list_s3objects(s3bucket, s3object)
+
+                #print('list.all')
+
+                #s3object = s3object + '/'
+
+                s3_client = boto3.client('s3')
+
+                #for key in s3_client.list_objects(Bucket=s3bucket, Prefix=s3object)['Contents']:
+                #for key in s3_client.list_objects(Bucket=s3bucket, Prefix=s3object)['Contents']:
+                #    print(key['Key'])
+
+                #for key in s3_client.list_objects(Bucket=s3bucket, Prefix=s3object):
+
+                #for key in s3_client.list_objects(Bucket=s3bucket, Prefix=s3object)['Contents']:
+
+                for key in s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3object)['Contents']:
+                    print(key['Key'])
+
+                sys.exit()
+
+
+            #get_s3tags={}
+            #get_s3tags['TagSet']=[]
+            get_s3tags = get_s3object_tags(s3bucket, s3object)
+
+            #print(s3tags)
+
+            s3Tags = {}
+            for key in get_s3tags['TagSet']:
+                __k = key['Key']
+                __v = key['Value']
+                s3Tags[__k]=__v
+
+            print(s3Tags)
+            #print(json.dumps(s3Tags))
+
+
+
+
+
+            sys.exit()
+
+        if sys.argv[1] == "ls-v1":
 
             s3path = sys.argv[2]
 
-            s3objects = get_s3bucket_objects(s3path)
+            s3bucket = s3path.split("/", 1)[0]
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
+
+
+            #s3objects = get_s3bucket_objects(s3path)
+            s3objects = get_s3bucket_objects(s3bucket, s3object)
 
             http_status_code = s3objects['ResponseMetadata']['HTTPStatusCode']
 
@@ -755,6 +814,11 @@ def main():
                     for key in s3objects['Contents']:
                         #print(key)
                         print(key['Key'])
+                        #s3tags = get_s3object_tags(s3bucket, s3object)
+
+                        s3tags = get_s3object_tags(s3bucket, key['Key'])
+                        print(s3tags)
+
 
             else:
                 #botoerror = s3objects['ResponseMetadata']['BotoError']
