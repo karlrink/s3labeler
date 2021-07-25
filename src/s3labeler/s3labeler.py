@@ -731,6 +731,26 @@ def main():
             buckets = list_s3buckets()
             sys.exit(print(json.dumps(buckets, indent=2)))
 
+        if sys.argv[1] == "del":
+            s3path = sys.argv[2]
+            tag    = sys.argv[3]
+
+            s3bucket = s3path.split("/", 1)[0]
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
+
+            delete = delete_s3object_tag(s3bucket, s3object, tag)
+
+            if delete == True:
+                print(json.dumps({'delete':True}))
+                sys.exit(0)
+            else:
+                print(json.dumps({'delete':False}))
+                sys.exit(1)
+
+
         if sys.argv[1] == "set":
 
             s3path = sys.argv[2]
@@ -745,7 +765,7 @@ def main():
 
             data = json.loads(s3json)
 
-            print(len(data))
+            #print(len(data))
 
             if len(data) > 1:
                 print('data larger than 1')
@@ -762,9 +782,14 @@ def main():
             #update = update_s3object_tag(s3bucket, s3object, tag, value)
 
             update = update_s3object_tag(s3bucket, s3object, tag, val)
-            print(update)
+            #print(update)
 
-            sys.exit()
+            if update == True:
+                print(json.dumps({'update':True}))
+                sys.exit(0)
+            else:
+                print(json.dumps({'update':False}))
+                sys.exit(1)
             
 
         if sys.argv[1] == "ls":
@@ -797,7 +822,7 @@ def main():
                 for key in s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3object)['Contents']:
                     print(key['Key'])
 
-                sys.exit()
+                sys.exit(0)
 
 
             #get_s3tags={}
@@ -816,8 +841,7 @@ def main():
                 else:
                     print(e)
 
-
-                sys.exit()
+                sys.exit(1)
 
             #print(s3tags)
 
@@ -827,14 +851,9 @@ def main():
                 __v = key['Value']
                 s3Tags[__k]=__v
 
-            print(s3Tags)
+            print(json.dumps(s3Tags, indent=2))
             #print(json.dumps(s3Tags))
-
-
-
-
-
-            sys.exit()
+            sys.exit(0)
 
         if sys.argv[1] == "ls-v1":
 
@@ -888,15 +907,15 @@ def main():
 #            sys.exit()
 #            #sys.exit(print(json.dumps(objects, indent=2)))
 
-        if sys.argv[1] == "get":
-            print('get')
-            s3bucket = sys.argv[2]
-            s3object = sys.argv[3]
-
-            print(s3bucket)
-            print(s3object)
-            
-            sys.exit()
+#        if sys.argv[1] == "get":
+#            print('get')
+#            s3bucket = sys.argv[2]
+#            s3object = sys.argv[3]
+#
+#            print(s3bucket)
+#            print(s3object)
+#            
+#            sys.exit()
 
         if sys.argv[1] == "server":
             try:
