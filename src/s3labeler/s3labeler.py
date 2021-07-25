@@ -14,9 +14,12 @@ usage = "Usage: " + sys.argv[0] + " option" + """
 
         buckets
 
-        ls  <s3bucket>/<s3object>
-        set <s3bucket>/<s3object> '{"label":"value"}'
-        del <s3bucket>/<s3object> label
+        ls   <s3bucket>/<s3object>
+        set  <s3bucket>/<s3object> '{"label":"value"}'
+        del  <s3bucket>/<s3object> label
+
+        get  <s3bucket>/<s3object>
+        save <s3bucket>/<s3object> destination
 
         server 8880
 
@@ -737,6 +740,7 @@ def get_s3bucket_objects(s3bucket, s3object):
 #    return s3bucket, s3prefix
 
     
+###############################################################################################################################################
 
 
 def main():
@@ -955,15 +959,60 @@ def main():
 #            sys.exit()
 #            #sys.exit(print(json.dumps(objects, indent=2)))
 
-#        if sys.argv[1] == "get":
-#            print('get')
-#            s3bucket = sys.argv[2]
-#            s3object = sys.argv[3]
-#
-#            print(s3bucket)
-#            print(s3object)
-#            
-#            sys.exit()
+        if sys.argv[1] == "get":
+            #print('get')
+
+            s3path = sys.argv[2]
+
+            s3bucket = s3path.split("/", 1)[0]
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
+
+            #print(s3bucket)
+            #print(s3object)
+
+            content = get_s3object_body(s3bucket, s3object)
+
+            #print(content)
+            print(content.rstrip())
+
+            sys.exit(0) 
+
+        if sys.argv[1] == "save":
+            #print('save')
+
+            s3path      = sys.argv[2]
+            destination = sys.argv[3]
+
+            s3bucket = s3path.split("/", 1)[0]
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
+
+            #print(s3bucket)
+            #print(s3object)
+
+            #content = get_s3object_body(s3bucket, s3object)
+            #print(content)
+
+            #download
+            s3 = boto3.client('s3')
+
+            #with open('FILE_NAME', 'wb') as f:
+            #    s3.download_fileobj('BUCKET_NAME', 'OBJECT_NAME', f)
+
+            with open(destination, 'wb') as f:
+                s3.download_fileobj(s3bucket, s3object, f)
+                print(json.dumps({'saved':destination}, indent=2))
+                sys.exit(0)
+            #else:
+            #    print(json.dumps({'failed':destination}))
+            #    sys.exit(1)
+
+
 
         if sys.argv[1] == "server":
             try:
@@ -983,9 +1032,6 @@ if __name__ == "__main__":
 
 #https://docs.aws.amazon.com/code-samples/latest/catalog/python-s3-s3_basics-demo_bucket_basics.py.html
 #https://docs.aws.amazon.com/rekognition/latest/dg/labels-detect-labels-image.html
-
 #https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html
-
-
 #https://boto3.amazonaws.com/v1/documentation/api/latest/guide/error-handling.html
 
