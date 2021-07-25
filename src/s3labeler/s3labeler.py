@@ -852,8 +852,11 @@ def main():
 
                 #for key in s3_client.list_objects(Bucket=s3bucket, Prefix=s3object)['Contents']:
 
+                List=[]
                 for key in s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3object)['Contents']:
-                    print(key['Key'])
+                    #print(key['Key'])
+                    List.append(key['Key'])
+                print(json.dumps(List, indent=2))
 
                 sys.exit(0)
 
@@ -863,16 +866,28 @@ def main():
 
             try:
                 get_s3tags = get_s3object_tags(s3bucket, s3object)
+
+            except botocore.exceptions.EndpointConnectionError as e:
+                print(json.dumps({'EndpointConnectionError':str(e)}, indent=2))
+                sys.exit(1)
+
+            except botocore.exceptions.ParamValidationError as e:
+                print(json.dumps({'ParamValidationError':str(e)}, indent=2))
+                sys.exit(1)
+
             #except botocore.errorfactory.NoSuchKey as e:
             except botocore.exceptions.ClientError as e:
                 #print('BotoError ' + str(e))
                 if e.response['Error']['Code'] == 'NoSuchKey':
                     #print('NoSuchKey')
                     #print('NoSuchKey: ' + str(s3object))
-                   print(json.dumps({'NoSuchKey':s3object}))
-                   sys.exit(1)
+                   #print(json.dumps({'NoSuchKey':s3object, 'ClientError':str(e)}, indent=2))
+                   print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                   #sys.exit(1)
                 else:
-                    print(e)
+                   # print(e)
+                   print(json.dumps({'ClientError':str(e)}, indent=2))
+                   #sys.exit(1)
 
                 sys.exit(1)
 
@@ -958,6 +973,7 @@ def main():
             #app.run(port=8880, debug=False)    
             app.run(port=port, debug=False)    
 
+        sys.exit(print(usage))
     else:
         sys.exit(print(usage))
 
