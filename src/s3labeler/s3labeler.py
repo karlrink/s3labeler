@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.0.0.a6'
+__version__ = '0.0.0.a7'
 
 import sys
 
@@ -14,9 +14,7 @@ usage = "Usage: " + sys.argv[0] + " option" + """
 
         buckets
 
-        ls <s3bucket>/<s3object>
-
-        get <s3bucket>/<s3object>
+        ls  <s3bucket>/<s3object>
         set <s3bucket>/<s3object> '{"label":"value"}'
         del <s3bucket>/<s3object> label
 
@@ -25,6 +23,7 @@ usage = "Usage: " + sys.argv[0] + " option" + """
         --help
         --version
 """
+#get <s3bucket>/<s3object>
 
 
 from flask import Flask
@@ -732,10 +731,50 @@ def main():
             buckets = list_s3buckets()
             sys.exit(print(json.dumps(buckets, indent=2)))
 
+        if sys.argv[1] == "set":
+
+            s3path = sys.argv[2]
+            s3json = sys.argv[3]
+
+            s3bucket = s3path.split("/", 1)[0]
+
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
+
+            data = json.loads(s3json)
+
+            print(len(data))
+
+            if len(data) > 1:
+                print('data larger than 1')
+                sys.exit(1)
+
+           
+            for k,v in data.items():
+                #print(k)
+                #print(v)
+                tag = k
+                val = v
+
+            
+            #update = update_s3object_tag(s3bucket, s3object, tag, value)
+
+            update = update_s3object_tag(s3bucket, s3object, tag, val)
+            print(update)
+
+            sys.exit()
+            
+
         if sys.argv[1] == "ls":
             s3path = sys.argv[2]
             s3bucket = s3path.split("/", 1)[0]
-            s3object = s3path.split("/", 1)[1]
+
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
 
             if s3path.endswith("/"):
                 #list all files
@@ -763,7 +802,22 @@ def main():
 
             #get_s3tags={}
             #get_s3tags['TagSet']=[]
-            get_s3tags = get_s3object_tags(s3bucket, s3object)
+
+            try:
+                get_s3tags = get_s3object_tags(s3bucket, s3object)
+            #except botocore.errorfactory.NoSuchKey as e:
+            except botocore.exceptions.ClientError as e:
+                #print('BotoError ' + str(e))
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    #print('NoSuchKey')
+                    #print('NoSuchKey: ' + str(s3object))
+                   print(json.dumps({'NoSuchKey':s3object}))
+                   sys.exit(1)
+                else:
+                    print(e)
+
+
+                sys.exit()
 
             #print(s3tags)
 
