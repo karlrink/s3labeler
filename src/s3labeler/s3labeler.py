@@ -675,36 +675,8 @@ def list_s3buckets():
     bucket_list = [b.name for b in s3.buckets.all()]
     return bucket_list
 
-#def list_s3bucket_objects(s3bucket, s3prefix=None):
-#def list_s3bucket_objects(s3bucket, s3prefix=''):
-#def list_s3bucket_objects(s3bucket, s3prefix=None):
-def list_s3bucket_objects(s3path):
 
-    #s3_client = boto3.client('s3')
-    #s3_client = boto3.resource('s3')
-
-    #s3_result = s3_client.list_objects_v2(Bucket=s3bucket, Delimiter = "/")
-
-
-    #s3_result =  s3_client.list_objects_v2(Bucket=bucket, Prefix=prefix, Delimiter = "/")
-
-    #s3prefix = 'wmn'
-    #s3_result =  s3_client.list_objects_v2(s3prefix)
-
-    #return s3_result
-    
-    #s3 = boto3.resource('s3')
-    #my_bucket = s3.Bucket('some/path/')
-
-    #s3bucket = 'wmn'
-    #s3prefix = 'rekognition/'
-
-    
-
-    #if s3prefix is None:
-    #    s3prefix = ''
-
-    #s3bucket, s3prefix = bucketprefix(s3path)
+def get_s3bucket_objects(s3path):
 
     s3bucket = s3path.split("/", 1)[0]
     try:
@@ -716,7 +688,20 @@ def list_s3bucket_objects(s3path):
     #print(s3prefix)
 
     s3_client = boto3.client('s3')
-    s3_result =  s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3prefix, Delimiter = "/")
+
+    s3_result = {}
+
+    try:
+        s3_result = s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3prefix, Delimiter = "/")
+
+    #except botocore.exceptions.ClientError as ex:
+    #    raise RuntimeError('s3 ClientError: ' + str(ex))
+    except botocore.exceptions.EndpointConnectionError as e:
+        #s3_result = None
+        #raise RuntimeError('s3 EndpointConnectionError: ' + str(ex))
+        #print('s3 EndpointConnectionError: ' + str(e))
+        s3_result['ResponseMetadata'] = {'HTTPStatusCode': 0, 'BotoError': str(e)}
+
 
     return s3_result
     
@@ -750,7 +735,7 @@ def main():
 
             s3path = sys.argv[2]
 
-            s3objects = list_s3bucket_objects(s3path)
+            s3objects = get_s3bucket_objects(s3path)
 
             http_status_code = s3objects['ResponseMetadata']['HTTPStatusCode']
 
@@ -771,8 +756,10 @@ def main():
                         #print(key)
                         print(key['Key'])
 
-
-
+            else:
+                #botoerror = s3objects['ResponseMetadata']['BotoError']
+                #print(botoerror)
+                print(s3objects['ResponseMetadata']['BotoError'])
 
             sys.exit()
 
