@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.0.0.a7'
+__version__ = '0.0.0.a8'
 
 import sys
 
@@ -669,10 +669,32 @@ def extract_rekognition_words(rekognition_json_content):
 
     return List
 
+#def list_s3buckets():
+#    s3 = boto3.resource('s3')
+#    #print('hit buckets')
+#    try:
+#        bucket_list = [b.name for b in s3.buckets.all()]
+#    except botocore.exceptions.EndpointConnectionError as e:
+#        #print(json.dumps({'EndpointConnectionError':'s3.buckets'}))
+#        #return []
+#        #return [json.dumps({'EndpointConnectionError':'s3.buckets'})]
+#        #return [{'EndpointConnectionError':'s3.buckets', 'errorMessage':''}]
+#        return [{'EndpointConnectionError': str(e) }]
+#    #except botocore.exceptions.ClientError as e:
+#    #    if e.response['Error']['Code'] == 'EndpointConnectionError':
+#    #        print(json.dumps({'EndpointConnectionError':s3object}))
+#    #        return []
+#
+#    return bucket_list
+
+
 def list_s3buckets():
     s3 = boto3.resource('s3')
     bucket_list = [b.name for b in s3.buckets.all()]
     return bucket_list
+
+
+
 
 
 #def get_s3bucket_objects(s3path):
@@ -728,7 +750,18 @@ def main():
             sys.exit(print(__version__))
 
         if sys.argv[1] == "buckets":
-            buckets = list_s3buckets()
+
+            try:
+                buckets = list_s3buckets()
+            #except botocore.exceptions.ClientError as e:
+            #except botocore.exceptions.EndpointConnectionError as e:
+            except Exception as e:
+                #buckets = None
+                #sys.exit(print(e))
+                print(json.dumps({'error':str(e)}))
+                sys.exit(1)
+            
+
             sys.exit(print(json.dumps(buckets, indent=2)))
 
         if sys.argv[1] == "del":
@@ -939,5 +972,4 @@ if __name__ == "__main__":
 
 
 #https://boto3.amazonaws.com/v1/documentation/api/latest/guide/error-handling.html
-
 
