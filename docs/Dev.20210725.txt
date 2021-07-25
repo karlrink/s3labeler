@@ -1,0 +1,69 @@
+
+
+dev notes...
+
+/rekognition/
+
+i've hard coded rekognition subfolder,
+as opposed to putting the .json file at the same folder level as the original,
+because 500+ Million records in a root folder times out tools like athena aws.select aws.glue crawlers
+
+i was on the fence,
+
+/bucket/file1.jpg
+/bucket/file1.jpg.json
+
+vrs
+
+
+/bucket/file1.jpg
+/bucket/rekognition/file1.jpg.json
+
+
+
+---
+
+
+
+
+           try:
+                get_s3tags = get_s3object_tags(s3bucket, s3object)
+
+            except botocore.exceptions.EndpointConnectionError as e:
+                print(json.dumps({'EndpointConnectionError':str(e)}, indent=2))
+                sys.exit(1)
+
+            except botocore.exceptions.ParamValidationError as e:
+                print(json.dumps({'ParamValidationError':str(e)}, indent=2))
+                sys.exit(1)
+
+            #except botocore.errorfactory.NoSuchKey as e:
+            except botocore.exceptions.ClientError as e:
+                #print('BotoError ' + str(e))
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    #print('NoSuchKey')
+                    #print('NoSuchKey: ' + str(s3object))
+                   #print(json.dumps({'NoSuchKey':s3object, 'ClientError':str(e)}, indent=2))
+                   print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                   #sys.exit(1)
+                else:
+                   # print(e)
+                   print(json.dumps({'ClientError':str(e)}, indent=2))
+                   #sys.exit(1)
+
+                sys.exit(1)
+
+            #print(s3tags)
+
+
+
+
+
+
+    raise error_class(parsed_response, operation_name)
+botocore.exceptions.ClientError: An error occurred (404) when calling the HeadObject operation: Not Found
+🧨 krink@KarlMBPro s3labeler % ./s3labeler.py save wmn/hello.txtX /t
+{'Error': {'Code': '404', 'Message': 'Not Found'}, 'ResponseMetadata': {'RequestId': 'BG17MJ2JJ4FFZ86D', 'HostId': 'HqC/+DdwS/xvcPldhY9IhuxI0ySAePigv38H2Qf+hsXbJxf2RpwqMP6kC5kNblIbCiFwnfVBOyg=', 'HTTPStatusCode': 404, 'HTTPHeaders': {'x-amz-request-id': 'BG17MJ2JJ4FFZ86D', 'x-amz-id-2': 'HqC/+DdwS/xvcPldhY9IhuxI0ySAePigv38H2Qf+hsXbJxf2RpwqMP6kC5kNblIbCiFwnfVBOyg=', 'content-type': 'application/xml', 'date': 'Sun, 25 Jul 2021 19:20:55 GMT', 'server': 'AmazonS3'}, 'RetryAttempts': 0}}
+
+
+

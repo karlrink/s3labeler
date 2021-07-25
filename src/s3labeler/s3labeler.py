@@ -9,24 +9,27 @@ if sys.version_info < (3, 8, 1):
     raise RuntimeError('Requires Python version 3.8.1 or higher. This version: ' + str(sys.version_info))
 
 usage = "Usage: " + sys.argv[0] + " option" + """
-
     options:
 
         buckets
 
-        ls   <s3bucket>/<s3object>
-        set  <s3bucket>/<s3object> '{"label":"value"}'
-        del  <s3bucket>/<s3object> label
+        ls  <s3bucket>/<s3object>
+        set <s3bucket>/<s3object> '{"label":"value"}'
+        del <s3bucket>/<s3object> label
 
-        get  <s3bucket>/<s3object>
-        save <s3bucket>/<s3object> destination
+        get    <s3bucket>/<s3object>
+        save   <s3bucket>/<s3object> destination
+        upload source <s3bucket>/<s3object>
+
+        rekognition <s3bucket>/<s3object>
+        rekognition <s3bucket>/<s3object> detect-labels
+        rekognition <s3bucket>/<s3object> detect-labels destination
 
         server 8880
 
         --help
         --version
 """
-#get <s3bucket>/<s3object>
 
 
 from flask import Flask
@@ -513,7 +516,7 @@ def update_s3object_tag(s3bucket, s3object, tag, value):
     # overwrite existing key/value w/ new 
     s3Tags[tag]=value
 
-    # write out new dic
+    # write out new dict
     KeyValList = []
     for k,v in s3Tags.items():
         kvs={}
@@ -1004,13 +1007,40 @@ def main():
             #with open('FILE_NAME', 'wb') as f:
             #    s3.download_fileobj('BUCKET_NAME', 'OBJECT_NAME', f)
 
-            with open(destination, 'wb') as f:
-                s3.download_fileobj(s3bucket, s3object, f)
-                print(json.dumps({'saved':destination}, indent=2))
-                sys.exit(0)
+            #with open(destination, 'wb') as f:
+            #    s3.download_fileobj(s3bucket, s3object, f)
+            #    print(json.dumps({'saved':destination}, indent=2))
+            #    sys.exit(0)
             #else:
             #    print(json.dumps({'failed':destination}))
             #    sys.exit(1)
+
+            #s3.download_file('BUCKET_NAME', 'OBJECT_NAME', 'FILE_NAME')
+
+            s3 = boto3.client('s3')
+
+            try:
+                s3.download_file(s3bucket, s3object, destination)
+
+            except botocore.exceptions.ClientError as e:
+                #print(e.response)
+                #{'Error': {'Code': '404', 'Message': 'Not Found'}, 'ResponseMetadata': {'RequestId': 
+                #if e.response['Error']['Message'] == 'Not Found':
+                if e.response['Error']['Code'] == '404':
+                    print(json.dumps({'Not Found':s3object}, indent=2))
+                else:
+                    print(json.dumps({'ClientError':str(e)}, indent=2))
+                sys.exit(1)
+
+            except OSError as e:
+                print(json.dumps({'OSError':str(e)}, indent=2))
+                sys.exit(1)
+
+            #print(download) #None
+            print(json.dumps({'saved':destination}, indent=2))
+
+            sys.exit(0)
+
 
 
 
