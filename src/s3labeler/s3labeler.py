@@ -12,11 +12,15 @@ usage = "Usage: " + sys.argv[0] + " option" + """
 
     options:
 
-        get <s3bucket> <s3object>
-        set <s3bucket> <s3object> '{"label":"value"}'
-        del <s3bucket> <s3object> label
+        buckets
 
-        server
+        ls <s3bucket>/<s3object>
+
+        get <s3bucket>/<s3object>
+        set <s3bucket>/<s3object> '{"label":"value"}'
+        del <s3bucket>/<s3object> label
+
+        server 8880
 
         --help
         --version
@@ -666,6 +670,67 @@ def extract_rekognition_words(rekognition_json_content):
 
     return List
 
+def list_s3buckets():
+    s3 = boto3.resource('s3')
+    bucket_list = [b.name for b in s3.buckets.all()]
+    return bucket_list
+
+#def list_s3bucket_objects(s3bucket, s3prefix=None):
+#def list_s3bucket_objects(s3bucket, s3prefix=''):
+#def list_s3bucket_objects(s3bucket, s3prefix=None):
+def list_s3bucket_objects(s3path):
+
+    #s3_client = boto3.client('s3')
+    #s3_client = boto3.resource('s3')
+
+    #s3_result = s3_client.list_objects_v2(Bucket=s3bucket, Delimiter = "/")
+
+
+    #s3_result =  s3_client.list_objects_v2(Bucket=bucket, Prefix=prefix, Delimiter = "/")
+
+    #s3prefix = 'wmn'
+    #s3_result =  s3_client.list_objects_v2(s3prefix)
+
+    #return s3_result
+    
+    #s3 = boto3.resource('s3')
+    #my_bucket = s3.Bucket('some/path/')
+
+    #s3bucket = 'wmn'
+    #s3prefix = 'rekognition/'
+
+    
+
+    #if s3prefix is None:
+    #    s3prefix = ''
+
+    #s3bucket, s3prefix = bucketprefix(s3path)
+
+    s3bucket = s3path.split("/", 1)[0]
+    try:
+        s3prefix = s3path.split("/", 1)[1]
+    except IndexError as e:
+        s3prefix = ''
+
+    #print(s3bucket)
+    #print(s3prefix)
+
+    s3_client = boto3.client('s3')
+    s3_result =  s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3prefix, Delimiter = "/")
+
+    return s3_result
+    
+
+
+#def bucketprefix(s3path):
+#    print(s3path)
+#    s3bucket = s3path.split("/")[0]
+#    s3prefix = s3path.split("/")[1:]
+#    print(s3bucket, ' ', s3prefix)
+#    return s3bucket, s3prefix
+
+    
+
 
 def main():
 
@@ -676,6 +741,47 @@ def main():
 
         if sys.argv[1] == "--version":
             sys.exit(print(__version__))
+
+        if sys.argv[1] == "buckets":
+            buckets = list_s3buckets()
+            sys.exit(print(json.dumps(buckets, indent=2)))
+
+        if sys.argv[1] == "ls":
+
+            s3path = sys.argv[2]
+
+            s3objects = list_s3bucket_objects(s3path)
+
+            http_status_code = s3objects['ResponseMetadata']['HTTPStatusCode']
+
+            #print(objects)
+
+
+            if int(http_status_code) == 200:
+                #print('good data')
+                #print(s3objects)
+
+                if 'CommonPrefixes' in s3objects:
+                    for key in s3objects['CommonPrefixes']:
+                        #print(key)
+                        print(key['Prefix'])
+
+                if 'Contents' in s3objects:
+                    for key in s3objects['Contents']:
+                        #print(key)
+                        print(key['Key'])
+
+
+
+
+            sys.exit()
+
+#        if sys.argv[1] == "objects":
+#            s3path = sys.argv[2]
+#            objects = list_s3bucket_objects(s3path)
+#            print(objects)
+#            sys.exit()
+#            #sys.exit(print(json.dumps(objects, indent=2)))
 
         if sys.argv[1] == "get":
             print('get')
@@ -688,7 +794,12 @@ def main():
             sys.exit()
 
         if sys.argv[1] == "server":
-            app.run(port=8880, debug=False)    
+            try:
+                port = int(sys.argv[2])
+            except IndexError:
+                port = 8880
+            #app.run(port=8880, debug=False)    
+            app.run(port=port, debug=False)    
 
     else:
         sys.exit(print(usage))
