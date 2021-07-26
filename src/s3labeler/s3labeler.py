@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.0.0.a8'
+__version__ = '0.0.0.a9'
 
 import sys
 
@@ -14,9 +14,9 @@ usage = "Usage: " + sys.argv[0] + " option" + """
 
         buckets
 
-        ls  <s3bucket>/<s3object>
-        set <s3bucket>/<s3object> '{"label":"value"}'
-        del <s3bucket>/<s3object> label
+        ls        <s3bucket>/<s3object>
+        label|set <s3bucket>/<s3object> '{"label":"value"}'
+        del       <s3bucket>/<s3object> label
 
         get    <s3bucket>/<s3object>
         save   <s3bucket>/<s3object> destination
@@ -26,8 +26,8 @@ usage = "Usage: " + sys.argv[0] + " option" + """
         rekognition <s3bucket>/<s3object> detect-labels
         rekognition <s3bucket>/<s3object> detect-labels destination
 
-        object   <s3bucket>/<s3object>
-        identify <s3bucket>/<s3object>
+        object      <s3bucket>/<s3object>
+        identify|id <s3bucket>/<s3object>
 
         server 8880
 
@@ -830,7 +830,7 @@ def main():
                 sys.exit(1)
 
 
-        if sys.argv[1] == "set":
+        if sys.argv[1] == "set" or sys.argv[1] == "label":
 
             s3path = sys.argv[2]
             s3json = sys.argv[3]
@@ -1190,7 +1190,7 @@ def main():
             #sys.exit(print(json.dumps(objects, indent=2)))
             sys.exit(0)
 
-        if sys.argv[1] == "identify":
+        if sys.argv[1] == "identify" or sys.argv[1] == "id":
 
             s3path = sys.argv[2]
 
@@ -1279,86 +1279,6 @@ def main():
             print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
 
             sys.exit(0)
-
-
-
-
-
-        if sys.argv[1] == "identify-v1":
-            s3path = sys.argv[2]
-
-            s3bucket = s3path.split("/", 1)[0]
-            try:
-                s3object = s3path.split("/", 1)[1]
-            except IndexError as e:
-                s3object = ''
-
-            s3 = boto3.resource('s3')
-            obj = s3.Object(s3bucket, s3object)
-
-            #print(obj)
-            #print(obj.get())
-            #body = obj.get()['Body'].read()
-
-            try:
-                s3response = obj.get()
-
-            except botocore.exceptions.ClientError as e:
-                if e.response['Error']['Code'] == 'NoSuchKey':
-                    print(json.dumps({'NoSuchKey':s3object}, indent=2))
-                else:
-                    print(json.dumps({'ClientError':str(e)}, indent=2))
-                sys.exit(1)
-
-
-            HTTPStatusCode = s3response['ResponseMetadata']['HTTPStatusCode']
-            #ContentLength  = s3response['ResponseMetadata']['ContentLength']
-            ContentLength  = s3response['ContentLength']
-            ContentType    = s3response['ContentType']
-            LastModified   = s3response['LastModified']
-
-            #print(HTTPStatusCode)
-            #print(ContentLength)
-            #print(ContentType)
-            #print(LastModified)
-
-            Objects = {}
-
-            Objects['Name'] = s3object
-
-            #Objects['HTTPStatusCode'] = HTTPStatusCode
-
-            Objects['ContentLength'] = ContentLength
-            Objects['ContentType'] = ContentType
-            Objects['LastModified'] = LastModified
-
-            #body = obj.get()['Body'].read()
-
-            body = s3response['Body'].read()
-
-            try:
-                data = body.decode('utf-8', 'strict').rstrip()
-                Objects['Encoding'] = 'utf-8'
-                #print(b2checksum(data))
-                Objects['b2sum'] = b2checksum(data)
-            except UnicodeDecodeError:
-                data = body
-                Objects['Encoding'] = 'bytes'
-
-            #print(b2checksum(data))
-            #print(data)
-
-            
-            #print(Objects)
-            #print(json.dumps(Objects, indent=2)) #TypeError: Object of type datetime is not JSON serializable
-            # {'HTTPStatusCode': 200, 'ContentLength': 124169, 'ContentType': 'image/jpeg', 'LastModified': datetime.datetime(2021, 7, 24, 23, 50, 21, tzinfo=tzutc())}
-            print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
-
-            #sys.exit(print(json.dumps(objects, indent=2)))
-            sys.exit(0)
-
-
-
 
 
         if sys.argv[1] == "server":
