@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.0.0.a10'
+__version__ = '0.0.0.a11'
 
 import sys
 
@@ -1067,6 +1067,36 @@ def main():
             #print(option)
             #print(destination)
 
+            if option == 'words':
+                # get rekognition .json if you can
+
+                rekognition_json_file = 'rekognition/' + s3object + '.json'
+                s3 = boto3.resource('s3')
+                obj = s3.Object(s3bucket, rekognition_json_file)
+                try:
+                    body = obj.get()['Body'].read()
+
+                except botocore.exceptions.ClientError as e:
+                    if e.response['Error']['Code'] == 'NoSuchKey':
+                        print(json.dumps({'NoSuchKey':rekognition_json_file}, indent=2))
+                    else:
+                        print(json.dumps({'ClientError':str(e)}))
+                    sys.exit(1)
+
+                content = body.decode("utf-8", "strict").rstrip()
+
+                data = json.loads(content)
+
+                List=[]
+                for key in data['Labels']:
+                    #print(str(key['Name']))
+                    List.append(key['Name'])
+
+                print(json.dumps(List, indent=2))
+                sys.exit(0)
+
+
+
             if option == 'detect-labels':
                 #print('detect-labels')
                 #print(s3bucket)
@@ -1160,9 +1190,8 @@ def main():
                     print(json.dumps({'ClientError':str(e)}, indent=2))
                     sys.exit(1)
 
-
-                print(json.dumps({'RekognitionUpload':str('Success')}, indent=2))
-
+                #print(json.dumps({'RekognitionUpload':str('Success')}, indent=2))
+                print(json.dumps({'RekognitionUpload':str('Success')}))
                 sys.exit(0)
 
             #get rekognition json file content, if it exists

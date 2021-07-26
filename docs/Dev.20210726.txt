@@ -1,5 +1,42 @@
 
 
+            #_wL = extract_rekognition_words(rekognition_json_content)
+            #print(str(_wL))
+
+
+
+            rekognition_json_file = 'rekognition/' + s3object + '.json'
+
+            s3 = boto3.resource('s3')
+
+            obj = s3.Object(s3bucket, rekognition_json_file)
+            try:
+                body = obj.get()['Body'].read()
+
+            except botocore.exceptions.ClientError as e:
+                #print(e.response)
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    #print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                    #print(json.dumps({'NoSuchKey':'Rekognition ' + s3object}, indent=2))
+                    print(json.dumps({'NoSuchKey':rekognition_json_file}, indent=2))
+                    sys.exit(1)
+                else:
+                    print(json.dumps({'ClientError':str(e)}))
+                    sys.exit(1)
+
+            #print(body)
+            #.decode("utf-8", "strict") # 'strict' (raise a UnicodeDecodeError exception)
+
+            content = body.decode("utf-8", "strict").rstrip()
+
+            print(content)
+
+            sys.exit()
+
+
+
+
+
 auto upload working...
 
 
