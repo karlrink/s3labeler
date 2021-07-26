@@ -1265,14 +1265,18 @@ def main():
             #    _f = bfile.read()
             #blake.update(_f)
             blake.update(body)
-            print(str(blake.hexdigest()))
-
-#                        except botocore.exceptions.EndpointConnectionError as e:
-#                print(json.dumps({'EndpointConnectionError':str(e)}, indent=2))
-#                sys.exit(1)
+            #print(str(blake.hexdigest()))
+            Objects['b2sum'] = str(blake.hexdigest())
 
 
+            try:
+                data = body.decode('utf-8', 'strict')
+                Objects['Encoding'] = 'utf-8'
+            except UnicodeDecodeError:
+                data = body
+                Objects['Encoding'] = 'bytes'
 
+            print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
 
             sys.exit(0)
 
