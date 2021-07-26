@@ -9,6 +9,7 @@ if sys.version_info < (3, 8, 1):
     raise RuntimeError('Requires Python version 3.8.1 or higher. This version: ' + str(sys.version_info))
 
 usage = "Usage: " + sys.argv[0] + " option" + """
+
     options:
 
         buckets
@@ -25,12 +26,18 @@ usage = "Usage: " + sys.argv[0] + " option" + """
         rekognition <s3bucket>/<s3object> detect-labels
         rekognition <s3bucket>/<s3object> detect-labels destination
 
+        object <s3bucket>/<s3object>
+
         server 8880
 
         --help
         --version
 """
 
+import boto3
+import botocore
+
+import json
 
 from flask import Flask
 from flask import request
@@ -41,12 +48,6 @@ app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True    #default False
 app.config['JSON_SORT_KEYS'] = True                 #default True
 app.config['JSONIFY_MIMETYPE'] = 'application/json' #default 'application/json'
-
-import boto3
-import botocore
-#from botocore.exceptions import ClientError
-
-import json
 
 
 #GET    /                             # Show version
@@ -140,7 +141,8 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
             rekognition_json_file = 'rekognition/' + s3object + '.json'
 
-            rekognition_json_content = get_rekognition_json(s3bucket, rekognition_json_file)
+            #rekognition_json_content = get_rekognition_json(s3bucket, rekognition_json_file)
+            rekognition_json_content = get_s3object_body(s3bucket, rekognition_json_file)
 
             if rekognition_json_content:
                 return rekognition_json_content, 200, {'Content-Type':'application/json;charset=utf-8'}
@@ -152,7 +154,8 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
         if rekognition == 'json':
             rekognition_json_file = 'rekognition/' + s3object + '.json'
-            rekognition_json_content = get_rekognition_json(s3bucket, rekognition_json_file)
+            #rekognition_json_content = get_rekognition_json(s3bucket, rekognition_json_file)
+            rekognition_json_content = get_s3object_body(s3bucket, rekognition_json_file)
             if rekognition_json_content:
                 return rekognition_json_content, 200, {'Content-Type':'application/json;charset=utf-8'}
             else:
@@ -161,7 +164,8 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
         if rekognition == 'words':
 
             rekognition_json_file = 'rekognition/' + s3object + '.json'
-            rekognition_json_content = get_rekognition_json(s3bucket, rekognition_json_file)
+            #rekognition_json_content = get_rekognition_json(s3bucket, rekognition_json_file)
+            rekognition_json_content = get_s3object_body(s3bucket, rekognition_json_file)
 
             #print(str(type(rekognition_json_content)))
             #print(str(rekognition_json_content))
@@ -441,8 +445,8 @@ def not_found(error=None):
 
 ###############################################################################################################################################
 
-def get_rekognition_json(s3bucket, s3object):
-    return get_s3object_body(s3bucket, s3object)
+#def get_rekognition_json(s3bucket, s3object):
+#    return get_s3object_body(s3bucket, s3object)
 
 
 def get_s3object_body(s3bucket, s3object): #gets file contents data
@@ -955,12 +959,6 @@ def main():
 
             sys.exit()
 
-#        if sys.argv[1] == "objects":
-#            s3path = sys.argv[2]
-#            objects = list_s3bucket_objects(s3path)
-#            print(objects)
-#            sys.exit()
-#            #sys.exit(print(json.dumps(objects, indent=2)))
 
         if sys.argv[1] == "get":
             #print('get')
@@ -1041,6 +1039,112 @@ def main():
 
             sys.exit(0)
 
+
+        if sys.argv[1] == "rekognition":
+            print('rekognition')
+
+            s3path = sys.argv[2] #s3bucket/s3object
+
+            try:
+                option = sys.argv[3] #detect-labels
+            except IndexError as e:
+                option = None
+
+            try:
+                destination = sys.argv[4] #destination
+            except IndexError as e:
+                destination = None
+
+
+            s3bucket = s3path.split("/", 1)[0]
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
+
+            print(s3bucket)
+            print(s3object)
+            print(option)
+            print(destination)
+
+            #get rekognition json file content, if it exists
+
+            rekognition_json_file = 'rekognition/' + s3object + '.json'
+
+            s3 = boto3.resource('s3')
+
+            obj = s3.Object(s3bucket, rekognition_json_file)
+            try:
+                body = obj.get()['Body'].read()
+
+            except botocore.exceptions.ClientError as e:
+                #print(e.response)
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                else:
+                    print(json.dumps({'ClientError':str(e)}))
+
+                sys.exit(1)
+
+            #print(body)
+            #.decode("utf-8", "strict") # 'strict' (raise a UnicodeDecodeError exception)
+            
+            content = body.decode("utf-8", "strict").rstrip()
+
+            print(content)
+
+
+
+
+            sys.exit()
+
+
+        if sys.argv[1] == "object":
+            s3path = sys.argv[2]
+
+            s3bucket = s3path.split("/", 1)[0]
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
+
+            #print(s3bucket)
+            #print(s3object)
+
+            s3 = boto3.resource('s3')
+            obj = s3.Object(s3bucket, s3object)
+
+            #print(obj)
+            #print(obj.get())
+            #body = obj.get()['Body'].read()
+
+            s3response = obj.get()
+
+            HTTPStatusCode = s3response['ResponseMetadata']['HTTPStatusCode']
+            #ContentLength  = s3response['ResponseMetadata']['ContentLength']
+            ContentLength  = s3response['ContentLength']
+            ContentType    = s3response['ContentType']
+            LastModified   = s3response['LastModified']
+
+            #print(HTTPStatusCode)
+            #print(ContentLength)
+            #print(ContentType)
+            #print(LastModified)
+
+            Objects = {}
+            #Objects['HTTPStatusCode'] = HTTPStatusCode
+            Objects['ContentLength'] = ContentLength
+            Objects['ContentType'] = ContentType
+            Objects['LastModified'] = LastModified
+
+            #print(Objects)
+
+            #print(json.dumps(Objects, indent=2)) #TypeError: Object of type datetime is not JSON serializable
+            # {'HTTPStatusCode': 200, 'ContentLength': 124169, 'ContentType': 'image/jpeg', 'LastModified': datetime.datetime(2021, 7, 24, 23, 50, 21, tzinfo=tzutc())}
+            print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
+
+            #sys.exit(print(json.dumps(objects, indent=2)))
+            sys.exit(0)
 
 
 

@@ -1,4 +1,96 @@
 
+🧨 krink@KarlMBPro s3labeler % ./s3labeler.py object wmn/hello.txt
+wmn
+hello.txt
+s3.Object(bucket_name='wmn', key='hello.txt')
+{'ResponseMetadata': {'RequestId': 'P44GVK12VRPK8T2H', 'HostId': '+IrHjTLUK21jwZwyH0frkhH31K64NoO+Cl8dDwd7U1gLKcK0BilpwFhlf66wjDuiuijWIuYtQrg=', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': '+IrHjTLUK21jwZwyH0frkhH31K64NoO+Cl8dDwd7U1gLKcK0BilpwFhlf66wjDuiuijWIuYtQrg=', 'x-amz-request-id': 'P44GVK12VRPK8T2H', 'date': 'Sun, 25 Jul 2021 23:37:16 GMT', 'last-modified': 'Sat, 24 Jul 2021 21:57:40 GMT', 'etag': '"b1946ac92492d2347c6235b4d2611184"', 'accept-ranges': 'bytes', 'content-type': 'text/plain', 'server': 'AmazonS3', 'content-length': '6'}, 'RetryAttempts': 0}, 'AcceptRanges': 'bytes', 'LastModified': datetime.datetime(2021, 7, 24, 21, 57, 40, tzinfo=tzutc()), 'ContentLength': 6, 'ETag': '"b1946ac92492d2347c6235b4d2611184"', 'ContentType': 'text/plain', 'Metadata': {}, 'Body': <botocore.response.StreamingBody object at 0x7ffd7019a730>}
+🧨 krink@KarlMBPro s3labeler % ./s3labeler.py object wmn/1cf9b705aae6f506ebcb1f118860bf9b46fa801a.jpg
+wmn
+1cf9b705aae6f506ebcb1f118860bf9b46fa801a.jpg
+s3.Object(bucket_name='wmn', key='1cf9b705aae6f506ebcb1f118860bf9b46fa801a.jpg')
+{'ResponseMetadata': {'RequestId': 'BQNHMWPDARHQ902N', 'HostId': 'jG2NUqY7FRvOab4VpwrABxU6+2AoMtOU7BON7sg1z1hWcrmUJzKq/vSqJ6HujH+C5OpqKkqbJ88=', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': 'jG2NUqY7FRvOab4VpwrABxU6+2AoMtOU7BON7sg1z1hWcrmUJzKq/vSqJ6HujH+C5OpqKkqbJ88=', 'x-amz-request-id': 'BQNHMWPDARHQ902N', 'date': 'Sun, 25 Jul 2021 23:38:13 GMT', 'last-modified': 'Sat, 24 Jul 2021 23:50:21 GMT', 'etag': '"4cd5766f7e66f29f546adc135f50bdfd"', 'x-amz-tagging-count': '3', 'accept-ranges': 'bytes', 'content-type': 'image/jpeg', 'server': 'AmazonS3', 'content-length': '124169'}, 'RetryAttempts': 0}, 'AcceptRanges': 'bytes', 'LastModified': datetime.datetime(2021, 7, 24, 23, 50, 21, tzinfo=tzutc()), 'ContentLength': 124169, 'ETag': '"4cd5766f7e66f29f546adc135f50bdfd"', 'ContentType': 'image/jpeg', 'Metadata': {}, 'TagCount': 3, 'Body': <botocore.response.StreamingBody object at 0x7fc38063c910>}
+🧨 krink@KarlMBPro s3labeler %
+
+🧨 krink@KarlMBPro s3labeler % ./s3labeler.py object wmn/rekognition/hello.txt.json                  
+wmn
+rekognition/hello.txt.json
+s3.Object(bucket_name='wmn', key='rekognition/hello.txt.json')
+{'ResponseMetadata': {'RequestId': '2RW18M6T2XZ910WM', 'HostId': 'Qs9FUNzgA//WYueYP7iFvx5omUyWfRnKp3OEFkxtORT64ooYaf1YrdUjpIIu1yGQdOniy3ryNFM=', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amz-id-2': 'Qs9FUNzgA//WYueYP7iFvx5omUyWfRnKp3OEFkxtORT64ooYaf1YrdUjpIIu1yGQdOniy3ryNFM=', 'x-amz-request-id': '2RW18M6T2XZ910WM', 'date': 'Sun, 25 Jul 2021 23:40:25 GMT', 'last-modified': 'Sat, 24 Jul 2021 21:59:39 GMT', 'etag': '"8ddc224d499c765f9f3bddbaa058c57b"', 'accept-ranges': 'bytes', 'content-type': 'application/json', 'server': 'AmazonS3', 'content-length': '21'}, 'RetryAttempts': 0}, 'AcceptRanges': 'bytes', 'LastModified': datetime.datetime(2021, 7, 24, 21, 59, 39, tzinfo=tzutc()), 'ContentLength': 21, 'ETag': '"8ddc224d499c765f9f3bddbaa058c57b"', 'ContentType': 'application/json', 'Metadata': {}, 'Body': <botocore.response.StreamingBody object at 0x7fdba057c850>}
+🧨 krink@KarlMBPro s3labeler %
+
+
+get_s3object_body
+
+
+                #{'Error': {'Code': '404', 'Message': 'Not Found'}, 'ResponseMetadata': {'RequestId':
+
+{'Error': {'Code': 'NoSuchKey', 'Message': 'The specified key does not exist.', 'Key': 'rekognition/hello.txtX.json'}, 'ResponseMetadata': {'RequestId': 'D5WNJ87EX9694ANB', 'HostId': 'rJCVeJWNjY9pmpClxNgeLN1cNHnOyulkuz7+KLXvyuzIjcAjwzksdzFQlEvkMSjpsIpI5PG5Axw=', 'HTTPStatusCode': 404, 
+
+
+def get_s3object_body(s3bucket, s3object): #gets file contents data
+    s3 = boto3.resource('s3')
+    obj = s3.Object(s3bucket, s3object)
+    try:
+        body = obj.get()['Body'].read()
+    except botocore.exceptions.ClientError as ex:
+        print('ClientError ' + str(ex))
+        #if ex.response['Error']['Code'] == 'NoSuchKey':
+        #    print('NoSuchKey')
+        #    return None
+        return None
+
+    #return body                #<class 'bytes'>
+    return body.decode('utf-8') #<class 'str'>
+
+
+            try:
+                s3.download_file(s3bucket, s3object, destination)
+
+            except botocore.exceptions.ClientError as e:
+                #print(e.response)
+                #{'Error': {'Code': '404', 'Message': 'Not Found'}, 'ResponseMetadata': {'RequestId':
+                #if e.response['Error']['Message'] == 'Not Found':
+                if e.response['Error']['Code'] == '404':
+                    print(json.dumps({'Not Found':s3object}, indent=2))
+                else:
+                    print(json.dumps({'ClientError':str(e)}, indent=2))
+                sys.exit(1)
+
+            except OSError as e:
+                print(json.dumps({'OSError':str(e)}, indent=2))
+                sys.exit(1)
+
+            #print(download) #None
+            print(json.dumps({'saved':destination}, indent=2))
+
+
+
+
+
+
+i
+            #except botocore.errorfactory.NoSuchKey as e:
+            except botocore.exceptions.ClientError as e:
+                #print('BotoError ' + str(e))
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    #print('NoSuchKey')
+                    #print('NoSuchKey: ' + str(s3object))
+                   #print(json.dumps({'NoSuchKey':s3object, 'ClientError':str(e)}, indent=2))
+                   print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                   #sys.exit(1)
+                else:
+                   # print(e)
+                   print(json.dumps({'ClientError':str(e)}, indent=2))
+                   #sys.exit(1)
+
+                sys.exit(1)
+
+
+
+
+
+
+
 
 dev notes...
 
