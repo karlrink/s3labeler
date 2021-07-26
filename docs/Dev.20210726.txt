@@ -1,4 +1,361 @@
 
+
+auto upload working...
+
+
+🧨 karl.rink@Karl-MacBook-Pro s3labeler % ./s3labeler.py rekognition ninfo-property-images/048ac85025e2217e5171326706b7fb535d27caa9.jpg detect-labels
+detect-labels
+ninfo-property-images
+048ac85025e2217e5171326706b7fb535d27caa9.jpg
+{
+    "Labels": [
+        {
+            "Name": "Home Decor",
+            "Confidence": 99.95471954345703,
+            "Instances": [],
+            "Parents": []
+        },
+        {
+            "Name": "Grass",
+            "Confidence": 99.002197265625,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Plant"
+                }
+            ]
+        },
+        {
+            "Name": "Plant",
+            "Confidence": 99.002197265625,
+            "Instances": [],
+            "Parents": []
+        },
+        {
+            "Name": "Housing",
+            "Confidence": 91.19820404052734,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Building"
+                }
+            ]
+        },
+        {
+            "Name": "Building",
+            "Confidence": 91.19820404052734,
+            "Instances": [],
+            "Parents": []
+        },
+        {
+            "Name": "Neighborhood",
+            "Confidence": 89.2183609008789,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Urban"
+                },
+                {
+                    "Name": "Building"
+                }
+            ]
+        },
+        {
+            "Name": "Urban",
+            "Confidence": 89.2183609008789,
+            "Instances": [],
+            "Parents": []
+        },
+        {
+            "Name": "Window",
+            "Confidence": 88.88621520996094,
+            "Instances": [],
+            "Parents": []
+        },
+        {
+            "Name": "Shutter",
+            "Confidence": 86.48400115966797,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Curtain"
+                },
+                {
+                    "Name": "Window"
+                }
+            ]
+        },
+        {
+            "Name": "Curtain",
+            "Confidence": 86.48400115966797,
+            "Instances": [],
+            "Parents": []
+        },
+        {
+            "Name": "Brick",
+            "Confidence": 85.72686767578125,
+            "Instances": [],
+            "Parents": []
+        },
+        {
+            "Name": "Yard",
+            "Confidence": 85.4259033203125,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Outdoors"
+                },
+                {
+                    "Name": "Nature"
+                }
+            ]
+        },
+        {
+            "Name": "Nature",
+            "Confidence": 85.4259033203125,
+            "Instances": [],
+            "Parents": []
+        },
+        {
+            "Name": "Outdoors",
+            "Confidence": 85.4259033203125,
+            "Instances": [],
+            "Parents": []
+        },
+        {
+            "Name": "House",
+            "Confidence": 72.26211547851562,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Housing"
+                },
+                {
+                    "Name": "Building"
+                }
+            ]
+        },
+        {
+            "Name": "Path",
+            "Confidence": 69.62654876708984,
+            "Instances": [],
+            "Parents": []
+        },
+        {
+            "Name": "Lawn",
+            "Confidence": 69.16907501220703,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Grass"
+                },
+                {
+                    "Name": "Plant"
+                }
+            ]
+        },
+        {
+            "Name": "Vegetation",
+            "Confidence": 62.195274353027344,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Plant"
+                }
+            ]
+        },
+        {
+            "Name": "Window Shade",
+            "Confidence": 59.31571960449219,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Curtain"
+                },
+                {
+                    "Name": "Home Decor"
+                },
+                {
+                    "Name": "Window"
+                }
+            ]
+        },
+        {
+            "Name": "Potted Plant",
+            "Confidence": 59.29153823852539,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Plant"
+                },
+                {
+                    "Name": "Vase"
+                },
+                {
+                    "Name": "Jar"
+                },
+                {
+                    "Name": "Pottery"
+                }
+            ]
+        },
+        {
+            "Name": "Pottery",
+            "Confidence": 59.29153823852539,
+            "Instances": [],
+            "Parents": []
+        },
+        {
+            "Name": "Jar",
+            "Confidence": 59.29153823852539,
+            "Instances": [],
+            "Parents": []
+        },
+        {
+            "Name": "Vase",
+            "Confidence": 59.29153823852539,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Jar"
+                },
+                {
+                    "Name": "Pottery"
+                }
+            ]
+        },
+        {
+            "Name": "Walkway",
+            "Confidence": 58.462730407714844,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Path"
+                }
+            ]
+        },
+        {
+            "Name": "Flower",
+            "Confidence": 55.959808349609375,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Plant"
+                }
+            ]
+        },
+        {
+            "Name": "Blossom",
+            "Confidence": 55.959808349609375,
+            "Instances": [],
+            "Parents": [
+                {
+                    "Name": "Plant"
+                }
+            ]
+        }
+    ],
+    "LabelModelVersion": "2.0",
+    "ResponseMetadata": {
+        "RequestId": "eac0df73-905e-4580-b934-90ec619f468f",
+        "HTTPStatusCode": 200,
+        "HTTPHeaders": {
+            "content-type": "application/x-amz-json-1.1",
+            "date": "Mon, 26 Jul 2021 21:18:23 GMT",
+            "x-amzn-requestid": "eac0df73-905e-4580-b934-90ec619f468f",
+            "content-length": "2490",
+            "connection": "keep-alive"
+        },
+        "RetryAttempts": 0
+    }
+}
+{
+  "RekognitionUpload": "True"
+}
+🧨 karl.rink@Karl-MacBook-Pro s3labeler %
+
+
+
+Traceback (most recent call last):
+  File "./s3labeler.py", line 1430, in <module>
+    main()
+  File "./s3labeler.py", line 1128, in main
+    s3_upload = s3_client.upload_file(fp, s3bucket, rekognition_json_file)
+  File "/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/boto3/s3/inject.py", line 129, in upload_file
+    return transfer.upload_file(
+  File "/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/site-packages/boto3/s3/transfer.py", line 273, in upload_file
+    raise ValueError('Filename must be a string')
+ValueError: Filename must be a string
+
+
+
+
+  File "/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/genericpath.py", line 50, in getsize
+    return os.stat(filename).st_size
+OSError: [Errno 63] File name too long: '{\n    "Labels": [\n        {\n            "Name": "Home Decor",\n            "Confidence": 99.95471954345703,\n   
+
+
+
+🧨 karl.rink@Karl-MacBook-Pro s3labeler % ./s3labeler.py rekognition ninfo-property-images/048ac85025e2217e5171326706b7fb535d27caa9.jpg detect-labels
+detect-labels
+ninfo-property-images
+048ac85025e2217e5171326706b7fb535d27caa9.jpg
+{'Labels': [{'Name': 'Home Decor', 'Confidence': 99.95471954345703, 'Instances': [], 'Parents': []}, {'Name': 'Grass', 'Confidence': 99.002197265625, 'Instances': [], 'Parents': [{'Name': 'Plant'}]}, {'Name': 'Plant', 'Confidence': 99.002197265625, 'Instances': [], 'Parents': []}, {'Name': 'Housing', 'Confidence': 91.19820404052734, 'Instances': [], 'Parents': [{'Name': 'Building'}]}, {'Name': 'Building', 'Confidence': 91.19820404052734, 'Instances': [], 'Parents': []}, {'Name': 'Neighborhood', 'Confidence': 89.2183609008789, 'Instances': [], 'Parents': [{'Name': 'Urban'}, {'Name': 'Building'}]}, {'Name': 'Urban', 'Confidence': 89.2183609008789, 'Instances': [], 'Parents': []}, {'Name': 'Window', 'Confidence': 88.88621520996094, 'Instances': [], 'Parents': []}, {'Name': 'Shutter', 'Confidence': 86.48400115966797, 'Instances': [], 'Parents': [{'Name': 'Curtain'}, {'Name': 'Window'}]}, {'Name': 'Curtain', 'Confidence': 86.48400115966797, 'Instances': [], 'Parents': []}, {'Name': 'Brick', 'Confidence': 85.72686767578125, 'Instances': [], 'Parents': []}, {'Name': 'Yard', 'Confidence': 85.4259033203125, 'Instances': [], 'Parents': [{'Name': 'Outdoors'}, {'Name': 'Nature'}]}, {'Name': 'Nature', 'Confidence': 85.4259033203125, 'Instances': [], 'Parents': []}, {'Name': 'Outdoors', 'Confidence': 85.4259033203125, 'Instances': [], 'Parents': []}, {'Name': 'House', 'Confidence': 72.26211547851562, 'Instances': [], 'Parents': [{'Name': 'Housing'}, {'Name': 'Building'}]}, {'Name': 'Path', 'Confidence': 69.62654876708984, 'Instances': [], 'Parents': []}, {'Name': 'Lawn', 'Confidence': 69.16907501220703, 'Instances': [], 'Parents': [{'Name': 'Grass'}, {'Name': 'Plant'}]}, {'Name': 'Vegetation', 'Confidence': 62.195274353027344, 'Instances': [], 'Parents': [{'Name': 'Plant'}]}, {'Name': 'Window Shade', 'Confidence': 59.31571960449219, 'Instances': [], 'Parents': [{'Name': 'Curtain'}, {'Name': 'Home Decor'}, {'Name': 'Window'}]}, {'Name': 'Potted Plant', 'Confidence': 59.29153823852539, 'Instances': [], 'Parents': [{'Name': 'Plant'}, {'Name': 'Vase'}, {'Name': 'Jar'}, {'Name': 'Pottery'}]}, {'Name': 'Pottery', 'Confidence': 59.29153823852539, 'Instances': [], 'Parents': []}, {'Name': 'Jar', 'Confidence': 59.29153823852539, 'Instances': [], 'Parents': []}, {'Name': 'Vase', 'Confidence': 59.29153823852539, 'Instances': [], 'Parents': [{'Name': 'Jar'}, {'Name': 'Pottery'}]}, {'Name': 'Walkway', 'Confidence': 58.462730407714844, 'Instances': [], 'Parents': [{'Name': 'Path'}]}, {'Name': 'Flower', 'Confidence': 55.959808349609375, 'Instances': [], 'Parents': [{'Name': 'Plant'}]}, {'Name': 'Blossom', 'Confidence': 55.959808349609375, 'Instances': [], 'Parents': [{'Name': 'Plant'}]}], 'LabelModelVersion': '2.0', 'ResponseMetadata': {'RequestId': '16f6086d-478f-44c6-947d-49681931b6c9', 'HTTPStatusCode': 200, 'HTTPHeaders': {'content-type': 'application/x-amz-json-1.1', 'date': 'Mon, 26 Jul 2021 20:33:48 GMT', 'x-amzn-requestid': '16f6086d-478f-44c6-947d-49681931b6c9', 'content-length': '2490', 'connection': 'keep-alive'}, 'RetryAttempts': 0}}
+Traceback (most recent call last):
+  File "./s3labeler.py", line 1423, in <module>
+    main()
+  File "./s3labeler.py", line 1114, in main
+    fp.write(json.dumps(response, indent=4))
+TypeError: a bytes-like object is required, not 'str'
+🧨 karl.rink@Karl-MacBook-Pro s3labeler %
+
+
+
+
+
+           try:
+                s3_upload = s3_client.upload_file(source, s3bucket, s3object)
+            except botocore.exceptions.ClientError as e:
+                #print(str(e))
+                print(json.dumps({'ClientError':str(e)}, indent=2))
+                sys.exit(1)
+
+            #print(response) #None
+            #status_code = s3_upload['ResponseMetadata']['HTTPStatusCode']
+            #print(status_code)
+
+            print(json.dumps({'upload':True}, indent=2))
+            sys.exit(0)
+
+
+            #import tempfile
+            #fp = tempfile.TemporaryFile()
+            #fp.write(body)
+            #with open(fp, 'rb') as bfile:
+            #    _f = bfile.read()
+
+
+
+
+
+
+revist the ls trailing slash /
+
+
+🧨 karl.rink@Karl-MacBook-Pro s3labeler % ./s3labeler.py ls ninfo-property-images/rekognit/   
+{
+  "EmptyBucket": "ninfo-property-images"
+}
+🧨 karl.rink@Karl-MacBook-Pro s3labeler % ./s3labeler.py ls ninfo-property-images/rekognition/
+[
+  "rekognition/00000023a562a2525633af58b9a710063f56a877.jpg.json",
+  "rekognition/00001796475b02a1db8c89106b0ba12d76a6217b.jpg.json",
+  "rekognition/0001e7888e40c760b2e566ede76ff25d67c7d39b.jpg.json",
+  "rekognition/2eece964b6f902124052810e5a92d6f9ca715c1b.jpg.json"
+]
+
+
+
 response = client.detect_labels(Image={'S3Object':{'Bucket':s3bucket,'Name':s3object}})
 i
 <class 'dict'>

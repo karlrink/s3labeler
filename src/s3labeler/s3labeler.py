@@ -912,8 +912,9 @@ def main():
                     #print(json.dumps({'KeyError':str(e)}, indent=2))
                     #if 'Contents' in e:
                     #print(e)
-                    if str(e).strip("'") == 'Contents':
-                        print(json.dumps({'EmptyBucket':s3bucket}, indent=2))
+                    #if str(e).strip("'") == 'Contents':
+                    #    print(json.dumps({'EmptyBucket':s3bucket}, indent=2))
+                    print('KeyError ' + str(e))
 
                     sys.exit(0)
 
@@ -965,50 +966,6 @@ def main():
             #print(json.dumps(s3Tags))
             sys.exit(0)
 
-        if sys.argv[1] == "ls-v1":
-
-            s3path = sys.argv[2]
-
-            s3bucket = s3path.split("/", 1)[0]
-            try:
-                s3object = s3path.split("/", 1)[1]
-            except IndexError as e:
-                s3object = ''
-
-
-            #s3objects = get_s3bucket_objects(s3path)
-            s3objects = get_s3bucket_objects(s3bucket, s3object)
-
-            http_status_code = s3objects['ResponseMetadata']['HTTPStatusCode']
-
-            #print(objects)
-
-
-            if int(http_status_code) == 200:
-                #print('good data')
-                #print(s3objects)
-
-                if 'CommonPrefixes' in s3objects:
-                    for key in s3objects['CommonPrefixes']:
-                        #print(key)
-                        print(key['Prefix'])
-
-                if 'Contents' in s3objects:
-                    for key in s3objects['Contents']:
-                        #print(key)
-                        print(key['Key'])
-                        #s3tags = get_s3object_tags(s3bucket, s3object)
-
-                        s3tags = get_s3object_tags(s3bucket, key['Key'])
-                        print(s3tags)
-
-
-            else:
-                #botoerror = s3objects['ResponseMetadata']['BotoError']
-                #print(botoerror)
-                print(s3objects['ResponseMetadata']['BotoError'])
-
-            sys.exit()
 
 
         if sys.argv[1] == "get":
@@ -1131,25 +1088,80 @@ def main():
                 s3 = boto3.client('s3')
                 region = s3.head_bucket(Bucket=s3bucket)['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region']
 
-                print(region)
+                #print(region)
 
                 client = boto3.client('rekognition', region_name=region)
 
                 #response = client.detect_labels(Image={'S3Object':{'Bucket':s3bucket,'Name':s3object}}, MaxLabels=10)
                 response = client.detect_labels(Image={'S3Object':{'Bucket':s3bucket,'Name':s3object}})
 
-                print(str(type(response)))
+                #print(str(type(response)))
 
-                print(response)
+                #print(response)
+                print(json.dumps(response, indent=4))
 
-                for label in response['Labels']:
-                    print ("Label: " + label['Name'])
+                #for label in response['Labels']:
+                #    print ("Label: " + label['Name'])
 
 
-                f = open("/tmp/out.json", "w")
-                f.write(json.dumps(response, indent=4))
-                f.close()
+                #f = open("/tmp/out.json", "w")
+                #f.write(json.dumps(response, indent=4))
+                #f.close()
 
+                #upload json
+
+                #import tempfile
+                #fp = tempfile.TemporaryFile()
+                #fp.write(json.dumps(response, indent=4)) #TypeError: a bytes-like object is required, not 'str'
+                #fp.write(response)
+
+
+                #fp = tempfile.TemporaryFile(mode="w+") #default is w+b
+                #fp.write(json.dumps(response, indent=4))
+
+                #tmp_file, filename = tempfile.mkstemp()
+                #print(filename)
+                #os.write(tmp_file, json.dumps(response, indent=4))
+
+                #with tempfile.NamedTemporaryFile() as tmp:
+                #    print(tmp.name)
+
+                #tmp_file, filename = tempfile.mkstemp()
+                #f = open(filename, "w")
+                #f.write(json.dumps(response, indent=4))
+
+                #fp = tempfile.TemporaryFile(mode="w+")
+                #fp.write(json.dumps(response, indent=4))
+                #fp.seek(0)
+                #data=f.read()
+
+                from tempfile import mkstemp
+                fd, path = mkstemp()
+
+                with open(path, 'w') as f:
+                    f.write(json.dumps(response, indent=4))
+
+                s3_client = boto3.client('s3')
+                try:
+                    #s3_upload = s3_client.upload_file(source, s3bucket, s3object)
+
+                    rekognition_json_file = 'rekognition/' + s3object + '.json'
+
+                    #s3_upload = s3_client.upload_file(fp.read().encode("utf-8"), s3bucket, rekognition_json_file)
+                    #s3_upload = s3_client.upload_file(filename, s3bucket, rekognition_json_file)
+
+                    s3_upload = s3_client.upload_file(path, s3bucket, rekognition_json_file)
+
+                    #fp.close()
+                    #os.close(tmp_file)
+
+
+                except botocore.exceptions.ClientError as e:
+                    print(json.dumps({'ClientError':str(e)}, indent=2))
+                    sys.exit(1)
+
+
+                print(json.dumps({'RekognitionUpload':str('True')}, indent=2))
 
 
                 sys.exit(0)
