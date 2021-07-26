@@ -26,7 +26,8 @@ usage = "Usage: " + sys.argv[0] + " option" + """
         rekognition <s3bucket>/<s3object> detect-labels
         rekognition <s3bucket>/<s3object> detect-labels destination
 
-        object <s3bucket>/<s3object>
+        object   <s3bucket>/<s3object>
+        identify <s3bucket>/<s3object>
 
         server 8880
 
@@ -38,6 +39,8 @@ import boto3
 import botocore
 
 import json
+
+from hashlib import blake2b, blake2s
 
 from flask import Flask
 from flask import request
@@ -746,7 +749,39 @@ def get_s3bucket_objects(s3bucket, s3object):
 #    print(s3bucket, ' ', s3prefix)
 #    return s3bucket, s3prefix
 
-    
+   
+
+###############################################################################################################################################
+
+
+def b2sum(_file):
+    is_64bits = sys.maxsize > 2**32
+    if is_64bits:
+        blake = blake2b(digest_size=20)
+    else:
+        blake = blake2s(digest_size=20)
+    try:
+        with open(_file, 'rb') as bfile:
+            _f = bfile.read()
+    except FileNotFoundError as e:
+        return str(e)
+
+    blake.update(_f)
+    return str(blake.hexdigest())
+
+def b2checksum(_string):
+    is_64bits = sys.maxsize > 2**32
+    if is_64bits:
+        blake = blake2b(digest_size=20)
+    else:
+        blake = blake2s(digest_size=20)
+
+    s = _string.encode('utf-8')
+
+    blake.update(s)
+    return str(blake.hexdigest())
+
+
 ###############################################################################################################################################
 
 
@@ -1118,7 +1153,16 @@ def main():
             #print(obj.get())
             #body = obj.get()['Body'].read()
 
-            s3response = obj.get()
+            try: 
+                s3response = obj.get()
+
+            except botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                else:
+                    print(json.dumps({'ClientError':str(e)}, indent=2))
+                sys.exit(1)
+                
 
             HTTPStatusCode = s3response['ResponseMetadata']['HTTPStatusCode']
             #ContentLength  = s3response['ResponseMetadata']['ContentLength']
@@ -1145,6 +1189,171 @@ def main():
 
             #sys.exit(print(json.dumps(objects, indent=2)))
             sys.exit(0)
+
+        if sys.argv[1] == "identify":
+
+            s3path = sys.argv[2]
+
+            s3bucket = s3path.split("/", 1)[0]
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
+
+            s3 = boto3.resource('s3')
+            obj = s3.Object(s3bucket, s3object)
+
+            #s3 = boto3.resource('s3')
+            #obj = s3.Object(s3bucket, s3object)
+            #s3response = obj.get()
+
+            try:
+                s3response = obj.get()
+
+            except botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                else:
+                    print(json.dumps({'ClientError':str(e)}, indent=2))
+                sys.exit(1)
+
+            except botocore.exceptions.EndpointConnectionError as e:
+                print(json.dumps({'EndpointConnectionError':str(e)}, indent=2))
+                sys.exit(1)
+
+
+            HTTPStatusCode = s3response['ResponseMetadata']['HTTPStatusCode']
+            #ContentLength  = s3response['ResponseMetadata']['ContentLength']
+            ContentLength  = s3response['ContentLength']
+            ContentType    = s3response['ContentType']
+            LastModified   = s3response['LastModified']
+
+            #print(HTTPStatusCode)
+            #print(ContentLength)
+            #print(ContentType)
+            #print(LastModified)
+
+            Objects = {}
+
+            Objects['Name'] = s3object
+
+            #Objects['HTTPStatusCode'] = HTTPStatusCode
+
+            Objects['ContentLength'] = ContentLength
+            Objects['ContentType'] = ContentType
+            Objects['LastModified'] = LastModified
+
+            #body = obj.get()['Body'].read()
+
+            body = s3response['Body'].read()
+
+
+            #import tempfile
+            #fp = tempfile.TemporaryFile()
+            #fp.write(body)
+            #with open(fp, 'rb') as bfile:
+            #    _f = bfile.read()
+
+
+            is_64bits = sys.maxsize > 2**32
+            if is_64bits:
+                blake = blake2b(digest_size=20)
+            else:
+                blake = blake2s(digest_size=20)
+
+            #with open(body, 'rb') as bfile:
+            #    _f = bfile.read()
+            #blake.update(_f)
+            blake.update(body)
+            print(str(blake.hexdigest()))
+
+#                        except botocore.exceptions.EndpointConnectionError as e:
+#                print(json.dumps({'EndpointConnectionError':str(e)}, indent=2))
+#                sys.exit(1)
+
+
+
+
+            sys.exit(0)
+
+
+
+
+
+        if sys.argv[1] == "identify-v1":
+            s3path = sys.argv[2]
+
+            s3bucket = s3path.split("/", 1)[0]
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
+
+            s3 = boto3.resource('s3')
+            obj = s3.Object(s3bucket, s3object)
+
+            #print(obj)
+            #print(obj.get())
+            #body = obj.get()['Body'].read()
+
+            try:
+                s3response = obj.get()
+
+            except botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                else:
+                    print(json.dumps({'ClientError':str(e)}, indent=2))
+                sys.exit(1)
+
+
+            HTTPStatusCode = s3response['ResponseMetadata']['HTTPStatusCode']
+            #ContentLength  = s3response['ResponseMetadata']['ContentLength']
+            ContentLength  = s3response['ContentLength']
+            ContentType    = s3response['ContentType']
+            LastModified   = s3response['LastModified']
+
+            #print(HTTPStatusCode)
+            #print(ContentLength)
+            #print(ContentType)
+            #print(LastModified)
+
+            Objects = {}
+
+            Objects['Name'] = s3object
+
+            #Objects['HTTPStatusCode'] = HTTPStatusCode
+
+            Objects['ContentLength'] = ContentLength
+            Objects['ContentType'] = ContentType
+            Objects['LastModified'] = LastModified
+
+            #body = obj.get()['Body'].read()
+
+            body = s3response['Body'].read()
+
+            try:
+                data = body.decode('utf-8', 'strict').rstrip()
+                Objects['Encoding'] = 'utf-8'
+                #print(b2checksum(data))
+                Objects['b2sum'] = b2checksum(data)
+            except UnicodeDecodeError:
+                data = body
+                Objects['Encoding'] = 'bytes'
+
+            #print(b2checksum(data))
+            #print(data)
+
+            
+            #print(Objects)
+            #print(json.dumps(Objects, indent=2)) #TypeError: Object of type datetime is not JSON serializable
+            # {'HTTPStatusCode': 200, 'ContentLength': 124169, 'ContentType': 'image/jpeg', 'LastModified': datetime.datetime(2021, 7, 24, 23, 50, 21, tzinfo=tzutc())}
+            print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
+
+            #sys.exit(print(json.dumps(objects, indent=2)))
+            sys.exit(0)
+
+
 
 
 
