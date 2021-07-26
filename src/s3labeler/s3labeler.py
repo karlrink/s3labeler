@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.0.0.a11'
+__version__ = '0.0.0.b1'
 
 import sys
 
@@ -1099,16 +1099,22 @@ def main():
 
                 # rekognition-words "Urban Building Villa"
 
-                Str=''
+                #Str=''
+                #for key in data['Labels']:
+                #    Str += str(key['Name']) + ' '
+                #print(Str)
+
+                List=[]
                 for key in data['Labels']:
-                    Str += str(key['Name']) + ' '
-                print(Str)
+                    List.append(key['Name'])
+
+                listToStr = ' '.join([str(elem) for elem in List])
 
                 #data = json.loads({'rekognition-words':Str})
 
                 tag = 'rekognition-words'
 
-                update = update_s3object_tag(s3bucket, s3object, tag, Str)
+                update = update_s3object_tag(s3bucket, s3object, tag, listToStr)
 
                 if update == True:
                     print(json.dumps({'label':True}))
