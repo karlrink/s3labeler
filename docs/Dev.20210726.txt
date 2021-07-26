@@ -1,5 +1,63 @@
 
 
+        if sys.argv[1] == "set" or sys.argv[1] == "label":
+
+            s3path = sys.argv[2]
+            s3json = sys.argv[3]
+
+            s3bucket = s3path.split("/", 1)[0]
+
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
+
+            data = json.loads(s3json)
+
+            #print(len(data))
+
+            if len(data) > 1:
+                print('data larger than 1')
+                sys.exit(1)
+
+
+            for k,v in data.items():
+                #print(k)
+                #print(v)
+                tag = k
+                val = v
+
+
+            #update = update_s3object_tag(s3bucket, s3object, tag, value)
+
+            update = update_s3object_tag(s3bucket, s3object, tag, val)
+            #print(update)
+
+            if update == True:
+                print(json.dumps({'label':True}))
+                sys.exit(0)
+            else:
+                print(json.dumps({'label':False}))
+                sys.exit(1)
+
+
+
+
+
+
+def extract_rekognition_words(rekognition_json_content):
+
+    data = json.loads(rekognition_json_content)
+
+    List = []
+
+    for key in data['Labels']:
+        List.append(str(key['Name']))
+
+
+
+
+
             #_wL = extract_rekognition_words(rekognition_json_content)
             #print(str(_wL))
 

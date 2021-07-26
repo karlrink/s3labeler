@@ -1055,8 +1055,8 @@ def main():
             try: option = sys.argv[3] #detect-labels
             except IndexError: option = None
 
-            try: destination = sys.argv[4] #destination
-            except IndexError: destination = None
+            #try: destination = sys.argv[4] #destination
+            #except IndexError: destination = None
 
             s3bucket = s3path.split("/", 1)[0]
             try: s3object = s3path.split("/", 1)[1]
@@ -1066,6 +1066,58 @@ def main():
             #print(s3object)
             #print(option)
             #print(destination)
+
+            if option == 's3tag':
+                # get rekognition .json if you can
+
+                rekognition_json_file = 'rekognition/' + s3object + '.json'
+                s3 = boto3.resource('s3')
+                obj = s3.Object(s3bucket, rekognition_json_file)
+                try:
+                    body = obj.get()['Body'].read()
+
+                except botocore.exceptions.ClientError as e:
+                    if e.response['Error']['Code'] == 'NoSuchKey':
+                        print(json.dumps({'NoSuchKey':rekognition_json_file}, indent=2))
+                    else:
+                        print(json.dumps({'ClientError':str(e)}))
+                    sys.exit(1)
+
+                content = body.decode("utf-8", "strict").rstrip()
+
+                data = json.loads(content)
+
+                #List=[]
+                #for key in data['Labels']:
+                    #print(str(key['Name']))
+                #    List.append(key['Name'])
+
+                #print(json.dumps(List, indent=2))
+
+                # s3 tag it as 
+                # rekognition-detect-labels "Urban, Building, Villa" #can't have commas
+
+                # rekognition-words "Urban Building Villa"
+
+                Str=''
+                for key in data['Labels']:
+                    Str += str(key['Name']) + ' '
+                print(Str)
+
+                #data = json.loads({'rekognition-words':Str})
+
+                tag = 'rekognition-words'
+
+                update = update_s3object_tag(s3bucket, s3object, tag, Str)
+
+                if update == True:
+                    print(json.dumps({'label':True}))
+                    sys.exit(0)
+                else:
+                    print(json.dumps({'label':False}))
+                    sys.exit(1)
+
+
 
             if option == 'words':
                 # get rekognition .json if you can
