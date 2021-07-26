@@ -24,7 +24,6 @@ usage = "Usage: " + sys.argv[0] + " option" + """
 
         rekognition <s3bucket>/<s3object>
         rekognition <s3bucket>/<s3object> detect-labels
-        rekognition <s3bucket>/<s3object> detect-labels destination
         rekognition <s3bucket>/<s3object> words
         rekognition <s3bucket>/<s3object> s3tag
 
@@ -1069,9 +1068,9 @@ def main():
             #print(destination)
 
             if option == 'detect-labels':
-                print('detect-labels')
-                print(s3bucket)
-                print(s3object)
+                #print('detect-labels')
+                #print(s3bucket)
+                #print(s3object)
 
                 #region='us-west-2'
 
@@ -1154,6 +1153,7 @@ def main():
 
                     #fp.close()
                     #os.close(tmp_file)
+                    #f.close()
 
 
                 except botocore.exceptions.ClientError as e:
@@ -1161,8 +1161,7 @@ def main():
                     sys.exit(1)
 
 
-                print(json.dumps({'RekognitionUpload':str('True')}, indent=2))
-
+                print(json.dumps({'RekognitionUpload':str('Success')}, indent=2))
 
                 sys.exit(0)
 
