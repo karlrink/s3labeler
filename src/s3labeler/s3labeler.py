@@ -1100,6 +1100,44 @@ def main():
 
             if option == 'detect-labels':
                 print('detect-labels')
+                print(s3bucket)
+                print(s3object)
+
+                #region='us-west-2'
+
+                #either specify region or auto get region from boto call
+
+                #conn = boto3.connect_s3()
+                #bucket = conn.get_bucket(bucket_name)
+                #bucket_location = bucket.get_location()
+                #print(bucket_location)
+
+                #region = client.head_bucket(Bucket='bucket')['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region']
+                #botocore.exceptions.ClientError: An error occurred (403) when calling the HeadBucket operation: Forbidden
+
+                s3 = boto3.client('s3')
+                region = s3.head_bucket(Bucket=s3bucket)['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region']
+
+                print(region)
+
+                client = boto3.client('rekognition', region_name=region)
+
+                #response = client.detect_labels(Image={'S3Object':{'Bucket':s3bucket,'Name':s3object}}, MaxLabels=10)
+                response = client.detect_labels(Image={'S3Object':{'Bucket':s3bucket,'Name':s3object}})
+
+                print(str(type(response)))
+
+                print(response)
+
+                for label in response['Labels']:
+                    print ("Label: " + label['Name'])
+
+
+                f = open("/tmp/out.json", "w")
+                f.write(json.dumps(response, indent=4))
+                f.close()
+
+
 
                 sys.exit(0)
 
