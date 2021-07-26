@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.0.0.a9'
+__version__ = '0.0.0.a10'
 
 import sys
 
@@ -12,7 +12,7 @@ usage = "Usage: " + sys.argv[0] + " option" + """
 
     options:
 
-        buckets
+        list-buckets|buckets
 
         ls        <s3bucket>/<s3object>
         label|set <s3bucket>/<s3object> '{"label":"value"}'
@@ -25,8 +25,11 @@ usage = "Usage: " + sys.argv[0] + " option" + """
         rekognition <s3bucket>/<s3object>
         rekognition <s3bucket>/<s3object> detect-labels
         rekognition <s3bucket>/<s3object> detect-labels destination
+        rekognition <s3bucket>/<s3object> words
+        rekognition <s3bucket>/<s3object> s3tag
 
         object      <s3bucket>/<s3object>
+        b2sum       <s3bucket>/<s3object>
         identify|id <s3bucket>/<s3object>
 
         server 8880
@@ -795,7 +798,7 @@ def main():
         if sys.argv[1] == "--version":
             sys.exit(print(__version__))
 
-        if sys.argv[1] == "buckets":
+        if sys.argv[1] == "buckets" or sys.argv[1] == "list-buckets":
 
             try:
                 buckets = list_s3buckets()
@@ -864,10 +867,10 @@ def main():
             #print(update)
 
             if update == True:
-                print(json.dumps({'update':True}))
+                print(json.dumps({'label':True}))
                 sys.exit(0)
             else:
-                print(json.dumps({'update':False}))
+                print(json.dumps({'label':False}))
                 sys.exit(1)
             
 
@@ -1076,31 +1079,29 @@ def main():
 
 
         if sys.argv[1] == "rekognition":
-            print('rekognition')
+            #print('rekognition')
 
             s3path = sys.argv[2] #s3bucket/s3object
 
-            try:
-                option = sys.argv[3] #detect-labels
-            except IndexError as e:
-                option = None
+            try: option = sys.argv[3] #detect-labels
+            except IndexError: option = None
 
-            try:
-                destination = sys.argv[4] #destination
-            except IndexError as e:
-                destination = None
-
+            try: destination = sys.argv[4] #destination
+            except IndexError: destination = None
 
             s3bucket = s3path.split("/", 1)[0]
-            try:
-                s3object = s3path.split("/", 1)[1]
-            except IndexError as e:
-                s3object = ''
+            try: s3object = s3path.split("/", 1)[1]
+            except IndexError: s3object = ''
 
-            print(s3bucket)
-            print(s3object)
-            print(option)
-            print(destination)
+            #print(s3bucket)
+            #print(s3object)
+            #print(option)
+            #print(destination)
+
+            if option == 'detect-labels':
+                print('detect-labels')
+
+                sys.exit(0)
 
             #get rekognition json file content, if it exists
 
@@ -1115,11 +1116,13 @@ def main():
             except botocore.exceptions.ClientError as e:
                 #print(e.response)
                 if e.response['Error']['Code'] == 'NoSuchKey':
-                    print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                    #print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                    #print(json.dumps({'NoSuchKey':'Rekognition ' + s3object}, indent=2))
+                    print(json.dumps({'NoSuchKey':rekognition_json_file}, indent=2))
+                    sys.exit(1)
                 else:
                     print(json.dumps({'ClientError':str(e)}))
-
-                sys.exit(1)
+                    sys.exit(1)
 
             #print(body)
             #.decode("utf-8", "strict") # 'strict' (raise a UnicodeDecodeError exception)
@@ -1127,9 +1130,6 @@ def main():
             content = body.decode("utf-8", "strict").rstrip()
 
             print(content)
-
-
-
 
             sys.exit()
 
@@ -1279,6 +1279,77 @@ def main():
             print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
 
             sys.exit(0)
+
+        if sys.argv[1] == "b2sum":
+
+            s3path = sys.argv[2]
+
+            s3bucket = s3path.split("/", 1)[0]
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
+
+            s3 = boto3.resource('s3')
+            obj = s3.Object(s3bucket, s3object)
+
+            try:
+                s3response = obj.get()
+
+            except botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                else:
+                    print(json.dumps({'ClientError':str(e)}, indent=2))
+                sys.exit(1)
+
+            except botocore.exceptions.EndpointConnectionError as e:
+                print(json.dumps({'EndpointConnectionError':str(e)}, indent=2))
+                sys.exit(1)
+
+            except botocore.exceptions.ReadTimeoutError as e:
+                print(json.dumps({'ReadTimeoutError':str(e)}, indent=2))
+                sys.exit(1)
+
+
+            HTTPStatusCode = s3response['ResponseMetadata']['HTTPStatusCode']
+            #ContentLength  = s3response['ResponseMetadata']['ContentLength']
+            ContentLength  = s3response['ContentLength']
+            ContentType    = s3response['ContentType']
+            LastModified   = s3response['LastModified']
+
+            #print(HTTPStatusCode)
+            #print(ContentLength)
+            #print(ContentType)
+            #print(LastModified)
+
+            Objects = {}
+
+            #Objects['Name'] = s3object
+            #Objects['HTTPStatusCode'] = HTTPStatusCode
+            #Objects['ContentLength'] = ContentLength
+            #Objects['ContentType'] = ContentType
+            #Objects['LastModified'] = LastModified
+
+            #body = obj.get()['Body'].read()
+
+            body = s3response['Body'].read()
+
+            is_64bits = sys.maxsize > 2**32
+            if is_64bits:
+                blake = blake2b(digest_size=20)
+            else:
+                blake = blake2s(digest_size=20)
+
+            blake.update(body)
+            #print(str(blake.hexdigest()))
+
+            Objects['b2sum'] = str(blake.hexdigest())
+
+            print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
+
+            sys.exit(0)
+
 
 
         if sys.argv[1] == "server":
