@@ -902,9 +902,22 @@ def main():
                 #for key in s3_client.list_objects(Bucket=s3bucket, Prefix=s3object)['Contents']:
 
                 List=[]
-                for key in s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3object)['Contents']:
-                    #print(key['Key'])
-                    List.append(key['Key'])
+
+                try:
+                    for key in s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3object)['Contents']:
+                        #print(key['Key'])
+                        List.append(key['Key'])
+                except KeyError as e:
+                    #print('KeyError ' + str(e))
+                    #print(json.dumps({'KeyError':str(e)}, indent=2))
+                    #if 'Contents' in e:
+                    #print(e)
+                    if str(e).strip("'") == 'Contents':
+                        print(json.dumps({'EmptyBucket':s3bucket}, indent=2))
+
+                    sys.exit(0)
+
+
                 print(json.dumps(List, indent=2))
 
                 sys.exit(0)
@@ -1386,6 +1399,32 @@ def main():
 
             print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
 
+            sys.exit(0)
+
+        #upload source <s3bucket>/<s3object>
+
+        if sys.argv[1] == "upload":
+
+            source = sys.argv[2]
+            s3path = sys.argv[3]
+
+            s3bucket = s3path.split("/", 1)[0]
+            s3object = s3path.split("/", 1)[1]
+
+            s3_client = boto3.client('s3')
+
+            try:
+                s3_upload = s3_client.upload_file(source, s3bucket, s3object)
+            except botocore.exceptions.ClientError as e:
+                #print(str(e))
+                print(json.dumps({'ClientError':str(e)}, indent=2))
+                sys.exit(1)
+
+            #print(response) #None
+            #status_code = s3_upload['ResponseMetadata']['HTTPStatusCode']
+            #print(status_code)
+
+            print(json.dumps({'upload':True}, indent=2))
             sys.exit(0)
 
 
