@@ -1,7 +1,14 @@
 
 # s3labeler  
 
-## S3 Object Labeling Tool  
+s3 - Amazon Simple Storage Service    
+label - attached to an object and giving information about it    
+
+## S3 Object Labeling Tool   
+
+[![Package Version](https://img.shields.io/pypi/v/s3labeler.svg)](https://pypi.python.org/pypi/s3labeler/)
+[![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
+
 
 ## install
 ```
@@ -139,9 +146,20 @@ curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=detect-labels&s
 
 ---
 
+## run from source
+```
+python3 src/s3labeler/s3labeler.py
+```
+
+## run as python module
+```
+cd src/ && python3 -m s3labeler
+```
+
+---
 
 image label manager   
-runs an image through rekognition only once (to prevent recurring costs).  update each s3objects tags.   
+run an image through rekognition only once (to prevent recurring costs).  update each s3objects tags.   
 
 ---
 
