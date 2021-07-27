@@ -1,0 +1,283 @@
+
+            if option == 'detect-labels':
+                #print('detect-labels')
+                #print(s3bucket)
+                #print(s3object)
+
+                #region='us-west-2'
+
+                #either specify region or auto get region from boto call
+
+                #conn = boto3.connect_s3()
+                #bucket = conn.get_bucket(bucket_name)
+                #bucket_location = bucket.get_location()
+                #print(bucket_location)
+
+                #region = client.head_bucket(Bucket='bucket')['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region']
+                #botocore.exceptions.ClientError: An error occurred (403) when calling the HeadBucket operation: Forbidden
+
+                s3 = boto3.client('s3')
+                region = s3.head_bucket(Bucket=s3bucket)['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region']
+
+                #print(region)
+
+                client = boto3.client('rekognition', region_name=region)
+
+                #response = client.detect_labels(Image={'S3Object':{'Bucket':s3bucket,'Name':s3object}}, MaxLabels=10)
+                response = client.detect_labels(Image={'S3Object':{'Bucket':s3bucket,'Name':s3object}})
+
+                #print(str(type(response)))
+
+                #print(response)
+                print(json.dumps(response, indent=4))
+
+                #for label in response['Labels']:
+                #    print ("Label: " + label['Name'])
+
+
+                #f = open("/tmp/out.json", "w")
+                #f.write(json.dumps(response, indent=4))
+                #f.close()
+
+                #upload json
+
+                #import tempfile
+                #fp = tempfile.TemporaryFile()
+                #fp.write(json.dumps(response, indent=4)) #TypeError: a bytes-like object is required, not 'str'
+                #fp.write(response)
+
+
+                #fp = tempfile.TemporaryFile(mode="w+") #default is w+b
+                #fp.write(json.dumps(response, indent=4))
+
+                #tmp_file, filename = tempfile.mkstemp()
+                #print(filename)
+                #os.write(tmp_file, json.dumps(response, indent=4))
+
+                #with tempfile.NamedTemporaryFile() as tmp:
+                #    print(tmp.name)
+
+                #tmp_file, filename = tempfile.mkstemp()
+                #f = open(filename, "w")
+                #f.write(json.dumps(response, indent=4))
+
+                #fp = tempfile.TemporaryFile(mode="w+")
+                #fp.write(json.dumps(response, indent=4))
+                #fp.seek(0)
+                #data=f.read()
+
+                from tempfile import mkstemp
+                fd, path = mkstemp()
+
+                with open(path, 'w') as f:
+                    f.write(json.dumps(response, indent=4))
+
+                s3_client = boto3.client('s3')
+                try:
+                    #s3_upload = s3_client.upload_file(source, s3bucket, s3object)
+
+                    rekognition_json_file = 'rekognition/' + s3object + '.json'
+
+                    #s3_upload = s3_client.upload_file(fp.read().encode("utf-8"), s3bucket, rekognition_json_file)
+                    #s3_upload = s3_client.upload_file(filename, s3bucket, rekognition_json_file)
+
+                    s3_upload = s3_client.upload_file(path, s3bucket, rekognition_json_file)
+
+                    #fp.close()
+                    #os.close(tmp_file)
+                    #f.close()
+
+
+                except botocore.exceptions.ClientError as e:
+                    print(json.dumps({'ClientError':str(e)}, indent=2))
+                    sys.exit(1)
+
+                #print(json.dumps({'RekognitionUpload':str('Success')}, indent=2))
+                print(json.dumps({'RekognitionUpload':str('Success')}))
+                sys.exit(0)
+
+            #get rekognition json file content, if it exists
+
+            rekognition_json_file = 'rekognition/' + s3object + '.json'
+
+            s3 = boto3.resource('s3')
+
+            obj = s3.Object(s3bucket, rekognition_json_file)
+            try:
+                body = obj.get()['Body'].read()
+
+            except botocore.exceptions.ClientError as e:
+                #print(e.response)
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    #print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                    #print(json.dumps({'NoSuchKey':'Rekognition ' + s3object}, indent=2))
+                    print(json.dumps({'NoSuchKey':rekognition_json_file}, indent=2))
+                    sys.exit(1)
+                else:
+                    print(json.dumps({'ClientError':str(e)}))
+                    sys.exit(1)
+
+            #print(body)
+            #.decode("utf-8", "strict") # 'strict' (raise a UnicodeDecodeError exception)
+
+            content = body.decode("utf-8", "strict").rstrip()
+
+            print(content)
+
+            sys.exit()
+
+
+        if sys.argv[1] == "object":
+            s3path = sys.argv[2]
+
+            s3bucket = s3path.split("/", 1)[0]
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
+
+            #print(s3bucket)
+            #print(s3object)
+
+            s3 = boto3.resource('s3')
+            obj = s3.Object(s3bucket, s3object)
+
+            #print(obj)
+            #print(obj.get())
+            #body = obj.get()['Body'].read()
+
+            try:
+                s3response = obj.get()
+
+            except botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                else:
+                    print(json.dumps({'ClientError':str(e)}, indent=2))
+                sys.exit(1)
+
+
+            HTTPStatusCode = s3response['ResponseMetadata']['HTTPStatusCode']
+            #ContentLength  = s3response['ResponseMetadata']['ContentLength']
+            ContentLength  = s3response['ContentLength']
+            ContentType    = s3response['ContentType']
+            LastModified   = s3response['LastModified']
+
+            #print(HTTPStatusCode)
+            #print(ContentLength)
+            #print(ContentType)
+            #print(LastModified)
+
+            Objects = {}
+            #Objects['HTTPStatusCode'] = HTTPStatusCode
+            Objects['ContentLength'] = ContentLength
+            Objects['ContentType'] = ContentType
+            Objects['LastModified'] = LastModified
+
+            #print(Objects)
+
+            #print(json.dumps(Objects, indent=2)) #TypeError: Object of type datetime is not JSON serializable
+            # {'HTTPStatusCode': 200, 'ContentLength': 124169, 'ContentType': 'image/jpeg', 'LastModified': datetime.datetime(2021, 7, 24, 23, 50, 21, tzinfo=tzutc())}
+            print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
+
+            #sys.exit(print(json.dumps(objects, indent=2)))
+            sys.exit(0)
+
+        if sys.argv[1] == "identify" or sys.argv[1] == "id":
+
+            s3path = sys.argv[2]
+
+            s3bucket = s3path.split("/", 1)[0]
+            try:
+                s3object = s3path.split("/", 1)[1]
+            except IndexError as e:
+                s3object = ''
+
+            s3 = boto3.resource('s3')
+            obj = s3.Object(s3bucket, s3object)
+
+            #s3 = boto3.resource('s3')
+            #obj = s3.Object(s3bucket, s3object)
+            #s3response = obj.get()
+
+            try:
+                s3response = obj.get()
+
+            except botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    print(json.dumps({'NoSuchKey':s3object}, indent=2))
+                else:
+                    print(json.dumps({'ClientError':str(e)}, indent=2))
+                sys.exit(1)
+
+            except botocore.exceptions.EndpointConnectionError as e:
+                print(json.dumps({'EndpointConnectionError':str(e)}, indent=2))
+                sys.exit(1)
+
+
+            HTTPStatusCode = s3response['ResponseMetadata']['HTTPStatusCode']
+            #ContentLength  = s3response['ResponseMetadata']['ContentLength']
+            ContentLength  = s3response['ContentLength']
+            ContentType    = s3response['ContentType']
+            LastModified   = s3response['LastModified']
+
+            #print(HTTPStatusCode)
+            #print(ContentLength)
+            #print(ContentType)
+            #print(LastModified)
+
+            Objects = {}
+
+            Objects['Name'] = s3object
+
+            #Objects['HTTPStatusCode'] = HTTPStatusCode
+
+            Objects['ContentLength'] = ContentLength
+            Objects['ContentType'] = ContentType
+            Objects['LastModified'] = LastModified
+
+            #body = obj.get()['Body'].read()
+
+            body = s3response['Body'].read()
+
+
+            #import tempfile
+            #fp = tempfile.TemporaryFile()
+            #fp.write(body)
+            #with open(fp, 'rb') as bfile:
+            #    _f = bfile.read()
+
+
+            is_64bits = sys.maxsize > 2**32
+            if is_64bits:
+                blake = blake2b(digest_size=20)
+            else:
+                blake = blake2s(digest_size=20)
+
+            #with open(body, 'rb') as bfile:
+            #    _f = bfile.read()
+            #blake.update(_f)
+            blake.update(body)
+            #print(str(blake.hexdigest()))
+            Objects['b2sum'] = str(blake.hexdigest())
+
+
+            try:
+                data = body.decode('utf-8', 'strict')
+                Objects['Encoding'] = 'utf-8'
+            except UnicodeDecodeError:
+                data = body
+                Objects['Encoding'] = 'bytes'
+
+            print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
+
+            sys.exit(0)
+
+
+
+
+
+
+
+
+

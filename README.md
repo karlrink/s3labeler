@@ -90,7 +90,7 @@ curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?tags=rekognition"
 ```   
 curl -X PATCH \
      -H "Content-Type: application/json" \
-     -d '{"labeler":"karl.rink"}' \
+     -d '{"labeler":"karl"}' \
      http://127.0.0.1:8880/s3/<s3bucket>/<s3object>    
 ```   
 
@@ -104,7 +104,7 @@ curl -X DELETE "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?tag=tag_name"
 ```   
 curl -X PUT \
      -H "Content-Type: application/json" \
-     -d '{"labeler":"karl.rink@nationsinfocorp.com","image_url":"https://<s3bucket>.s3.us-west-2.amazonaws.com/<s3object>"}' \
+     -d '{"labeler":"karl","image_url":"https://<s3bucket>.s3.us-west-2.amazonaws.com/<s3object>"}' \
      http://127.0.0.1:8880/s3/<s3bucket>/<s3object>    
 ```   
 
@@ -120,15 +120,10 @@ curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=json"
 curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=words"
 ```
  
----
-
 #### set rekognition words to s3object tag set
 ```
 curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=words&save=s3tag"
 ```
-
----
-
 
 ### run image through aws rekognition
 

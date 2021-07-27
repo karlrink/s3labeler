@@ -160,12 +160,40 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
         if rekognition == 'detect-labels':
 
-            #TODO
+            #either specify region or auto get region from boto call
+            s3 = boto3.client('s3')
+            region = s3.head_bucket(Bucket=s3bucket)['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region']
 
-            
-            return jsonify(status=200, message="OK"), 200, {'Content-Type':'application/json;charset=utf-8'}
+            client = boto3.client('rekognition', region_name=region)
 
-            
+            #response = client.detect_labels(Image={'S3Object':{'Bucket':s3bucket,'Name':s3object}}, MaxLabels=10)
+            response = client.detect_labels(Image={'S3Object':{'Bucket':s3bucket,'Name':s3object}})
+
+            #print(json.dumps(response, indent=4))
+
+            if save: #?save=true
+                #save json
+
+                from tempfile import mkstemp
+                fd, path = mkstemp()
+
+                with open(path, 'w') as f:
+                    f.write(json.dumps(response, indent=4))
+
+                s3_client = boto3.client('s3')
+
+                try:
+                    rekognition_json_file = 'rekognition/' + s3object + '.json'
+                    
+                    s3_upload = s3_client.upload_file(path, s3bucket, rekognition_json_file)
+
+                except botocore.exceptions.ClientError as e:
+                    return jsonify(status=599, message="ClientError", error=str(e)), 599, {'Content-Type':'application/json;charset=utf-8'}
+
+                return jsonify(response), 201, {'Content-Type':'application/json;charset=utf-8'}
+            else:
+                return jsonify(response), 200, {'Content-Type':'application/json;charset=utf-8'}
+
 
         if rekognition == 'json':
             rekognition_json_file = 'rekognition/' + s3object + '.json'
