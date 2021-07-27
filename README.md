@@ -159,13 +159,17 @@ cd src/ && python3 -m s3labeler
 ---
 
 image label manager   
-run an image through rekognition only once (to prevent recurring costs).  update each s3objects tags.   
+run an image through rekognition only once (to prevent recurring costs).  update s3objects tags.   
 
 ---
 
 tech notes   
  - aws rekognition detect-labels leverages amazons proprietary ML model for image recognition   
  - image file bytes are not transfered or processed through this interface for rekognition     
+
+https://aws.amazon.com/s3/   
+https://aws.amazon.com/rekognition/    
+
 
 
 

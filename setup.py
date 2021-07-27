@@ -11,12 +11,12 @@ setup(
     entry_points = {
         "console_scripts": ['s3labeler = s3labeler.s3labeler:main']
         },
-    version = '0.0.0',
+    version = '1.0.0',
     description = "label s3 objects",
     long_description = "label s3 objects cli and REST API",
     author = "Karl Rink",
     author_email = "karl@rink.us",
     url = "https://gitlab.com/krink/s3labeler",
-    install_requires = [ 'boto3' ]
+    install_requires = [ ]
     )
 
