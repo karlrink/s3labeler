@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.0.0.b1'
+__version__ = '0.0.0.b2'
 
 import sys
 
@@ -96,6 +96,7 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
     rekognition = request.args.get("rekognition", None)
     tags        = request.args.get("tags", None)
+    save        = request.args.get("save", None)
 
     s3_client = boto3.client('s3')
 
@@ -157,6 +158,15 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
     if rekognition:
 
+        if rekognition == 'detect-labels':
+
+            #TODO
+
+            
+            return jsonify(status=200, message="OK"), 200, {'Content-Type':'application/json;charset=utf-8'}
+
+            
+
         if rekognition == 'json':
             rekognition_json_file = 'rekognition/' + s3object + '.json'
             #rekognition_json_content = get_rekognition_json(s3bucket, rekognition_json_file)
@@ -179,11 +189,50 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             #print(str(_wL))
 
             if rekognition_json_content:
-
                 #wordList = [ 'Tree', 'Garage', 'Donuts' ]
 
                 wordList = extract_rekognition_words(rekognition_json_content)
-                print(str(wordList))
+                #print(str(wordList))
+
+                if save == 's3tag':
+                    print('s3tag')
+                    #
+                    s3 = boto3.resource('s3')
+                    obj = s3.Object(s3bucket, rekognition_json_file)
+                    try:
+                        body = obj.get()['Body'].read()
+
+                    except botocore.exceptions.ClientError as e:
+                        if e.response['Error']['Code'] == 'NoSuchKey':
+                            #print(json.dumps({'NoSuchKey':rekognition_json_file}, indent=2))
+                            return jsonify(status=404, message="Not Found", s3object=False, key=rekognition_json_file), 404, {'Content-Type':'application/json;charset=utf-8'}
+                        else:
+                            #print(json.dumps({'ClientError':str(e)}))
+                            return jsonify(status=599, message="ClientError", s3object=False, key=rekognition_json_file, error=str(e)), 599, {'Content-Type':'application/json;charset=utf-8'}
+
+                    content = body.decode("utf-8", "strict").rstrip()
+
+                    data = json.loads(content)
+
+                    List=[]
+                    for key in data['Labels']:
+                        List.append(key['Name'])
+
+                    listToStr = ' '.join([str(elem) for elem in List])
+
+                    tag = 'rekognition-words'
+
+                    update = update_s3object_tag(s3bucket, s3object, tag, listToStr)
+
+                    if update == True:
+                        #print(json.dumps({'label':True}))
+                        return jsonify(status=201, message="Created S3Tag", label=True), 201, {'Content-Type':'application/json;charset=utf-8'}
+                    else:
+                        #print(json.dumps({'label':False}))
+                        return jsonify(status=465, message="Failed S3Tag", label=False), 465, {'Content-Type':'application/json;charset=utf-8'}
+
+
+
 
                 return jsonify(wordList), 200, {'Content-Type':'application/json;charset=utf-8'}
             else:

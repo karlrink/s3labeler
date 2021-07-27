@@ -3,6 +3,11 @@
 
 ## S3 Object Labeling Tool  
 
+## install
+```
+pip install s3labeler
+```
+
 ## cli  
 ```
 s3labeler --help
@@ -122,7 +127,6 @@ curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=words"
 curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=words&save=s3tag"
 ```
 
-
 ---
 
 
@@ -133,15 +137,10 @@ curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=words&save=s3ta
 curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=detect-labels"
 ```
 
-  - action: if a rekognition json exists, present that. otherwise run generate new rekognition json and save
-
 #### run image through aws rekognition detect-labels and save/overwrite with new json HTTP GET
 ```
 curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=detect-labels&save=true"
 ```
-
-  - action: generate new rekognition json and save
-
 
 ---
 
