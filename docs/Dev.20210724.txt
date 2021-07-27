@@ -1,5 +1,0 @@
-
-botocore.exceptions.ClientError: An error occurred (InvalidTag) when calling the PutObjectTagging operation: The TagValue you have provided is invalid
-🧨 krink@KarlMBPro s3labeler % ./s3labeler.py set wmn/1cf9b705aae6f506ebcb1f118860bf9b46fa801a.jpg '{"fileCommand":"JPEG image data, JFIF standard 1.01, resolution (DPI), density 72x72"}'
-
-
