@@ -116,23 +116,11 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
     if _k != s3object:
         return jsonify(status=569, message="Objects Do Not Match", object1=str(_k), ojbect2=str(s3object)), 569, {'Content-Type':'application/json;charset=utf-8'}
 
-    #s3object#
-
     if tags:
 
         if tags == 's3':
-            print('s3tags')
-            #aws s3api get-object-tagging --bucket ninfo-property-images --key 2eece964b6f902124052810e5a92d6f9ca715c1b.jpg
 
             get_s3tags = get_s3object_tags(s3bucket, s3object)
-            #s3tags = get_s3object_tags(s3bucket, s3object)
-            #print(s3tags)
-
-            #for key in s3tags['TagSet']:
-            #    #print(key)
-            #    print(key['Key'], key['Value'])
-
-            #print(str(s3tags['TagSet']))
 
             s3Tags = {}
             for key in get_s3tags['TagSet']:
@@ -147,7 +135,6 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
             rekognition_json_file = 'rekognition/' + s3object + '.json'
 
-            #rekognition_json_content = get_rekognition_json(s3bucket, rekognition_json_file)
             rekognition_json_content = get_s3object_body(s3bucket, rekognition_json_file)
 
             if rekognition_json_content:
@@ -169,10 +156,7 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             #response = client.detect_labels(Image={'S3Object':{'Bucket':s3bucket,'Name':s3object}}, MaxLabels=10)
             response = client.detect_labels(Image={'S3Object':{'Bucket':s3bucket,'Name':s3object}})
 
-            #print(json.dumps(response, indent=4))
-
-            if save: #?save=true
-                #save json
+            if save:
 
                 from tempfile import mkstemp
                 fd, path = mkstemp()
@@ -197,7 +181,6 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
         if rekognition == 'json':
             rekognition_json_file = 'rekognition/' + s3object + '.json'
-            #rekognition_json_content = get_rekognition_json(s3bucket, rekognition_json_file)
             rekognition_json_content = get_s3object_body(s3bucket, rekognition_json_file)
             if rekognition_json_content:
                 return rekognition_json_content, 200, {'Content-Type':'application/json;charset=utf-8'}
@@ -207,24 +190,14 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
         if rekognition == 'words':
 
             rekognition_json_file = 'rekognition/' + s3object + '.json'
-            #rekognition_json_content = get_rekognition_json(s3bucket, rekognition_json_file)
             rekognition_json_content = get_s3object_body(s3bucket, rekognition_json_file)
 
-            #print(str(type(rekognition_json_content)))
-            #print(str(rekognition_json_content))
-
-            #_wL = extract_rekognition_words(rekognition_json_content)
-            #print(str(_wL))
-
             if rekognition_json_content:
-                #wordList = [ 'Tree', 'Garage', 'Donuts' ]
 
                 wordList = extract_rekognition_words(rekognition_json_content)
-                #print(str(wordList))
 
                 if save == 's3tag':
-                    print('s3tag')
-                    #
+
                     s3 = boto3.resource('s3')
                     obj = s3.Object(s3bucket, rekognition_json_file)
                     try:
@@ -232,10 +205,8 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
                     except botocore.exceptions.ClientError as e:
                         if e.response['Error']['Code'] == 'NoSuchKey':
-                            #print(json.dumps({'NoSuchKey':rekognition_json_file}, indent=2))
                             return jsonify(status=404, message="Not Found", s3object=False, key=rekognition_json_file), 404, {'Content-Type':'application/json;charset=utf-8'}
                         else:
-                            #print(json.dumps({'ClientError':str(e)}))
                             return jsonify(status=599, message="ClientError", s3object=False, key=rekognition_json_file, error=str(e)), 599, {'Content-Type':'application/json;charset=utf-8'}
 
                     content = body.decode("utf-8", "strict").rstrip()
@@ -253,10 +224,8 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
                     update = update_s3object_tag(s3bucket, s3object, tag, listToStr)
 
                     if update == True:
-                        #print(json.dumps({'label':True}))
                         return jsonify(status=201, message="Created S3Tag", label=True), 201, {'Content-Type':'application/json;charset=utf-8'}
                     else:
-                        #print(json.dumps({'label':False}))
                         return jsonify(status=465, message="Failed S3Tag", label=False), 465, {'Content-Type':'application/json;charset=utf-8'}
 
 
@@ -267,42 +236,7 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
                 return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404, {'Content-Type':'application/json;charset=utf-8'}
 
 
-            #wordList = [ 'Tree', 'Garage', 'Donuts' ]
-            #if len(wordList) > 0:
-            #    return jsonify(wordList), 200, {'Content-Type':'application/json;charset=utf-8'}
-            #else:
-            #    return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404, {'Content-Type':'application/json;charset=utf-8'}
-
-
     return jsonify(status=200, message="OK", s3object=True, name=_k), 200, {'Content-Type':'application/json;charset=utf-8'}
-
-
-
-##GET    /s3/<s3bucket>/<s3object>     # List object
-#@app.route("/s3/<s3bucket>/<s3object>", methods=['GET'])
-#def get_s3bucketobject(s3bucket=None,s3object=None):
-#    assert s3bucket == request.view_args['s3bucket']
-#    assert s3object == request.view_args['s3object']
-#
-#    s3_client = boto3.client('s3')
-#
-#    try:
-#        s3_result = s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3object, Delimiter = "/")
-#    except botocore.exceptions.EndpointConnectionError as e:
-#        return jsonify(status=599, message="EndpointConnectionError", error=str(e)), 599
-#
-#    try:
-#        for key in s3_result['Contents']:
-#            #print(key['Key'])
-#            _k = key['Key']
-#    except KeyError as e:
-#        _k = s3_result['Prefix']
-#        return jsonify(status=404, message="Not Found", existing=False, key=_k), 404
-#
-#    if _k != s3object:
-#        return jsonify(status=569, message="Objects Do Not Match", object1=str(_k), ojbect2=str(s3object)), 569
-#
-#    return jsonify(status=200, message="OK", existing=True, key=_k), 200
 
 
 #PUT      /s3/<s3bucket>/<s3object>         # set s3object tag set keys and values   
@@ -317,12 +251,6 @@ def set_s3bucketobject(s3bucket=None,s3object=None):
 
     post = request.get_json()
 
-    #print(str(type(post))) #<class 'dict'>
-    #print(str(post))       #{'labler': 'karl...
-    
-    #jsondata = json.loads('{}')
-
-    #settagset = set_s3object_tags(s3bucket, s3object, jsondata)
     settagset = set_s3object_tags(s3bucket, s3object, post)
 
     print(settagset)
@@ -357,9 +285,7 @@ def set_s3bucketobjectpatch(s3bucket=None,s3object=None):
     if update is True:
         return jsonify(status=200, message="OK", name=s3object, method="PATCH"), 200, {'Content-Type':'application/json;charset=utf-8'}
 
-    #return jsonify(status=200, message="OK", name=s3object, method="PUT"), 200, {'Content-Type':'application/json;charset=utf-8'}
     return jsonify(status=465, message="Failed Patch", name=s3object, tag=tag, method="PATCH", update=False), 465, {'Content-Type':'application/json;charset=utf-8'}
-
 
 
 
@@ -373,8 +299,6 @@ def delete_s3bucketobjecttag(s3bucket=None,s3object=None):
     tag = request.args.get("tag", None)
 
     if tag:
-        #return jsonify(status=466, message="No Such Tag", name=s3object, tag=tag, method="DELETE", delete=False), 466, {'Content-Type':'application/json;charset=utf-8'}
-        #return jsonify(status=466, message="No Such Tag", name=s3object, tag=tag, method="DELETE", delete=False), 466, {'Content-Type':'application/json;charset=utf-8'}
 
         delete_tag = delete_s3object_tag(s3bucket, s3object, tag)
 
@@ -382,11 +306,7 @@ def delete_s3bucketobjecttag(s3bucket=None,s3object=None):
 
             return jsonify(status=211, message="Deleted", name=s3object, tag=tag, method="DELETE", delete=True), 211, {'Content-Type':'application/json;charset=utf-8'}
 
-
-    #return jsonify(status=211, message="Deleted", name=s3object, tag=tag, method="DELETE", delete=True), 211, {'Content-Type':'application/json;charset=utf-8'}
     return jsonify(status=466, message="Failed Delete", name=s3object, tag=tag, method="DELETE", delete=False), 466, {'Content-Type':'application/json;charset=utf-8'}
-
-
 
 
 #GET    /s3/<s3bucket>/<s3subdir>/<s3object> # List object
@@ -396,24 +316,16 @@ def get_s3bucketsubdirobject(s3bucket=None,s3subdir=None,s3object=None):
     assert s3subdir == request.view_args['s3subdir']
     assert s3object == request.view_args['s3object']
 
-    #print(s3bucket)
-    #print(s3subdir)
-    #print(s3object)
-
     s3_client = boto3.client('s3')
 
     prefix = s3subdir + '/' + s3object
 
     s3_result = s3_client.list_objects_v2(Bucket=s3bucket, Prefix=prefix, Delimiter = "/")
 
-#    for key in s3_result['Contents']:
-#        print(key['Key'])
-
     _exist=False
 
     try:
         for key in s3_result['Contents']:
-            #print(key['Key'])
             _k = key['Key']
             _exist=True
     except KeyError as e:
@@ -429,12 +341,6 @@ def get_s3bucketsubdir(s3bucket=None,s3subdir=None):
     assert s3bucket == request.view_args['s3bucket']
     assert s3subdir == request.view_args['s3subdir']
 
-    #print(s3bucket)
-    #print(s3subdir)
-
-    #bucket      = "bucket-name"
-    #prefix      = "folder/"
-
     prefix = s3subdir + '/'
 
     s3_client = boto3.client('s3')
@@ -443,7 +349,6 @@ def get_s3bucketsubdir(s3bucket=None,s3subdir=None):
     s3objects=[]
     try:
         for key in s3_result['Contents']:
-            #print(key['Key'])
             s3objects.append(key['Key'])
     except KeyError as e:
         return jsonify(status=404, message="Not Found", prefix=prefix), 404, {'Content-Type':'application/json;charset=utf-8'}
@@ -452,8 +357,6 @@ def get_s3bucketsubdir(s3bucket=None,s3subdir=None):
     if len(s3objects) < 0:
         return jsonify(status=404, message="Not Found", s3object=False, prefix=prefix), 404, {'Content-Type':'application/json;charset=utf-8'}
 
-    #return jsonify(status=200, message="OK", existing=_exist, key=None), 200
-    #return jsonify(status=200, message="OK", prefix=prefix), 200
     return jsonify(s3objects), 200, {'Content-Type':'application/json;charset=utf-8'}
      
 
@@ -461,8 +364,6 @@ def get_s3bucketsubdir(s3bucket=None,s3subdir=None):
 @app.route("/s3/<s3bucket>/", methods=['GET'])
 def get_s3bucketdir(s3bucket=None):             
     assert s3bucket == request.view_args['s3bucket']
-
-    #print(s3bucket)
 
     s3_client = boto3.client('s3')
 
@@ -478,7 +379,6 @@ def get_s3bucketdir(s3bucket=None):
     except KeyError as e:
         return jsonify(status=404, message="Not Found", s3bucket=s3bucket), 404, {'Content-Type':'application/json;charset=utf-8'}
 
-    #print(len(s3objects))
     if len(s3objects) < 0:
         return jsonify(status=404, message="Not Found", s3objects=0, s3bucket=s3bucket), 404, {'Content-Type':'application/json;charset=utf-8'}
 
@@ -501,36 +401,6 @@ def not_found(error=None):
 
 
 
-#@app.errorhandler(Exception)
-#def handle_exception(e):
-#
-#    if isinstance(e, HTTPException):
-#        return jsonify(status=e.code, errorType="HTTP Exception", errorMessage=str(e)), e.code
-#
-#    if type(e).__name__ == 'OperationalError':
-#        return jsonify(status=512, errorType="OperationalError", errorMessage=str(e)), 512
-#
-#    if type(e).__name__ == 'InterfaceError':
-#        return jsonify(status=512, errorType="InterfaceError", errorMessage=str(e)), 512
-#
-#    if type(e).__name__ == 'ProgrammingError':
-#        return jsonify(status=512, errorType="ProgrammingError", errorMessage=str(e)), 512
-#
-#    if type(e).__name__ == 'AttributeError':
-#        return jsonify(status=512, errorType="AttributeError", errorMessage=str(e)), 512
-#
-#    res = {'status': 500, 'errorType': 'Internal Server Error'}
-#    res['errorMessage'] = str(e)
-#    return jsonify(res), 500
-#
-
-
-###############################################################################################################################################
-
-#def get_rekognition_json(s3bucket, s3object):
-#    return get_s3object_body(s3bucket, s3object)
-
-
 def get_s3object_body(s3bucket, s3object): #gets file contents data
     s3 = boto3.resource('s3')
     obj = s3.Object(s3bucket, s3object)
@@ -538,9 +408,6 @@ def get_s3object_body(s3bucket, s3object): #gets file contents data
         body = obj.get()['Body'].read()
     except botocore.exceptions.ClientError as ex:
         print('ClientError ' + str(ex))
-        #if ex.response['Error']['Code'] == 'NoSuchKey':
-        #    print('NoSuchKey')
-        #    return None
         return None
 
     #return body                #<class 'bytes'>
@@ -578,7 +445,6 @@ def set_s3object_tags(s3bucket, s3object, post):
         return True
     else:
         return False
-    #return None
 
 
 
@@ -592,17 +458,14 @@ def update_s3object_tag(s3bucket, s3object, tag, value):
         Key=s3object,
     )
 
-    # get existing tags
     s3Tags = {}
     for key in get_tags_response['TagSet']:
         __k = key['Key']
         __v = key['Value']
         s3Tags[__k]=__v
 
-    # overwrite existing key/value w/ new 
     s3Tags[tag]=value
 
-    # write out new dict
     KeyValList = []
     for k,v in s3Tags.items():
         kvs={}
@@ -612,15 +475,11 @@ def update_s3object_tag(s3bucket, s3object, tag, value):
 
     TagSet = { 'TagSet': KeyValList }
 
-    # put new dict
     put_tags_response = s3_client.put_object_tagging(
         Bucket=s3bucket,
         Key=s3object,
         Tagging=TagSet
     )
-
-    #print(str(put_tags_response))
-    #for key in put_tags_response['ResponseMetadata']:
 
     status_code = put_tags_response['ResponseMetadata']['HTTPStatusCode']
 
@@ -629,21 +488,6 @@ def update_s3object_tag(s3bucket, s3object, tag, value):
     else:
         return False
 
-
-
-
-#put_tags_response = s3_client.put_object_tagging(
-#    Bucket='your-bucket-name',
-#    Key='folder-if-any/file-name.extension',
-#    Tagging={
-#        'TagSet': [
-#            {
-#                'Key': 'tag-key',
-#                'Value': 'tag-value'
-#            },
-#        ]
-#    }
-#)
 
 def delete_s3object_tag(s3bucket, s3object, tag):
     
@@ -661,28 +505,19 @@ def delete_s3object_tag(s3bucket, s3object, tag):
     if int(get_tags_response_code) != 200:
         return False
 
-    # get existing tags
     s3Tags = {}
     for key in get_tags_response['TagSet']:
         __k = key['Key']
         __v = key['Value']
         s3Tags[__k]=__v
 
-    #overwrite existing key/value w/ new 
-    #s3Tags[tagkey]=tagval
-
-    # delete the key regardless
-    #s3Tags.pop(tag, None)
-
     if tag not in s3Tags:
         return False
 
-    # delete the key regardless
     delete = s3Tags.pop(tag, None)
     if delete is None:
         return False
 
-    #write out new dict
     KeyValList = []
     for k,v in s3Tags.items():
         kvs={}
@@ -697,9 +532,6 @@ def delete_s3object_tag(s3bucket, s3object, tag):
         Key=s3object,
         Tagging=TagSet
     )
-
-    #print(str(put_tags_response))
-    #for key in put_tags_response['ResponseMetadata']:
 
     put_tags_response_code = put_tags_response['ResponseMetadata']['HTTPStatusCode']
 
@@ -719,65 +551,7 @@ def extract_rekognition_words(rekognition_json_content):
     for key in data['Labels']:
         List.append(str(key['Name']))
 
-#order matters...
-# dict
-#{'Name': 'Tree', 'Confidence': 90.44393920898438, 'Instances': [], 'Parents': [{'Name': 'Plant'}]}
-#{'Name': 'Plant', 'Confidence': 90.44393920898438, 'Instances': [], 'Parents': []}
-#{'Name': 'Urban', 'Confidence': 85.79068756103516, 'Instances': [], 'Parents': []}
-#{'Name': 'Building', 'Confidence': 74.22905731201172, 'Instances': [], 'Parents': []}
-#{'Name': 'Flagstone', 'Confidence': 72.1240005493164, 'Instances': [], 'Parents': []}
-#{'Name': 'Vegetation', 'Confidence': 71.17005920410156, 'Instances': [], 'Parents': [{'Name': 'Plant'}]}
-#{'Name': 'Garage', 'Confidence': 66.02606964111328, 'Instances': [], 'Parents': []}
-#{'Name': 'Housing', 'Confidence': 65.3967056274414, 'Instances': [], 'Parents': [{'Name': 'Building'}]}
-#{'Name': 'Tarmac', 'Confidence': 64.69490814208984, 'Instances': [], 'Parents': []}
-#{'Name': 'Asphalt', 'Confidence': 64.69490814208984, 'Instances': [], 'Parents': []}
-#{'Name': 'Home Decor', 'Confidence': 62.33171081542969, 'Instances': [], 'Parents': []}
-#{'Name': 'Walkway', 'Confidence': 58.68953323364258, 'Instances': [], 'Parents': [{'Name': 'Path'}]}
-#{'Name': 'Path', 'Confidence': 58.68953323364258, 'Instances': [], 'Parents': []}
-#{'Name': 'Suburb', 'Confidence': 57.164859771728516, 'Instances': [], 'Parents': [{'Name': 'Urban'}, {'Name': 'Building'}]}
-#{'Name': 'Bush', 'Confidence': 56.60989761352539, 'Instances': [], 'Parents': [{'Name': 'Vegetation'}, {'Name': 'Plant'}]}
-#{'Name': 'Slate', 'Confidence': 56.16239547729492, 'Instances': [], 'Parents': []}
-#{'Name': 'Concrete', 'Confidence': 55.33432388305664, 'Instances': [], 'Parents': []}
-
-#[
-#  "Tree", 
-#  "Plant", 
-#  "Urban", 
-#  "Building", 
-#  "Flagstone", 
-#  "Vegetation", 
-#  "Garage", 
-#  "Housing", 
-#  "Tarmac", 
-#  "Asphalt", 
-#  "Home Decor", 
-#  "Walkway", 
-#  "Path", 
-#  "Suburb", 
-#  "Bush", 
-#  "Slate", 
-#  "Concrete"
-#]
-
     return List
-
-#def list_s3buckets():
-#    s3 = boto3.resource('s3')
-#    #print('hit buckets')
-#    try:
-#        bucket_list = [b.name for b in s3.buckets.all()]
-#    except botocore.exceptions.EndpointConnectionError as e:
-#        #print(json.dumps({'EndpointConnectionError':'s3.buckets'}))
-#        #return []
-#        #return [json.dumps({'EndpointConnectionError':'s3.buckets'})]
-#        #return [{'EndpointConnectionError':'s3.buckets', 'errorMessage':''}]
-#        return [{'EndpointConnectionError': str(e) }]
-#    #except botocore.exceptions.ClientError as e:
-#    #    if e.response['Error']['Code'] == 'EndpointConnectionError':
-#    #        print(json.dumps({'EndpointConnectionError':s3object}))
-#    #        return []
-#
-#    return bucket_list
 
 
 def list_s3buckets():
@@ -786,20 +560,7 @@ def list_s3buckets():
     return bucket_list
 
 
-
-
-
-#def get_s3bucket_objects(s3path):
 def get_s3bucket_objects(s3bucket, s3object):
-
-    #s3bucket = s3path.split("/", 1)[0]
-    #try:
-    #    s3prefix = s3path.split("/", 1)[1]
-    #except IndexError as e:
-    #    s3prefix = ''
-
-    #print(s3bucket)
-    #print(s3prefix)
 
     s3_client = boto3.client('s3')
 
@@ -808,61 +569,11 @@ def get_s3bucket_objects(s3bucket, s3object):
     try:
         s3_result = s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3object, Delimiter = "/")
 
-    #except botocore.exceptions.ClientError as ex:
-    #    raise RuntimeError('s3 ClientError: ' + str(ex))
     except botocore.exceptions.EndpointConnectionError as e:
-        #s3_result = None
-        #raise RuntimeError('s3 EndpointConnectionError: ' + str(ex))
-        #print('s3 EndpointConnectionError: ' + str(e))
         s3_result['ResponseMetadata'] = {'HTTPStatusCode': 0, 'BotoError': str(e)}
-
 
     return s3_result
     
-
-
-#def bucketprefix(s3path):
-#    print(s3path)
-#    s3bucket = s3path.split("/")[0]
-#    s3prefix = s3path.split("/")[1:]
-#    print(s3bucket, ' ', s3prefix)
-#    return s3bucket, s3prefix
-
-   
-
-###############################################################################################################################################
-
-
-def b2sum(_file):
-    is_64bits = sys.maxsize > 2**32
-    if is_64bits:
-        blake = blake2b(digest_size=20)
-    else:
-        blake = blake2s(digest_size=20)
-    try:
-        with open(_file, 'rb') as bfile:
-            _f = bfile.read()
-    except FileNotFoundError as e:
-        return str(e)
-
-    blake.update(_f)
-    return str(blake.hexdigest())
-
-def b2checksum(_string):
-    is_64bits = sys.maxsize > 2**32
-    if is_64bits:
-        blake = blake2b(digest_size=20)
-    else:
-        blake = blake2s(digest_size=20)
-
-    s = _string.encode('utf-8')
-
-    blake.update(s)
-    return str(blake.hexdigest())
-
-
-###############################################################################################################################################
-
 
 def main():
 
@@ -878,15 +589,10 @@ def main():
 
             try:
                 buckets = list_s3buckets()
-            #except botocore.exceptions.ClientError as e:
-            #except botocore.exceptions.EndpointConnectionError as e:
             except Exception as e:
-                #buckets = None
-                #sys.exit(print(e))
                 print(json.dumps({'error':str(e)}))
                 sys.exit(1)
             
-
             sys.exit(print(json.dumps(buckets, indent=2)))
 
         if sys.argv[1] == "del":
@@ -923,24 +629,16 @@ def main():
 
             data = json.loads(s3json)
 
-            #print(len(data))
-
             if len(data) > 1:
                 print('data larger than 1')
                 sys.exit(1)
 
            
             for k,v in data.items():
-                #print(k)
-                #print(v)
                 tag = k
                 val = v
 
-            
-            #update = update_s3object_tag(s3bucket, s3object, tag, value)
-
             update = update_s3object_tag(s3bucket, s3object, tag, val)
-            #print(update)
 
             if update == True:
                 print(json.dumps({'label':True}))
@@ -960,48 +658,20 @@ def main():
                 s3object = ''
 
             if s3path.endswith("/"):
-                #list all files
-                #list_objects = list_s3objects(s3bucket, s3object)
-
-                #print('list.all')
-
-                #s3object = s3object + '/'
 
                 s3_client = boto3.client('s3')
-
-                #for key in s3_client.list_objects(Bucket=s3bucket, Prefix=s3object)['Contents']:
-                #for key in s3_client.list_objects(Bucket=s3bucket, Prefix=s3object)['Contents']:
-                #    print(key['Key'])
-
-                #for key in s3_client.list_objects(Bucket=s3bucket, Prefix=s3object):
-
-                #for key in s3_client.list_objects(Bucket=s3bucket, Prefix=s3object)['Contents']:
 
                 List=[]
 
                 try:
                     for key in s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3object)['Contents']:
-                        #print(key['Key'])
                         List.append(key['Key'])
                 except KeyError as e:
-                    #print('KeyError ' + str(e))
-                    #print(json.dumps({'KeyError':str(e)}, indent=2))
-                    #if 'Contents' in e:
-                    #print(e)
-                    #if str(e).strip("'") == 'Contents':
-                    #    print(json.dumps({'EmptyBucket':s3bucket}, indent=2))
                     print('KeyError ' + str(e))
-
                     sys.exit(0)
 
-
                 print(json.dumps(List, indent=2))
-
                 sys.exit(0)
-
-
-            #get_s3tags={}
-            #get_s3tags['TagSet']=[]
 
             try:
                 get_s3tags = get_s3object_tags(s3bucket, s3object)
@@ -1014,23 +684,12 @@ def main():
                 print(json.dumps({'ParamValidationError':str(e)}, indent=2))
                 sys.exit(1)
 
-            #except botocore.errorfactory.NoSuchKey as e:
             except botocore.exceptions.ClientError as e:
-                #print('BotoError ' + str(e))
                 if e.response['Error']['Code'] == 'NoSuchKey':
-                    #print('NoSuchKey')
-                    #print('NoSuchKey: ' + str(s3object))
-                   #print(json.dumps({'NoSuchKey':s3object, 'ClientError':str(e)}, indent=2))
                    print(json.dumps({'NoSuchKey':s3object}, indent=2))
-                   #sys.exit(1)
                 else:
-                   # print(e)
                    print(json.dumps({'ClientError':str(e)}, indent=2))
-                   #sys.exit(1)
-
                 sys.exit(1)
-
-            #print(s3tags)
 
             s3Tags = {}
             for key in get_s3tags['TagSet']:
@@ -1039,13 +698,11 @@ def main():
                 s3Tags[__k]=__v
 
             print(json.dumps(s3Tags, indent=2))
-            #print(json.dumps(s3Tags))
             sys.exit(0)
 
 
 
         if sys.argv[1] == "get":
-            #print('get')
 
             s3path = sys.argv[2]
 
@@ -1055,18 +712,12 @@ def main():
             except IndexError as e:
                 s3object = ''
 
-            #print(s3bucket)
-            #print(s3object)
-
             content = get_s3object_body(s3bucket, s3object)
 
-            #print(content)
             print(content.rstrip())
-
             sys.exit(0) 
 
         if sys.argv[1] == "save":
-            #print('save')
 
             s3path      = sys.argv[2]
             destination = sys.argv[3]
@@ -1077,37 +728,12 @@ def main():
             except IndexError as e:
                 s3object = ''
 
-            #print(s3bucket)
-            #print(s3object)
-
-            #content = get_s3object_body(s3bucket, s3object)
-            #print(content)
-
-            #download
-            s3 = boto3.client('s3')
-
-            #with open('FILE_NAME', 'wb') as f:
-            #    s3.download_fileobj('BUCKET_NAME', 'OBJECT_NAME', f)
-
-            #with open(destination, 'wb') as f:
-            #    s3.download_fileobj(s3bucket, s3object, f)
-            #    print(json.dumps({'saved':destination}, indent=2))
-            #    sys.exit(0)
-            #else:
-            #    print(json.dumps({'failed':destination}))
-            #    sys.exit(1)
-
-            #s3.download_file('BUCKET_NAME', 'OBJECT_NAME', 'FILE_NAME')
-
             s3 = boto3.client('s3')
 
             try:
                 s3.download_file(s3bucket, s3object, destination)
 
             except botocore.exceptions.ClientError as e:
-                #print(e.response)
-                #{'Error': {'Code': '404', 'Message': 'Not Found'}, 'ResponseMetadata': {'RequestId': 
-                #if e.response['Error']['Message'] == 'Not Found':
                 if e.response['Error']['Code'] == '404':
                     print(json.dumps({'Not Found':s3object}, indent=2))
                 else:
@@ -1118,34 +744,22 @@ def main():
                 print(json.dumps({'OSError':str(e)}, indent=2))
                 sys.exit(1)
 
-            #print(download) #None
             print(json.dumps({'saved':destination}, indent=2))
-
             sys.exit(0)
 
 
         if sys.argv[1] == "rekognition":
-            #print('rekognition')
 
             s3path = sys.argv[2] #s3bucket/s3object
 
             try: option = sys.argv[3] #detect-labels
             except IndexError: option = None
 
-            #try: destination = sys.argv[4] #destination
-            #except IndexError: destination = None
-
             s3bucket = s3path.split("/", 1)[0]
             try: s3object = s3path.split("/", 1)[1]
             except IndexError: s3object = ''
 
-            #print(s3bucket)
-            #print(s3object)
-            #print(option)
-            #print(destination)
-
             if option == 's3tag':
-                # get rekognition .json if you can
 
                 rekognition_json_file = 'rekognition/' + s3object + '.json'
                 s3 = boto3.resource('s3')
@@ -1164,30 +778,11 @@ def main():
 
                 data = json.loads(content)
 
-                #List=[]
-                #for key in data['Labels']:
-                    #print(str(key['Name']))
-                #    List.append(key['Name'])
-
-                #print(json.dumps(List, indent=2))
-
-                # s3 tag it as 
-                # rekognition-detect-labels "Urban, Building, Villa" #can't have commas
-
-                # rekognition-words "Urban Building Villa"
-
-                #Str=''
-                #for key in data['Labels']:
-                #    Str += str(key['Name']) + ' '
-                #print(Str)
-
                 List=[]
                 for key in data['Labels']:
                     List.append(key['Name'])
 
                 listToStr = ' '.join([str(elem) for elem in List])
-
-                #data = json.loads({'rekognition-words':Str})
 
                 tag = 'rekognition-words'
 
@@ -1203,7 +798,6 @@ def main():
 
 
             if option == 'words':
-                # get rekognition .json if you can
 
                 rekognition_json_file = 'rekognition/' + s3object + '.json'
                 s3 = boto3.resource('s3')
@@ -1224,7 +818,6 @@ def main():
 
                 List=[]
                 for key in data['Labels']:
-                    #print(str(key['Name']))
                     List.append(key['Name'])
 
                 print(json.dumps(List, indent=2))
@@ -1233,71 +826,16 @@ def main():
 
 
             if option == 'detect-labels':
-                #print('detect-labels')
-                #print(s3bucket)
-                #print(s3object)
-
-                #region='us-west-2'
-
-                #either specify region or auto get region from boto call
-
-                #conn = boto3.connect_s3()
-                #bucket = conn.get_bucket(bucket_name)
-                #bucket_location = bucket.get_location()
-                #print(bucket_location)
-
-                #region = client.head_bucket(Bucket='bucket')['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region']
-                #botocore.exceptions.ClientError: An error occurred (403) when calling the HeadBucket operation: Forbidden
 
                 s3 = boto3.client('s3')
                 region = s3.head_bucket(Bucket=s3bucket)['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region']
-
-                #print(region)
 
                 client = boto3.client('rekognition', region_name=region)
 
                 #response = client.detect_labels(Image={'S3Object':{'Bucket':s3bucket,'Name':s3object}}, MaxLabels=10)
                 response = client.detect_labels(Image={'S3Object':{'Bucket':s3bucket,'Name':s3object}})
 
-                #print(str(type(response)))
-
-                #print(response)
                 print(json.dumps(response, indent=4))
-
-                #for label in response['Labels']:
-                #    print ("Label: " + label['Name'])
-
-
-                #f = open("/tmp/out.json", "w")
-                #f.write(json.dumps(response, indent=4))
-                #f.close()
-
-                #upload json
-
-                #import tempfile
-                #fp = tempfile.TemporaryFile()
-                #fp.write(json.dumps(response, indent=4)) #TypeError: a bytes-like object is required, not 'str'
-                #fp.write(response)
-
-
-                #fp = tempfile.TemporaryFile(mode="w+") #default is w+b
-                #fp.write(json.dumps(response, indent=4))
-
-                #tmp_file, filename = tempfile.mkstemp()
-                #print(filename)
-                #os.write(tmp_file, json.dumps(response, indent=4))
-
-                #with tempfile.NamedTemporaryFile() as tmp:
-                #    print(tmp.name)
-
-                #tmp_file, filename = tempfile.mkstemp()
-                #f = open(filename, "w")
-                #f.write(json.dumps(response, indent=4))
-
-                #fp = tempfile.TemporaryFile(mode="w+")
-                #fp.write(json.dumps(response, indent=4))
-                #fp.seek(0)
-                #data=f.read()
 
                 from tempfile import mkstemp
                 fd, path = mkstemp()
@@ -1307,29 +845,17 @@ def main():
 
                 s3_client = boto3.client('s3')
                 try:
-                    #s3_upload = s3_client.upload_file(source, s3bucket, s3object)
 
                     rekognition_json_file = 'rekognition/' + s3object + '.json'
 
-                    #s3_upload = s3_client.upload_file(fp.read().encode("utf-8"), s3bucket, rekognition_json_file)
-                    #s3_upload = s3_client.upload_file(filename, s3bucket, rekognition_json_file)
-
                     s3_upload = s3_client.upload_file(path, s3bucket, rekognition_json_file)
-
-                    #fp.close()
-                    #os.close(tmp_file)
-                    #f.close()
-
 
                 except botocore.exceptions.ClientError as e:
                     print(json.dumps({'ClientError':str(e)}, indent=2))
                     sys.exit(1)
 
-                #print(json.dumps({'RekognitionUpload':str('Success')}, indent=2))
                 print(json.dumps({'RekognitionUpload':str('Success')}))
                 sys.exit(0)
-
-            #get rekognition json file content, if it exists
 
             rekognition_json_file = 'rekognition/' + s3object + '.json'
 
@@ -1340,24 +866,16 @@ def main():
                 body = obj.get()['Body'].read()
 
             except botocore.exceptions.ClientError as e:
-                #print(e.response)
                 if e.response['Error']['Code'] == 'NoSuchKey':
-                    #print(json.dumps({'NoSuchKey':s3object}, indent=2))
-                    #print(json.dumps({'NoSuchKey':'Rekognition ' + s3object}, indent=2))
                     print(json.dumps({'NoSuchKey':rekognition_json_file}, indent=2))
                     sys.exit(1)
                 else:
                     print(json.dumps({'ClientError':str(e)}))
                     sys.exit(1)
 
-            #print(body)
-            #.decode("utf-8", "strict") # 'strict' (raise a UnicodeDecodeError exception)
-            
             content = body.decode("utf-8", "strict").rstrip()
-
             print(content)
-
-            sys.exit()
+            sys.exit(0)
 
 
         if sys.argv[1] == "object":
@@ -1369,15 +887,8 @@ def main():
             except IndexError as e:
                 s3object = ''
 
-            #print(s3bucket)
-            #print(s3object)
-
             s3 = boto3.resource('s3')
             obj = s3.Object(s3bucket, s3object)
-
-            #print(obj)
-            #print(obj.get())
-            #body = obj.get()['Body'].read()
 
             try: 
                 s3response = obj.get()
@@ -1396,24 +907,13 @@ def main():
             ContentType    = s3response['ContentType']
             LastModified   = s3response['LastModified']
 
-            #print(HTTPStatusCode)
-            #print(ContentLength)
-            #print(ContentType)
-            #print(LastModified)
-
             Objects = {}
             #Objects['HTTPStatusCode'] = HTTPStatusCode
             Objects['ContentLength'] = ContentLength
             Objects['ContentType'] = ContentType
             Objects['LastModified'] = LastModified
 
-            #print(Objects)
-
-            #print(json.dumps(Objects, indent=2)) #TypeError: Object of type datetime is not JSON serializable
-            # {'HTTPStatusCode': 200, 'ContentLength': 124169, 'ContentType': 'image/jpeg', 'LastModified': datetime.datetime(2021, 7, 24, 23, 50, 21, tzinfo=tzutc())}
             print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
-
-            #sys.exit(print(json.dumps(objects, indent=2)))
             sys.exit(0)
 
         if sys.argv[1] == "identify" or sys.argv[1] == "id":
@@ -1428,10 +928,6 @@ def main():
 
             s3 = boto3.resource('s3')
             obj = s3.Object(s3bucket, s3object)
-
-            #s3 = boto3.resource('s3')
-            #obj = s3.Object(s3bucket, s3object)
-            #s3response = obj.get()
 
             try:
                 s3response = obj.get()
@@ -1454,32 +950,16 @@ def main():
             ContentType    = s3response['ContentType']
             LastModified   = s3response['LastModified']
 
-            #print(HTTPStatusCode)
-            #print(ContentLength)
-            #print(ContentType)
-            #print(LastModified)
-
             Objects = {}
 
             Objects['Name'] = s3object
 
             #Objects['HTTPStatusCode'] = HTTPStatusCode
-
             Objects['ContentLength'] = ContentLength
             Objects['ContentType'] = ContentType
             Objects['LastModified'] = LastModified
 
-            #body = obj.get()['Body'].read()
-
             body = s3response['Body'].read()
-
-
-            #import tempfile
-            #fp = tempfile.TemporaryFile()
-            #fp.write(body)
-            #with open(fp, 'rb') as bfile:
-            #    _f = bfile.read()
-
 
             is_64bits = sys.maxsize > 2**32
             if is_64bits:
@@ -1487,13 +967,9 @@ def main():
             else:
                 blake = blake2s(digest_size=20)
 
-            #with open(body, 'rb') as bfile:
-            #    _f = bfile.read()
-            #blake.update(_f)
             blake.update(body)
-            #print(str(blake.hexdigest()))
-            Objects['b2sum'] = str(blake.hexdigest())
 
+            Objects['b2sum'] = str(blake.hexdigest())
 
             try:
                 data = body.decode('utf-8', 'strict')
@@ -1503,7 +979,6 @@ def main():
                 Objects['Encoding'] = 'bytes'
 
             print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
-
             sys.exit(0)
 
         if sys.argv[1] == "b2sum":
@@ -1544,20 +1019,7 @@ def main():
             ContentType    = s3response['ContentType']
             LastModified   = s3response['LastModified']
 
-            #print(HTTPStatusCode)
-            #print(ContentLength)
-            #print(ContentType)
-            #print(LastModified)
-
             Objects = {}
-
-            #Objects['Name'] = s3object
-            #Objects['HTTPStatusCode'] = HTTPStatusCode
-            #Objects['ContentLength'] = ContentLength
-            #Objects['ContentType'] = ContentType
-            #Objects['LastModified'] = LastModified
-
-            #body = obj.get()['Body'].read()
 
             body = s3response['Body'].read()
 
@@ -1568,15 +1030,12 @@ def main():
                 blake = blake2s(digest_size=20)
 
             blake.update(body)
-            #print(str(blake.hexdigest()))
 
             Objects['b2sum'] = str(blake.hexdigest())
 
             print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
-
             sys.exit(0)
 
-        #upload source <s3bucket>/<s3object>
 
         if sys.argv[1] == "upload":
 
@@ -1591,17 +1050,11 @@ def main():
             try:
                 s3_upload = s3_client.upload_file(source, s3bucket, s3object)
             except botocore.exceptions.ClientError as e:
-                #print(str(e))
                 print(json.dumps({'ClientError':str(e)}, indent=2))
                 sys.exit(1)
 
-            #print(response) #None
-            #status_code = s3_upload['ResponseMetadata']['HTTPStatusCode']
-            #print(status_code)
-
             print(json.dumps({'upload':True}, indent=2))
             sys.exit(0)
-
 
 
         if sys.argv[1] == "server":
@@ -1609,7 +1062,6 @@ def main():
                 port = int(sys.argv[2])
             except IndexError:
                 port = 8880
-            #app.run(port=8880, debug=False)    
             app.run(port=port, debug=False)    
 
         sys.exit(print(usage))
@@ -1619,9 +1071,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-#https://docs.aws.amazon.com/code-samples/latest/catalog/python-s3-s3_basics-demo_bucket_basics.py.html
-#https://docs.aws.amazon.com/rekognition/latest/dg/labels-detect-labels-image.html
-#https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html
-#https://boto3.amazonaws.com/v1/documentation/api/latest/guide/error-handling.html
 
