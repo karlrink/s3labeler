@@ -25,7 +25,8 @@ Usage: ./s3labeler.py option
 
         rekognition <s3bucket>/<s3object>
         rekognition <s3bucket>/<s3object> detect-labels
-        rekognition <s3bucket>/<s3object> detect-labels destination
+        rekognition <s3bucket>/<s3object> words
+        rekognition <s3bucket>/<s3object> s3tag
 
         object      <s3bucket>/<s3object>
         b2sum       <s3bucket>/<s3object>
