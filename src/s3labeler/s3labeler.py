@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.0'
+__version__ = '1.0.0.dev1'
 
 import sys
 
@@ -14,9 +14,9 @@ usage = "Usage: " + sys.argv[0] + " option" + """
 
         list-buckets|buckets
 
-        ls        <s3bucket>/<s3object>
-        label|set <s3bucket>/<s3object> '{"label":"value"}'
-        del       <s3bucket>/<s3object> label
+        list|ls    <s3bucket>/<s3object>
+        label|set  <s3bucket>/<s3object> '{"label":"value"}'
+        delete|del <s3bucket>/<s3object> label
 
         get    <s3bucket>/<s3object>
         save   <s3bucket>/<s3object> destination
@@ -595,7 +595,7 @@ def main():
             
             sys.exit(print(json.dumps(buckets, indent=2)))
 
-        if sys.argv[1] == "del":
+        if sys.argv[1] == "del" or sys.argv[1] == "delete":
             s3path = sys.argv[2]
             tag    = sys.argv[3]
 
@@ -648,7 +648,7 @@ def main():
                 sys.exit(1)
             
 
-        if sys.argv[1] == "ls":
+        if sys.argv[1] == "ls" or sys.argv[1] == "list":
             s3path = sys.argv[2]
             s3bucket = s3path.split("/", 1)[0]
 
@@ -668,7 +668,10 @@ def main():
                         List.append(key['Key'])
                 except KeyError as e:
                     print('KeyError ' + str(e))
-                    sys.exit(0)
+                    sys.exit(1)
+                except botocore.exceptions.ClientError as e:
+                    print(json.dumps({'ClientError':str(e)}, indent=2))
+                    sys.exit(1)
 
                 print(json.dumps(List, indent=2))
                 sys.exit(0)
