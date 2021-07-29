@@ -1,0 +1,13 @@
+#file:/etc/systemd/system/s3labeler.service
+
+[Unit]
+Description=s3labeler server
+After=network.target
+
+[Service]
+User=s3labeler
+ExecStart=/usr/bin/python3.8 -m s3labeler server
+
+[Install]
+WantedBy=multi-user.target
+
