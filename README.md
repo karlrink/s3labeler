@@ -27,9 +27,9 @@ Usage: ./s3labeler.py option
 
         list-buckets|buckets
 
-        ls        <s3bucket>/<s3object>
-        label|set <s3bucket>/<s3object> '{"label":"value"}'
-        del       <s3bucket>/<s3object> label
+        list|ls    <s3bucket>/<s3object>
+        label|set  <s3bucket>/<s3object> '{"label":"value"}'
+        delete|del <s3bucket>/<s3object> label
 
         get    <s3bucket>/<s3object>
         save   <s3bucket>/<s3object> destination
