@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.0-2'
+__version__ = '1.0.0-3'
 
 import sys
 
@@ -101,10 +101,36 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
     s3_client = boto3.client('s3')
 
+    if not request.args:
+
+        try:
+            get_s3tags = get_s3object_tags(s3bucket, s3object)
+
+        except botocore.exceptions.EndpointConnectionError as e:
+            return jsonify(status=599, message="EndpointConnectionError", s3object=False, name=s3object), 599, {'Content-Type':'application/json;charset=utf-8'}
+
+        except botocore.exceptions.ParamValidationError as e:
+            return jsonify(status=599, message="ParamValidationError", s3object=False, name=s3object), 599, {'Content-Type':'application/json;charset=utf-8'}
+
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == 'NoSuchKey':
+                return jsonify(status=404, message="NoSuchKey", s3object=False, name=s3object), 404, {'Content-Type':'application/json;charset=utf-8'}
+            return jsonify(status=599, message="ClientError", s3object=False, name=s3object, error=str(e)), 599, {'Content-Type':'application/json;charset=utf-8'}
+
+        s3Tags = {}
+        for key in get_s3tags['TagSet']:
+            __k = key['Key']
+            __v = key['Value']
+            s3Tags[__k]=__v
+
+        return jsonify(s3Tags), 200, {'Content-Type':'application/json;charset=utf-8'}
+
+
     try:
         s3_result = s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3object, Delimiter = "/")
     except botocore.exceptions.EndpointConnectionError as e:
         return jsonify(status=599, message="EndpointConnectionError", error=str(e)), 599, {'Content-Type':'application/json;charset=utf-8'}
+
 
     try:
         for key in s3_result['Contents']:

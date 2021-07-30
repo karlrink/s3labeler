@@ -11,7 +11,7 @@ setup(
     entry_points = {
         "console_scripts": ['s3labeler = s3labeler.s3labeler:main']
         },
-    version = '1.0.0-2',
+    version = '1.0.0-3',
     description = "label s3 objects",
     long_description = "label s3 objects cli and REST API",
     author = "Karl Rink",
