@@ -73,7 +73,7 @@ curl http://127.0.0.1:8880/s3/<s3bucket>/
 curl http://127.0.0.1:8880/s3/<s3bucket>/rekognition/
 ```
 
-#### list file HTTP GET
+#### list s3objects s3tags HTTP GET
 ```
 curl http://127.0.0.1:8880/s3/<s3bucket>/<s3object>
 ```
@@ -82,17 +82,10 @@ curl http://127.0.0.1:8880/s3/<s3bucket>/<s3object>
 ```
 curl http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?image=jpeg
 ```
-image/gif
-image/jpeg
-image/png
-image/tiff
-image/vnd.microsoft.icon
-image/x-icon
-image/vnd.djvu
-image/svg+xml
+image/gif image/jpeg image/png image/tiff image/vnd.microsoft.icon image/x-icon image/vnd.djvu image/svg+xml  
 
 
-#### list file s3object tags HTTP GET
+#### list s3object s3tags HTTP GET (same as default get)
 ```
 curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?tags=s3"
 ```
