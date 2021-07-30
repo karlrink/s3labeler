@@ -1,0 +1,26 @@
+
+🧨 karl.rink@Karl-MacBook-Pro ~ % curl -k https://172.16.1.129/s3/nic-cdn/80f434d43e55535276a59a7cc24600210dff0c9f.png
+{
+  "labeler": "karl", 
+  "name": "s3speed.png", 
+  "new_label_rest": "karl", 
+  "rekognition-words": "Text Calendar Page Number Symbol"
+}
+🧨 karl.rink@Karl-MacBook-Pro ~ % curl -k https://172.16.1.129/s3/nic-cdn/80f434d43e55535276a59a7cc24600210dff0c9f.png
+{
+  "labeler": "karl", 
+  "name": "s3speed.png", 
+  "new_label_rest": "karl", 
+  "rekognition-words": "Text Calendar Page Number Symbol"
+}
+🧨 karl.rink@Karl-MacBook-Pro ~ % curl -k "https://172.16.1.129/s3/nic-cdn/80f434d43e55535276a59a7cc24600210dff0c9f.png?image=png"
+Warning: Binary output can mess up your terminal. Use "--output -" to tell 
+Warning: curl to output it to your terminal anyway, or consider "--output 
+Warning: <FILE>" to save to a file.
+🧨 karl.rink@Karl-MacBook-Pro ~ % curl -k --output - "https://172.16.1.129/s3/nic-cdn/80f434d43e55535276a59a7cc24600210dff0c9f.png?image=png" 
+?PNG
+
+IHDR?y??
+        kiCCPICC ProfileH??WXS??[???????Л ?J	?E?*I ?ĘTlX\??bEWE]
+
+
