@@ -78,10 +78,19 @@ curl http://127.0.0.1:8880/s3/<s3bucket>/rekognition/
 curl http://127.0.0.1:8880/s3/<s3bucket>/<s3object>
 ```
 
-#### list file HTTP GET
+#### view s3object content, specify content-type header HTTP GET
 ```
-curl http://127.0.0.1:8880/s3/<s3bucket>/rekognition/<s3object>.json
+curl http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?image=jpeg
 ```
+image/gif
+image/jpeg
+image/png
+image/tiff
+image/vnd.microsoft.icon
+image/x-icon
+image/vnd.djvu
+image/svg+xml
+
 
 #### list file s3object tags HTTP GET
 ```

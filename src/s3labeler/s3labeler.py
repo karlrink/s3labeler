@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.0-1'
+__version__ = '1.0.0-2'
 
 import sys
 
@@ -97,6 +97,7 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
     rekognition = request.args.get("rekognition", None)
     tags        = request.args.get("tags", None)
     save        = request.args.get("save", None)
+    image       = request.args.get("image", None)
 
     s3_client = boto3.client('s3')
 
@@ -115,6 +116,24 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
     if _k != s3object:
         return jsonify(status=569, message="Objects Do Not Match", object1=str(_k), ojbect2=str(s3object)), 569, {'Content-Type':'application/json;charset=utf-8'}
+
+
+    if image:
+        #get s3object and send to browser
+
+        s3 = boto3.resource('s3')
+        obj = s3.Object(s3bucket, s3object)
+        try:
+            body = obj.get()['Body'].read()
+        except botocore.exceptions.ClientError as e:
+            return jsonify(status=599, message="ClientError", error=str(e)), 599, {'Content-Type':'application/json;charset=utf-8'}
+
+        #return body                #<class 'bytes'>
+        #return body.decode('utf-8') #<class 'str'>
+
+        #return body, 200, {'Content-Type':'image/jpeg'}
+        return body, 200, {'Content-Type':'image/' + image}
+
 
     if tags:
 
