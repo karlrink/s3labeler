@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.0-3'
+__version__ = '1.0.0-4'
 
 import sys
 
@@ -75,12 +75,8 @@ def get_s3buckets(region=None):
 
     bucket_list = [b.name for b in s3.buckets.all()]
 
-    #for bucket in bucket_list:
-    #    print(bucket)
-
-    #return jsonify(status=200, message="OK", success=True), 200
-    return jsonify(bucket_list), 200, {'Content-Type':'application/json;charset=utf-8'}
-
+    return jsonify(Buckets=bucket_list), 200, {'Content-Type':'application/json;charset=utf-8'}
+    #return jsonify(bucket_list), 200, {'Content-Type':'application/json;charset=utf-8'}
 
 
 #GET    /s3/<s3bucket>/<s3object>     # List object
