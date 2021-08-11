@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+
+  <meta charset="utf-8">
+
+</head>
+
+<body>
+  <script>
+
+
+const getJSON = async url => {
+  const response = await fetch(url, {mode:'no-cors'});
+  return response.json(); // get JSON from the response 
+}
+
+
+console.log("Fetching data...");
+getJSON("https://soundcloud.com/oembed?url=http%3A//soundcloud.com/forss/flickermood&format=json")
+  .then(data => console.log(data))
+        .catch(function (error) {
+        console.log("Error: " + error);
+      });
+
+
+//JSON.parse: unexpected end of data at line 1 column 1 of the JSON data
+
+  </script>
+</body>
+
+</html>

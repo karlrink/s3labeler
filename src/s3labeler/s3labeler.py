@@ -75,8 +75,8 @@ def get_s3buckets(region=None):
 
     bucket_list = [b.name for b in s3.buckets.all()]
 
-    return jsonify(Buckets=bucket_list), 200, {'Content-Type':'application/json;charset=utf-8'}
-    #return jsonify(bucket_list), 200, {'Content-Type':'application/json;charset=utf-8'}
+    #return jsonify(Buckets=bucket_list), 200, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(bucket_list), 200, {'Content-Type':'application/json;charset=utf-8'}
 
 
 #GET    /s3/<s3bucket>/<s3object>     # List object
