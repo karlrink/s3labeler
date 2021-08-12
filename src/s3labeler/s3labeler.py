@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.0-5'
+__version__ = '1.0.0-6'
 
 import sys
 
@@ -296,7 +296,7 @@ def set_s3bucketobject(s3bucket=None,s3object=None):
     assert s3object == request.view_args['s3object']
 
     if not request.headers['Content-Type'] == 'application/json':
-        return jsonify(status=412, errorType="Precondition Failed"), 412
+        return jsonify(status=412, errorType="Precondition Failed"), 412, http_headers
 
     post = request.get_json()
 
@@ -314,7 +314,7 @@ def set_s3bucketobjectpatch(s3bucket=None,s3object=None):
     assert s3object == request.view_args['s3object']
 
     if not request.headers['Content-Type'] == 'application/json':
-        return jsonify(status=412, errorType="Precondition Failed"), 412
+        return jsonify(status=412, errorType="Precondition Failed"), 412, http_headers
 
     post = request.get_json()
 
