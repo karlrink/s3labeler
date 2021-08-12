@@ -6,12 +6,14 @@
 
 <body>
 
+<div class="container"></div>
+
 <script>
 
 fetch('http://127.0.0.1:8880/s3/', {
-        mode: 'no-cors',
+        mode: 'cors',
         method: 'GET',
-        headers: {"Content-type": "application/json;charset=UTF-8"}
+        //headers: {'Content-type':'application/json;charset=UTF-8','Access-Control-Allow-Origin':'*'}
     })
         .then(response => response.json())
         .then(json => console.log(json))
@@ -19,7 +21,6 @@ fetch('http://127.0.0.1:8880/s3/', {
 
 </script>
 
-<div class="container"></div>
 
 <noscript>Please Enable JavaScript</noscript>
 

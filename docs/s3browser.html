@@ -10,22 +10,39 @@
 
 <body>
 
+<noscript>Please Enable JavaScript</noscript>
+
 <div class="container"></div>
 
   <script>
 
 
-async function loadNames() {
-  const response = await fetch('http://127.0.0.1:8880/s3/', {credentials:'same-origin'});
-  //const names = await response.json();
-  const names = await response.text();
-
-  console.log(names);
-  console.log('hello');
-  // logs [{ name: 'Joker'}, { name: 'Batman' }]
+async function getBuckets() {
+    let url = 'http://127.0.0.1:8880/s3/';
+    try {
+        let res = await fetch(url, {mode:'cors'});
+        return await res.json();
+    } catch (error) {
+        console.log(error);
+    }
 }
 
-loadNames();
+async function renderBuckets() {
+    let buckets = await getBuckets();
+    let html = '';
+    buckets.forEach(bucket => {
+        let htmlSegment = `<div class="bucket">
+                            <h2>${bucket}</h2>
+                        </div>`;
+
+        html += htmlSegment;
+    });
+
+    let container = document.querySelector('.container');
+    container.innerHTML = html;
+}
+
+renderBuckets();
 
 
   </script>
