@@ -1,4 +1,0 @@
-
-Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource at http://127.0.0.1:8880/s3/. (Reason: CORS header ‘Access-Control-Allow-Origin’ missing).
-
-
