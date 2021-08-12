@@ -1,4 +1,89 @@
 
+
+function deleteData(item, url) {
+  return fetch(url + '/' + item, {
+    method: 'delete'
+  })
+  .then(response => response.json());
+}
+
+
+
+delete method
+
+fetch('https://example.com/delete-item/' + id, {
+  method: 'DELETE',
+})
+.then(res => res.text()) // or res.json()
+.then(res => console.log(res))
+
+
+for put
+
+const putMethod = {
+ method: 'PUT', // Method itself
+ headers: {
+  'Content-type': 'application/json; charset=UTF-8' // Indicates the content 
+ },
+ body: JSON.stringify(someData) // We send data in JSON format
+}
+
+// make the HTTP put request using fetch api
+fetch(url, putMethod)
+.then(response => response.json())
+.then(data => console.log(data)) // Manipulate the data retrieved back, if we want to do something with it
+.catch(err => console.log(err)) // Do something with the error
+
+
+
+
+
+need javascript equiv to 
+
+#### set or update s3object tag HTTP PATCH (single key/value)
+```   
+curl -X PATCH \
+     -H "Content-Type: application/json" \
+     -d '{"labeler":"karl"}' \
+     http://127.0.0.1:8880/s3/<s3bucket>/<s3object>    
+```   
+
+
+const dataToSend = JSON.stringify({"email": "hey@mail.com", "password": "101010"});
+let dataReceived = ""; 
+fetch("", {
+    credentials: "same-origin",
+    mode: "same-origin",
+    method: "post",
+    headers: { "Content-Type": "application/json" },
+    body: dataToSend
+})
+    .then(resp => {
+        if (resp.status === 200) {
+            return resp.json()
+        } else {
+            console.log("Status: " + resp.status)
+            return Promise.reject("server")
+        }
+    })
+    .then(dataJson => {
+        dataReceived = JSON.parse(dataJson)
+    })
+    .catch(err => {
+        if (err === "server") return
+        console.log(err)
+    })
+
+console.log(`Received: ${dataReceived}`)   
+
+https://stackoverflow.com/questions/24468459/sending-a-json-to-server-and-retrieving-a-json-in-return-without-jquery
+
+
+
+
+---
+
+
 javascript fetch gets:
 (Reason: CORS header ‘Access-Control-Allow-Origin’ missing)
 

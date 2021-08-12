@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta charset="utf-8">
+</head>
+<body> <noscript>Please Enable JavaScript</noscript>
+
+    <form id="">
+        <input type="text" name="label" value="name">
+        <input type="text" name="value" value="value">
+        <input type="submit">
+    </form>
+
+</body>
+
+<script>
+
+function handleSubmit(event) {
+  event.preventDefault();
+  const data = new FormData(event.target);
+  const label = data.get('label');
+  const value = data.get('value');
+  console.log({ label });
+  console.log({ value });
+}
+const form = document.querySelector('form');
+form.addEventListener('submit', handleSubmit);
+
+</script>
+
+</html>

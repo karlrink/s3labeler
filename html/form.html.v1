@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta charset="utf-8">
+</head>
+<body> <noscript>Please Enable JavaScript</noscript>
+
+
+    <form id="formElem">
+        <input type="text" name="label" value="name">
+        <input type="text" name="value" value="value">
+        <input type="submit">
+    </form>
+    <div id="decoded"></div>
+    <button id="encode">Encode</button>
+    <div id="encoded"></div>
+</body>
+
+<script>
+    encode.onclick = async (e) => {
+        let response = await fetch('http://127.0.0.1:8880/s3/', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+        })
+
+        let text = await response.text(); // read response body as text
+        data = JSON.parse(text);
+        document.querySelector("#encoded").innerHTML = text;
+      //  document.querySelector("#encoded").innerHTML = `First name = ${data.firstname} <br/> 
+      //                                                  Last name = ${data.lastname} <br/>
+      //                                                  Age    = ${data.age}`
+    };
+
+    formElem.onsubmit = async (e) => {
+      e.preventDefault();
+      var form = document.querySelector("#formElem");
+     // var form = document.forms[0];
+
+        data = {
+          label : form.querySelector('input[name="label"]').value,
+          value : form.querySelector('input[name="value"]').value
+        }
+
+        let response = await fetch('http://127.0.0.1:8880/s3/', {
+                method: 'POST', // or 'PUT'
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+        })
+
+        let text = await response.text(); // read response body as text
+        document.querySelector("#decoded").innerHTML = text;
+    };
+</script>
+
+</html>
