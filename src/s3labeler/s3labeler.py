@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.0-4'
+__version__ = '1.0.0-5'
 
 import sys
 
@@ -78,10 +78,18 @@ def get_s3buckets(region=None):
     #return jsonify(Buckets=bucket_list), 200, {'Content-Type':'application/json;charset=utf-8'}
     #return jsonify(bucket_list), 200, {'Content-Type':'application/json;charset=utf-8'}
 
-    response = jsonify(bucket_list)
-    response.headers.add("Access-Control-Allow-Origin", "*")
+    #response = jsonify(bucket_list)
+    #response.headers.add("Access-Control-Allow-Origin", "*")
+    #return response, 200, {'Content-Type':'application/json;charset=utf-8'}
 
-    return response, 200, {'Content-Type':'application/json;charset=utf-8'}
+    headers = {'Content-Type':'application/json;charset=utf-8','Access-Control-Allow-Origin':'*'}
+    headers['Access-Control-Allow-Methods'] = 'GET'
+    #print(str(type(headers)))
+    #print(str(headers))
+    #for k,v in headers.items():
+    #    print(k)
+    #    print(v)
+    return jsonify(bucket_list), 200, headers
 
 
 #GET    /s3/<s3bucket>/<s3object>     # List object

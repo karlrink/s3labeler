@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+
+  <meta charset="utf-8">
+
+</head>
+
+<body>
+
+<noscript>Please Enable JavaScript</noscript>
+
+<div class="container"></div>
+
+  <script>
+
+
+/*
+async function getBuckets() {
+    let url = 'http://127.0.0.1:8880/s3/';
+    try {
+        let response = await fetch(url, {mode:'cors'});
+        //return await response.json();
+    } catch (error) {
+        //console.log('Error ' + error);
+    }
+}
+*/
+
+async function renderBuckets() {
+    let url = 'http://127.0.0.1:8880/s3/';
+
+    let html = '';
+
+    try {
+        let response = await fetch(url, {mode:'cors'});
+        let buckets = await response.json();
+        buckets.forEach(bucket => {
+            let htmlSegment = `<div class="">
+                            <a href="http://127.0.0.1:8880/s3/${bucket}/">${bucket}</a>
+                        </div>`;
+
+        html += htmlSegment;
+    });
+    } catch (error) {
+        html += error;
+    }
+
+    let container = document.querySelector('.container');
+    container.innerHTML = html;
+}
+
+renderBuckets();
+
+
+  </script>
+
+</body>
+
+</html>
