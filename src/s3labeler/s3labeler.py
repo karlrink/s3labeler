@@ -54,17 +54,23 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True    #default False
 app.config['JSON_SORT_KEYS'] = True                 #default True
 app.config['JSONIFY_MIMETYPE'] = 'application/json' #default 'application/json'
 
+http_headers = {'Content-Type':'application/json;charset=utf-8'}
+http_headers['Access-Control-Allow-Origin'] = '*'
+http_headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization'
+
 
 #GET    /                             # Show version
 @app.route("/", methods=['GET'])
 def root():
-    return jsonify(status=200, message="OK", version=__version__), 200, {'Content-Type':'application/json;charset=utf-8'}
+    http_headers['Access-Control-Allow-Methods'] = 'GET'
+    return jsonify(status=200, message="OK", version=__version__), 200, http_headers
 
 
 #GET    /s3                           # Show OK
 @app.route("/s3", methods=['GET'])
 def get_s3():
-    return jsonify(status=200, message="OK", path="/s3"), 200, {'Content-Type':'application/json;charset=utf-8'}
+    http_headers['Access-Control-Allow-Methods'] = 'GET'
+    return jsonify(status=200, message="OK", path="/s3"), 200, http_headers
 
 
 #GET    /s3/                          # List all buckets (limt 1000?)
@@ -75,21 +81,8 @@ def get_s3buckets(region=None):
 
     bucket_list = [b.name for b in s3.buckets.all()]
 
-    #return jsonify(Buckets=bucket_list), 200, {'Content-Type':'application/json;charset=utf-8'}
-    #return jsonify(bucket_list), 200, {'Content-Type':'application/json;charset=utf-8'}
-
-    #response = jsonify(bucket_list)
-    #response.headers.add("Access-Control-Allow-Origin", "*")
-    #return response, 200, {'Content-Type':'application/json;charset=utf-8'}
-
-    headers = {'Content-Type':'application/json;charset=utf-8','Access-Control-Allow-Origin':'*'}
-    headers['Access-Control-Allow-Methods'] = 'GET'
-    #print(str(type(headers)))
-    #print(str(headers))
-    #for k,v in headers.items():
-    #    print(k)
-    #    print(v)
-    return jsonify(bucket_list), 200, headers
+    http_headers['Access-Control-Allow-Methods'] = 'GET'
+    return jsonify(bucket_list), 200, http_headers
 
 
 #GET    /s3/<s3bucket>/<s3object>     # List object
@@ -99,6 +92,7 @@ def get_s3buckets(region=None):
 #GET    /s3/<s3bucket>/<s3object>?q=
 @app.route("/s3/<s3bucket>/<s3object>", methods=['GET'])
 def get_s3bucketobject(s3bucket=None,s3object=None):
+    http_headers['Access-Control-Allow-Methods'] = 'GET'
 
     assert s3bucket == request.view_args['s3bucket']
     assert s3object == request.view_args['s3object']
@@ -116,15 +110,15 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             get_s3tags = get_s3object_tags(s3bucket, s3object)
 
         except botocore.exceptions.EndpointConnectionError as e:
-            return jsonify(status=599, message="EndpointConnectionError", s3object=False, name=s3object), 599, {'Content-Type':'application/json;charset=utf-8'}
+            return jsonify(status=599, message="EndpointConnectionError", s3object=False, name=s3object), 599, http_headers
 
         except botocore.exceptions.ParamValidationError as e:
-            return jsonify(status=599, message="ParamValidationError", s3object=False, name=s3object), 599, {'Content-Type':'application/json;charset=utf-8'}
+            return jsonify(status=599, message="ParamValidationError", s3object=False, name=s3object), 599, http_headers
 
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == 'NoSuchKey':
-                return jsonify(status=404, message="NoSuchKey", s3object=False, name=s3object), 404, {'Content-Type':'application/json;charset=utf-8'}
-            return jsonify(status=599, message="ClientError", s3object=False, name=s3object, error=str(e)), 599, {'Content-Type':'application/json;charset=utf-8'}
+                return jsonify(status=404, message="NoSuchKey", s3object=False, name=s3object), 404, http_headers
+            return jsonify(status=599, message="ClientError", s3object=False, name=s3object, error=str(e)), 599, http_headers
 
         s3Tags = {}
         for key in get_s3tags['TagSet']:
@@ -132,13 +126,13 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             __v = key['Value']
             s3Tags[__k]=__v
 
-        return jsonify(s3Tags), 200, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(s3Tags), 200, http_headers
 
 
     try:
         s3_result = s3_client.list_objects_v2(Bucket=s3bucket, Prefix=s3object, Delimiter = "/")
     except botocore.exceptions.EndpointConnectionError as e:
-        return jsonify(status=599, message="EndpointConnectionError", error=str(e)), 599, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=599, message="EndpointConnectionError", error=str(e)), 599, http_headers
 
 
     try:
@@ -147,10 +141,10 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             _k = key['Key']
     except KeyError as e:
         _k = s3_result['Prefix']
-        return jsonify(status=404, message="Not Found", s3object=False, name=_k), 404, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=404, message="Not Found", s3object=False, name=_k), 404, http_headers
 
     if _k != s3object:
-        return jsonify(status=569, message="Objects Do Not Match", object1=str(_k), ojbect2=str(s3object)), 569, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=569, message="Objects Do Not Match", object1=str(_k), ojbect2=str(s3object)), 569, http_headers
 
 
     if image:
@@ -161,7 +155,7 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
         try:
             body = obj.get()['Body'].read()
         except botocore.exceptions.ClientError as e:
-            return jsonify(status=599, message="ClientError", error=str(e)), 599, {'Content-Type':'application/json;charset=utf-8'}
+            return jsonify(status=599, message="ClientError", error=str(e)), 599, http_headers
 
         #return body                #<class 'bytes'>
         #return body.decode('utf-8') #<class 'str'>
@@ -182,7 +176,7 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
                 __v = key['Value']
                 s3Tags[__k]=__v
 
-            return jsonify(s3Tags), 200, {'Content-Type':'application/json;charset=utf-8'}
+            return jsonify(s3Tags), 200, http_headers
 
 
         if tags == 'rekognition':
@@ -192,9 +186,9 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             rekognition_json_content = get_s3object_body(s3bucket, rekognition_json_file)
 
             if rekognition_json_content:
-                return rekognition_json_content, 200, {'Content-Type':'application/json;charset=utf-8'}
+                return rekognition_json_content, 200, http_headers
             else:
-                return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404, {'Content-Type':'application/json;charset=utf-8'}
+                return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404, http_headers
 
 
     if rekognition:
@@ -226,20 +220,20 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
                     s3_upload = s3_client.upload_file(path, s3bucket, rekognition_json_file)
 
                 except botocore.exceptions.ClientError as e:
-                    return jsonify(status=599, message="ClientError", error=str(e)), 599, {'Content-Type':'application/json;charset=utf-8'}
+                    return jsonify(status=599, message="ClientError", error=str(e)), 599, http_headers
 
-                return jsonify(response), 201, {'Content-Type':'application/json;charset=utf-8'}
+                return jsonify(response), 201, http_headers
             else:
-                return jsonify(response), 200, {'Content-Type':'application/json;charset=utf-8'}
+                return jsonify(response), 200, http_headers
 
 
         if rekognition == 'json':
             rekognition_json_file = 'rekognition/' + s3object + '.json'
             rekognition_json_content = get_s3object_body(s3bucket, rekognition_json_file)
             if rekognition_json_content:
-                return rekognition_json_content, 200, {'Content-Type':'application/json;charset=utf-8'}
+                return rekognition_json_content, 200, http_headers
             else:
-                return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404, {'Content-Type':'application/json;charset=utf-8'}
+                return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404, http_headers
 
         if rekognition == 'words':
 
@@ -259,9 +253,9 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
                     except botocore.exceptions.ClientError as e:
                         if e.response['Error']['Code'] == 'NoSuchKey':
-                            return jsonify(status=404, message="Not Found", s3object=False, key=rekognition_json_file), 404, {'Content-Type':'application/json;charset=utf-8'}
+                            return jsonify(status=404, message="Not Found", s3object=False, key=rekognition_json_file), 404, http_headers 
                         else:
-                            return jsonify(status=599, message="ClientError", s3object=False, key=rekognition_json_file, error=str(e)), 599, {'Content-Type':'application/json;charset=utf-8'}
+                            return jsonify(status=599, message="ClientError", s3object=False, key=rekognition_json_file, error=str(e)), 599, http_headers
 
                     content = body.decode("utf-8", "strict").rstrip()
 
@@ -278,24 +272,25 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
                     update = update_s3object_tag(s3bucket, s3object, tag, listToStr)
 
                     if update == True:
-                        return jsonify(status=201, message="Created S3Tag", label=True), 201, {'Content-Type':'application/json;charset=utf-8'}
+                        return jsonify(status=201, message="Created S3Tag", label=True), 201, http_headers
                     else:
-                        return jsonify(status=465, message="Failed S3Tag", label=False), 465, {'Content-Type':'application/json;charset=utf-8'}
+                        return jsonify(status=465, message="Failed S3Tag", label=False), 465, http_headers
 
 
 
 
-                return jsonify(wordList), 200, {'Content-Type':'application/json;charset=utf-8'}
+                return jsonify(wordList), 200, http_headers
             else:
-                return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404, {'Content-Type':'application/json;charset=utf-8'}
+                return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404, http_headers
 
 
-    return jsonify(status=200, message="OK", s3object=True, name=_k), 200, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(status=200, message="OK", s3object=True, name=_k), 200, http_headers 
 
 
 #PUT      /s3/<s3bucket>/<s3object>         # set s3object tag set keys and values   
 @app.route("/s3/<s3bucket>/<s3object>", methods=['PUT'])
 def set_s3bucketobject(s3bucket=None,s3object=None):
+    http_headers['Access-Control-Allow-Methods'] = 'PUT'
 
     assert s3bucket == request.view_args['s3bucket']
     assert s3object == request.view_args['s3object']
@@ -307,14 +302,13 @@ def set_s3bucketobject(s3bucket=None,s3object=None):
 
     settagset = set_s3object_tags(s3bucket, s3object, post)
 
-    print(settagset)
-
-    return jsonify(status=200, message="OK", name=s3object, method="PUT"), 200, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(status=200, message="OK", name=s3object, method="PUT"), 200, http_headers
 
 
 #PATCH    /s3/<s3bucket>/<s3object>         # set s3object tag    
 @app.route("/s3/<s3bucket>/<s3object>", methods=['PATCH'])
 def set_s3bucketobjectpatch(s3bucket=None,s3object=None):
+    http_headers['Access-Control-Allow-Methods'] = 'PATCH'
 
     assert s3bucket == request.view_args['s3bucket']
     assert s3object == request.view_args['s3object']
@@ -325,7 +319,7 @@ def set_s3bucketobjectpatch(s3bucket=None,s3object=None):
     post = request.get_json()
 
     if len(post) > 1:
-        return jsonify(status=405, errorType="Method Not Allowed", errorMessage="Single Key-Value Only", update=False), 405
+        return jsonify(status=405, errorType="Method Not Allowed", errorMessage="Single Key-Value Only", update=False), 405, http_headers
 
     print(post)
     for k,v in post.items():
@@ -337,15 +331,16 @@ def set_s3bucketobjectpatch(s3bucket=None,s3object=None):
     print(update)
 
     if update is True:
-        return jsonify(status=200, message="OK", name=s3object, method="PATCH"), 200, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=200, message="OK", name=s3object, method="PATCH"), 200, http_headers
 
-    return jsonify(status=465, message="Failed Patch", name=s3object, tag=tag, method="PATCH", update=False), 465, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(status=465, message="Failed Patch", name=s3object, tag=tag, method="PATCH", update=False), 465, http_headers
 
 
 
 #DELETE      /s3/<s3bucket>/<s3object>?tag=name      # delete s3object tag 
 @app.route("/s3/<s3bucket>/<s3object>", methods=['DELETE'])
 def delete_s3bucketobjecttag(s3bucket=None,s3object=None):
+    http_headers['Access-Control-Allow-Methods'] = 'DELETE'
 
     assert s3bucket == request.view_args['s3bucket']
     assert s3object == request.view_args['s3object']
@@ -358,14 +353,16 @@ def delete_s3bucketobjecttag(s3bucket=None,s3object=None):
 
         if delete_tag is True:
 
-            return jsonify(status=211, message="Deleted", name=s3object, tag=tag, method="DELETE", delete=True), 211, {'Content-Type':'application/json;charset=utf-8'}
+            return jsonify(status=211, message="Deleted", name=s3object, tag=tag, method="DELETE", delete=True), 211, http_headers
 
-    return jsonify(status=466, message="Failed Delete", name=s3object, tag=tag, method="DELETE", delete=False), 466, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(status=466, message="Failed Delete", name=s3object, tag=tag, method="DELETE", delete=False), 466, http_headers
 
 
 #GET    /s3/<s3bucket>/<s3subdir>/<s3object> # List object
 @app.route("/s3/<s3bucket>/<s3subdir>/<s3object>", methods=['GET'])
 def get_s3bucketsubdirobject(s3bucket=None,s3subdir=None,s3object=None):
+    http_headers['Access-Control-Allow-Methods'] = 'GET'
+
     assert s3bucket == request.view_args['s3bucket']
     assert s3subdir == request.view_args['s3subdir']
     assert s3object == request.view_args['s3object']
@@ -384,14 +381,16 @@ def get_s3bucketsubdirobject(s3bucket=None,s3subdir=None,s3object=None):
             _exist=True
     except KeyError as e:
         _k = s3_result['Prefix']
-        return jsonify(status=404, message="Not Found", s3object=_exist, name=_k), 404, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=404, message="Not Found", s3object=_exist, name=_k), 404, http_headers
 
-    return jsonify(status=200, message="OK", s3object=_exist, key=_k), 200, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(status=200, message="OK", s3object=_exist, key=_k), 200, http_headers
 
 
 #GET    /s3/<s3bucket>/<s3subdir>/                         # List bucket directory files (1000 limit)
 @app.route("/s3/<s3bucket>/<s3subdir>/", methods=['GET'])
 def get_s3bucketsubdir(s3bucket=None,s3subdir=None):       
+    http_headers['Access-Control-Allow-Methods'] = 'GET'
+
     assert s3bucket == request.view_args['s3bucket']
     assert s3subdir == request.view_args['s3subdir']
 
@@ -405,18 +404,20 @@ def get_s3bucketsubdir(s3bucket=None,s3subdir=None):
         for key in s3_result['Contents']:
             s3objects.append(key['Key'])
     except KeyError as e:
-        return jsonify(status=404, message="Not Found", prefix=prefix), 404, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=404, message="Not Found", prefix=prefix), 404, http_headers 
 
     print(len(s3objects))
     if len(s3objects) < 0:
-        return jsonify(status=404, message="Not Found", s3object=False, prefix=prefix), 404, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=404, message="Not Found", s3object=False, prefix=prefix), 404, http_headers
 
-    return jsonify(s3objects), 200, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(s3objects), 200, http_headers
      
 
 #GET    /s3/<s3bucket>/                         # List bucket directory files (1000 limit)
 @app.route("/s3/<s3bucket>/", methods=['GET'])
 def get_s3bucketdir(s3bucket=None):             
+    http_headers['Access-Control-Allow-Methods'] = 'GET'
+
     assert s3bucket == request.view_args['s3bucket']
 
     s3_client = boto3.client('s3')
@@ -424,34 +425,34 @@ def get_s3bucketdir(s3bucket=None):
     try:
         s3_result =  s3_client.list_objects_v2(Bucket=s3bucket, Delimiter = "/")
     except s3_client.exceptions.NoSuchBucket as e:
-        return jsonify(status=404, message="No Such Bucket", s3bucket=s3bucket), 404, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=404, message="No Such Bucket", s3bucket=s3bucket), 404, http_headers
 
     s3objects=[]
     try:
         for key in s3_result['Contents']:
             s3objects.append(key['Key'])
     except KeyError as e:
-        return jsonify(status=404, message="Not Found", s3bucket=s3bucket), 404, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=404, message="Not Found", s3bucket=s3bucket), 404, http_headers
 
     if len(s3objects) < 0:
-        return jsonify(status=404, message="Not Found", s3objects=0, s3bucket=s3bucket), 404, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=404, message="Not Found", s3objects=0, s3bucket=s3bucket), 404, http_headers
 
-    return jsonify(s3objects), 200, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(s3objects), 200, http_headers 
 
 
 @app.errorhandler(Exception)
 def handle_exception(e):
 
     if isinstance(e, HTTPException):
-        return jsonify(status=e.code, errorType="HTTPException", errorMessage=str(e)), e.code, {'Content-Type':'application/json;charset=utf-8'}
+        return jsonify(status=e.code, errorType="HTTPException", errorMessage=str(e)), e.code, http_headers
 
-    return jsonify(status=599, errorType="Exception", errorMessage=str(e)), 599, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(status=599, errorType="Exception", errorMessage=str(e)), 599, http_headers
 
 
 @app.errorhandler(404)
 def not_found(error=None):
     message = { 'status': 404, 'errorType': 'Not Found: ' + request.url }
-    return jsonify(message), 404, {'Content-Type':'application/json;charset=utf-8'}
+    return jsonify(message), 404, http_headers
 
 
 
