@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.0-6'
+__version__ = '1.0.0-6.dev202108.friday13th'
 
 import sys
 
@@ -321,20 +321,40 @@ def set_s3bucketobjectpatch(s3bucket=None,s3object=None):
     if len(post) > 1:
         return jsonify(status=405, errorType="Method Not Allowed", errorMessage="Single Key-Value Only", update=False), 405, http_headers
 
-    print(post)
+    #print(post)
     for k,v in post.items():
         tag=k
         value=v
 
     update = update_s3object_tag(s3bucket, s3object, tag, value)
    
-    print(update)
+    #print(update)
 
     if update is True:
         return jsonify(status=200, message="OK", name=s3object, method="PATCH"), 200, http_headers
 
     return jsonify(status=465, message="Failed Patch", name=s3object, tag=tag, method="PATCH", update=False), 465, http_headers
 
+
+#POST    /s3/<s3bucket>/<s3object>         # set s3object tag
+# handle form data (http form post)
+@app.route("/s3/<s3bucket>/<s3object>", methods=['POST'])
+def set_s3bucketobjectpost(s3bucket=None,s3object=None):
+    http_headers['Access-Control-Allow-Methods'] = 'POST'
+
+    assert s3bucket == request.view_args['s3bucket']
+    assert s3object == request.view_args['s3object']
+
+    label = request.form.get('label', None)
+    value = request.form.get('value', None)
+
+    if label:
+        update = update_s3object_tag(s3bucket, s3object, label, value)
+
+    if update is True:
+        return jsonify(status=200, message="OK", name=s3object, method="POST"), 200, http_headers
+
+    return jsonify(status=465, message="Failed POST", name=s3object, label=str(label), method="POST", update=False), 465, http_headers
 
 
 #DELETE      /s3/<s3bucket>/<s3object>?tag=name      # delete s3object tag 
