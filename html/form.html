@@ -36,15 +36,38 @@ async function handleSubmit(event) {
 
   const patchMethod = {
      method: 'PATCH', // Method itself
-     headers: { 'Content-type': 'application/json; charset=UTF-8' }, // Indicates the content 
+     headers: { 'Content-type': 'application/json; charset=UTF-8','Origin':'http://127.0.0.1:8880' }, // Indicates the content 
      body: JSON.stringify(patchData) // We send data in JSON format
   }
 
   let url = 'http://127.0.0.1:8880/s3/' + s3object;
   console.log(url)
 
-  //let patch = await fetch(url, patchMethod)
+/*
+  fetch(url, patchMethod)
+  .then(response => response.json())
+  .then(json => console.log(json))
+  .catch(err => console.log('Request Failed', err));
+*/
 
+  let html = '';
+
+  try {
+      let response = await fetch(url, patchMethod);
+      let data = await response.json();
+      console.log(response.json());
+      data.forEach(item => {
+          let htmlSegment = `<div class="">
+                          <p>${item}</p>
+                      </div>`;
+      html += htmlSegment;
+  });
+  } catch (error) {
+      html += error;
+  }
+
+  let container = document.querySelector('.container');
+  container.innerHTML = html;
 
 }
 
