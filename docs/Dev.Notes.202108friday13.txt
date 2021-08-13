@@ -1,5 +1,23 @@
 
 
+
+lets make this work...
+
+    <form action="http://127.0.0.1:8880/post" method="POST">
+        <input type="text" name="s3bucket" value="s3bucket">
+        <input type="text" name="s3object" value="s3object">
+        <input type="text" name="label" value="label">
+        <input type="text" name="value" value="value">
+        <input type="submit">
+    </form>
+
+
+curl -X POST -H "Content-Type: application/json"  -d '{"s3bucket":"ninfo","s3object":"test.txt","post_label":"karl"}' http://127.0.0.1:8880/post
+
+
+---
+
+
 POST working....
 
 🐕 karl.rink@Karl-MacBook-Pro s3labeler % curl -X POST -H "Content-Type: application/json"  -d '{"labeler":"karl"}' http://127.0.0.1:8880/s3/ninfo/test.txt
