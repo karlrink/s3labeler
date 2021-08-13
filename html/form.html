@@ -7,23 +7,49 @@
 <body> <noscript>Please Enable JavaScript</noscript>
 
     <form id="">
-        <input type="text" name="label" value="name">
+        <input type="text" name="label" value="label">
         <input type="text" name="value" value="value">
+        <input type="text" name="s3object" value="s3object">
         <input type="submit">
     </form>
 
-</body>
+    <div class="container"></div>
+
+</body> 
 
 <script>
 
-function handleSubmit(event) {
+async function handleSubmit(event) {
   event.preventDefault();
   const data = new FormData(event.target);
+
   const label = data.get('label');
   const value = data.get('value');
+  const s3object = data.get('s3object');
+
   console.log({ label });
   console.log({ value });
+  console.log({ s3object });
+
+  //const patchData = { 'label':label,'value':value,'s3object':s3object };
+  const patchData = { 'label':label,'value':value };
+
+  const patchMethod = {
+     method: 'PATCH', // Method itself
+     headers: { 'Content-type': 'application/json; charset=UTF-8' }, // Indicates the content 
+     body: JSON.stringify(patchData) // We send data in JSON format
+  }
+
+  let url = 'http://127.0.0.1:8880/s3/' + s3object;
+  console.log(url)
+
+  //let patch = await fetch(url, patchMethod)
+
+
 }
+
+//console.log({ label });
+
 const form = document.querySelector('form');
 form.addEventListener('submit', handleSubmit);
 
