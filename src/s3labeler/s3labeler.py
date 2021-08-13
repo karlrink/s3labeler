@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.0-6.dev202108.friday13th'
+__version__ = '1.0.1'
 
 import sys
 
@@ -346,7 +346,6 @@ def set_s3bucketobjectpost(s3bucket=None,s3object=None):
     assert s3object == request.view_args['s3object']
 
     if request.is_json:
-        #return json_post_client()
         post = request.get_json()
         if len(post) > 1:
             return jsonify(status=405, errorType="Method Not Allowed", errorMessage="Single Key-Value Only", update=False), 405, http_headers
@@ -354,10 +353,8 @@ def set_s3bucketobjectpost(s3bucket=None,s3object=None):
         for k,v in post.items():
             label=k
             value=v
-        #update = update_s3object_tag(s3bucket, s3object, label, value)
 
     else:
-        #return form_post_client()
 
         label = request.form.get('label', None)
         value = request.form.get('value', None)
@@ -377,29 +374,16 @@ def set_s3bucketobjectapipost(s3bucket=None,s3object=None):
     http_headers['Access-Control-Allow-Methods'] = 'POST'
 
     if request.is_json:
-        #return json_post_client()
         post = request.get_json()
 
-        #print(len(post))
         if len(post) > 3:
             return jsonify(status=405, errorType="Method Not Allowed", errorMessage="More than 3 items", update=False), 405, http_headers
-
-        #for k,v in post.items():
-        #    label=k
-        #    value=v
-        #print(post)
 
         s3bucket = post.get('s3bucket', None)
         s3object = post.get('s3object', None)
 
-        #print(s3bucket)
-        #print(s3object)
-        #print(str(type(post)))
-
         post.pop('s3bucket', None)
         post.pop('s3object', None)
-
-        #print(post)
 
         if len(post) > 1:
             return jsonify(status=405, errorType="Method Not Allowed", errorMessage="Single Key-Value Only", update=False), 405, http_headers
@@ -409,7 +393,6 @@ def set_s3bucketobjectapipost(s3bucket=None,s3object=None):
             value=v
 
     else:
-        #return form_post_client()
 
         s3bucket = request.form.get('s3bucket', None)
         s3object = request.form.get('s3object', None)
