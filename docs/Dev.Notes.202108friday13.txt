@@ -1,0 +1,20 @@
+
+support simple form post...
+
+trying to get HTTP PATCH working with javascript fetch(url, {mode:'CORS',method:"PATCH", headers: {}} but seems to resort back to GET?
+
+interesting that jQuery works...  but i don't want to download full jQuery library...  i just want javascript to work...
+
+
+need to add POST method...  now have to decide on vals and how i want api...    
+
+POST  /s3/<s3bucket>/<s3object>
+{label:value}
+and/or
+POST  /post
+{s3object:s3object, label:value}
+
+
+
+
+

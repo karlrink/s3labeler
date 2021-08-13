@@ -117,6 +117,16 @@ curl -X PUT \
      http://127.0.0.1:8880/s3/<s3bucket>/<s3object>    
 ```   
 
+
+#### set or update s3object tag HTTP POST (single key/value)
+```   
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -d '{"labeler":"karl"}' \
+     http://127.0.0.1:8880/s3/<s3bucket>/<s3object>
+```
+
+
 ---
 
 #### get rekognition json HTTP GET (same as ?tags=rekognition)

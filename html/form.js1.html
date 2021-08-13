@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta charset="utf-8">
+</head>
+<body> <noscript>Please Enable JavaScript</noscript>
+
+    <form id="">
+        <input type="text" name="label" value="label">
+        <input type="text" name="value" value="value">
+        <input type="text" name="s3object" value="s3object">
+        <input type="submit">
+    </form>
+
+    <div class="container"></div>
+
+</body> 
+
+<script>
+
+async function handleSubmit(event) {
+  event.preventDefault();
+  const data = new FormData(event.target);
+
+  const label = data.get('label');
+  const value = data.get('value');
+  const s3object = data.get('s3object');
+
+  console.log({ label });
+  console.log({ value });
+  console.log({ s3object });
+
+  //const patchData = { 'label':label,'value':value,'s3object':s3object };
+  const patchData = { 'label':label,'value':value };
+
+  const patchMethod = {
+     method: 'PATCH', // Method itself
+     headers: { 'Content-type': 'application/json; charset=UTF-8','Origin':'http://127.0.0.1:8880' }, // Indicates the content 
+     body: JSON.stringify(patchData) // We send data in JSON format
+  }
+
+  let url = 'http://127.0.0.1:8880/s3/' + s3object;
+  console.log(url)
+
+/*
+  fetch(url, patchMethod)
+  .then(response => response.json())
+  .then(json => console.log(json))
+  .catch(err => console.log('Request Failed', err));
+*/
+
+  let html = '';
+
+  try {
+      let response = await fetch(url, patchMethod);
+      let data = await response.json();
+      console.log(response.json());
+      data.forEach(item => {
+          let htmlSegment = `<div class="">
+                          <p>${item}</p>
+                      </div>`;
+      html += htmlSegment;
+  });
+  } catch (error) {
+      html += error;
+  }
+
+  let container = document.querySelector('.container');
+  container.innerHTML = html;
+
+}
+
+//console.log({ label });
+
+const form = document.querySelector('form');
+form.addEventListener('submit', handleSubmit);
+
+</script>
+
+</html>
