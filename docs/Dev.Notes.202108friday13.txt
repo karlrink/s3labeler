@@ -1,4 +1,28 @@
 
+
+POST working....
+
+🐕 karl.rink@Karl-MacBook-Pro s3labeler % curl -X POST -H "Content-Type: application/json"  -d '{"labeler":"karl"}' http://127.0.0.1:8880/s3/ninfo/test.txt
+{
+  "message": "OK", 
+  "method": "POST", 
+  "name": "test.txt", 
+  "status": 200
+}
+
+
+as well as form data...
+
+    <form action="http://127.0.0.1:8880/s3/ninfo/test.txt" method="POST">
+        <input type="text" name="label" value="label">
+        <input type="text" name="value" value="value">
+        <input type="submit">
+    </form>
+
+
+
+
+
 support simple form post...
 
 trying to get HTTP PATCH working with javascript fetch(url, {mode:'CORS',method:"PATCH", headers: {}} but seems to resort back to GET?
