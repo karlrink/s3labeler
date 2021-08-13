@@ -117,15 +117,51 @@ curl -X PUT \
      http://127.0.0.1:8880/s3/<s3bucket>/<s3object>    
 ```   
 
+### HTTP POST
+two available endpoints
+```
+/s3/<s3bucket>/<s3object>  
+```
+and/or
+```
+/api
+```
 
-#### set or update s3object tag HTTP POST (single key/value)
+http post json or form data to s3object endpoint
+
+#### set or update s3object tag HTTP POST (single key/value) s3object endpoint
 ```   
 curl -X POST \
      -H "Content-Type: application/json" \
      -d '{"labeler":"karl"}' \
      http://127.0.0.1:8880/s3/<s3bucket>/<s3object>
 ```
+```
+    <form action="http://127.0.0.1:8880/s3/<s3bucket>/<s3object>" method="POST">
+      <input type="text" name="label" value="label">
+      <input type="text" name="value" value="value">
+      <input type="submit">
+    </form>
+```
 
+http post json or form data to api endpoint
+
+#### set or update s3object tag HTTP POST /api endpoint
+```   
+curl -X POST \
+     -H "Content-Type: application/json" \
+     -d '{"s3bucket":"<s3bucket>","s3object":"<s3object>","labeler":"karl"}' \
+     http://127.0.0.1:8880/api
+```
+```
+    <form action="http://127.0.0.1:8880/api" method="POST">
+        <input type="text" name="s3bucket" value="s3bucket">
+        <input type="text" name="s3object" value="s3object">
+        <input type="text" name="label" value="label">
+        <input type="text" name="value" value="value">
+        <input type="submit">
+    </form>
+```
 
 ---
 

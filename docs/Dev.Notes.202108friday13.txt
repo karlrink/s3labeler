@@ -1,5 +1,31 @@
 
 
+added /api end point
+
+🐕 karl.rink@Karl-MacBook-Pro ~ % curl -X POST -H "Content-Type: application/json"  -d '{"s3bucket":"ninfo","s3object":"test.txt","plabeler":"karl"}' http://127.0.0.1:8880/api 
+{
+  "message": "OK", 
+  "method": "POST", 
+  "name": "test.txt", 
+  "status": 200
+}
+
+
+and form data,
+
+    <form action="http://127.0.0.1:8880/api" method="POST">
+        <input type="text" name="s3bucket" value="s3bucket">
+        <input type="text" name="s3object" value="s3object">
+        <input type="text" name="label" value="label">
+        <input type="text" name="value" value="value">
+        <input type="submit">
+    </form>
+
+
+---
+
+
+
 
 lets make this work...
 

@@ -370,6 +370,60 @@ def set_s3bucketobjectpost(s3bucket=None,s3object=None):
 
     return jsonify(status=465, message="Failed POST", name=s3object, label=str(label), method="POST", update=False), 465, http_headers
 
+#POST    /api         # set s3object tag
+# handle form data (form post) and/or json single key/value
+@app.route("/api", methods=['POST'])
+def set_s3bucketobjectapipost(s3bucket=None,s3object=None):
+    http_headers['Access-Control-Allow-Methods'] = 'POST'
+
+    if request.is_json:
+        #return json_post_client()
+        post = request.get_json()
+
+        #print(len(post))
+        if len(post) > 3:
+            return jsonify(status=405, errorType="Method Not Allowed", errorMessage="More than 3 items", update=False), 405, http_headers
+
+        #for k,v in post.items():
+        #    label=k
+        #    value=v
+        #print(post)
+
+        s3bucket = post.get('s3bucket', None)
+        s3object = post.get('s3object', None)
+
+        #print(s3bucket)
+        #print(s3object)
+        #print(str(type(post)))
+
+        post.pop('s3bucket', None)
+        post.pop('s3object', None)
+
+        #print(post)
+
+        if len(post) > 1:
+            return jsonify(status=405, errorType="Method Not Allowed", errorMessage="Single Key-Value Only", update=False), 405, http_headers
+
+        for k,v in post.items():
+            label=k
+            value=v
+
+    else:
+        #return form_post_client()
+
+        s3bucket = request.form.get('s3bucket', None)
+        s3object = request.form.get('s3object', None)
+        label = request.form.get('label', None)
+        value = request.form.get('value', None)
+
+    if label:
+        update = update_s3object_tag(s3bucket, s3object, label, value)
+
+    if update is True:
+        return jsonify(status=200, message="OK", name=s3object, method="POST"), 200, http_headers
+
+    return jsonify(status=465, message="Failed POST", name=s3object, label=str(label), method="POST", update=False), 465, http_headers
+
 
 
 #DELETE      /s3/<s3bucket>/<s3object>?tag=name      # delete s3object tag 
