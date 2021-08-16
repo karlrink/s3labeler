@@ -14,8 +14,8 @@
 
 <div class="container"></div>
 
-  <script>
 
+<script>
 
 async function getBuckets() {
     let url = 'http://127.0.0.1:8880/s3/';
@@ -31,9 +31,35 @@ async function renderBuckets() {
     let buckets = await getBuckets();
     let html = '';
     buckets.forEach(bucket => {
-        let htmlSegment = `<div class="">
-                            <a href="http://127.0.0.1:8880/s3/${bucket}/">${bucket}</a>
-                        </div>`;
+        //console.log(bucket)
+        //let htmlSegment = `<div class=""> <a href="http://127.0.0.1:8880/s3/${bucket}/">${bucket}</a> </div>`;
+        let htmlSegment = `<div class=""> <input type="button" value="${bucket}" onclick="renderBucketFiles('${bucket}');"> </div>`;
+
+        html += htmlSegment;
+    });
+
+    let container = document.querySelector('.container');
+    container.innerHTML = html;
+}
+
+async function getBucketFiles(bucket) {
+    let url = 'http://127.0.0.1:8880/s3/' + bucket + '/';
+    try {
+        let res = await fetch(url, {mode:'cors'});
+        return await res.json();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+async function renderBucketFiles(bucket) {
+
+    let files = await getBucketFiles(bucket);
+    let html = '';
+    files.forEach(file => {
+        let htmlSegment = `<div class=""> 
+                             <a href="http://127.0.0.1:8880/s3/${bucket}/${file}">${bucket}/${file}</a>
+                           </div>`;
 
         html += htmlSegment;
     });
@@ -43,9 +69,9 @@ async function renderBuckets() {
 }
 
 renderBuckets();
+//renderBucketFiles('bucket_name');
 
-
-  </script>
+</script>
 
 </body>
 
