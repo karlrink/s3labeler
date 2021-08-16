@@ -33,7 +33,7 @@ async function renderBuckets() {
     buckets.forEach(bucket => {
         //console.log(bucket)
         //let htmlSegment = `<div class=""> <a href="http://127.0.0.1:8880/s3/${bucket}/">${bucket}</a> </div>`;
-        let htmlSegment = `<div class=""> <input type="button" value="${bucket}" onclick="renderBucketFiles('${bucket}');"> </div>`;
+        let htmlSegment = `<div class=""> <button onclick="renderBucketFiles('${bucket}')">${bucket}</button> </div>`;
 
         html += htmlSegment;
     });

@@ -1,0 +1,34 @@
+
+hyperlink or click on particular textbox, label 
+
+For hyperlink
+<a href=”Link_of_page”>Text Written on Link</a>
+
+For button
+<button type="button" id="id_of_button" onclick="EditData()">Text on button</button>
+
+For textbox
+<input type="text" id="textbox_id" onclick="EditData()”>
+
+For Label
+<label id="lable_id" onclick="EditData()>Label_Text</label>
+
+Use JavaScript to handle event function(similar for button, textbox, label)
+<script>
+function EditData(){
+//Code
+}
+
+
+js back
+
+ <button onclick="goBack()">Go Back</button>
+
+<script>
+function goBack() {
+  window.history.back();
+}
+</script> 
+
+
+
