@@ -1,4 +1,15 @@
 
+
+need back button.  need page history...
+
+https://developer.mozilla.org/en-US/docs/Web/API/History_API
+
+
+
+
+https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+
+
 hyperlink or click on particular textbox, label 
 
 For hyperlink

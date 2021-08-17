@@ -13,7 +13,7 @@
 
 <div class="container"></div>
 
-<script type="text/javascript">
+<script>
 
 async function getBuckets_v1() {
     let url = 'http://127.0.0.1:8880/s3/';
@@ -129,9 +129,15 @@ renderBuckets();
 
 </script>
 
+<script>
+function goBack() {
+  window.history.back();
+}
+</script>
+
 <footer>
     <hr>
-    <button onclick="window.history.back()">Go Back</button>
+    <button onclick="goBack()">Go Back</button>
 </footer>
 
 </body>
