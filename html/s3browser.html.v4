@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title></title>
+
+  <meta charset="utf-8">
+
+</head>
+
+<body>
+
+<noscript>Please Enable JavaScript</noscript>
+
+<div class="container"></div>
+
+
+<script>
+
+container = document.querySelector('.container');
+html = ''
+
+async function getBuckets() {
+    let url = 'http://127.0.0.1:8880/s3/';
+    try {
+        let res = await fetch(url, {mode:'cors'});
+        return await res.json();
+    } catch (error) {
+        console.log(error);
+        container.innerHTML = html;
+    }
+}
+
+async function renderBuckets() {
+    let buckets = await getBuckets();
+    //let html = '';
+    buckets.forEach(bucket => {
+        //console.log(bucket)
+        //let htmlSegment = `<div class=""> <a href="http://127.0.0.1:8880/s3/${bucket}/">${bucket}</a> </div>`;
+        let htmlSegment = `<div class=""> <button onclick="renderBucketFiles('${bucket}')">${bucket}</button> </div>`;
+
+        html += htmlSegment;
+    });
+
+    //let container = document.querySelector('.container');
+    container.innerHTML = html;
+}
+
+async function getBucketFiles(bucket) {
+    let url = 'http://127.0.0.1:8880/s3/' + bucket + '/';
+    try {
+        let res = await fetch(url, {mode:'cors'});
+        return await res.json();
+    } catch (error) {
+        console.log(error);
+        container.innerHTML = html;
+    }
+}
+
+async function renderBucketFiles(bucket) {
+
+    let files = await getBucketFiles(bucket);
+    //let html = '';
+    files.forEach(file => {
+        let htmlSegment = `<div class=""> 
+                             <a href="http://127.0.0.1:8880/s3/${bucket}/${file}">${bucket}/${file}</a>
+                           </div>`;
+
+        html += htmlSegment;
+    });
+
+    let container = document.querySelector('.container');
+    container.innerHTML = html;
+}
+
+
+renderBuckets();
+
+</script>
+
+</body>
+
+</html>
