@@ -1,4 +1,5 @@
 
+need javascript get query strings...  ?bucket=name&file=name
 
 need back button.  need page history...
 

@@ -61,8 +61,7 @@ async function renderBuckets() {
     let container = document.querySelector('.container');
     container.innerHTML = html;
 
-    //history.pushState({page: 1}, "title 1", "?page=1");
-    history.pushState({view: 'buckets'}, "buckets", "?view=buckets");
+    history.pushState({page: 1}, "title 1", "?page=1");
 }
 
 
@@ -90,8 +89,7 @@ async function renderBucketFiles(bucket) {
     let container = document.querySelector('.container');
     container.innerHTML = html;
 
-    //history.pushState({page: 2}, "title 2", "?page=2");
-    history.pushState({view: bucket}, bucket, "?bucket="+bucket);
+    history.pushState({page: 2}, "title 2", "?page=2");
 }
 
 
@@ -124,54 +122,106 @@ async function renderFileLabels(bucket, file) {
     let container = document.querySelector('.container');
     container.innerHTML = html;
 
-    //history.pushState({page: 3}, "title 3", "?page=3");
-    history.pushState({view: bucket+'/'+file}, bucket+'/'+file, "?bucket="+bucket+"&file="+file);
+    history.pushState({page: 3}, "title 3", "?page=3");
 }
 
-
-
-const params = new URLSearchParams(window.location.search);
-
-if (!params.toString()) {
-//if (!params.entries()) {
-    console.log('start');
-    renderBuckets();
+/*
+window.onpopstate = function(event) {
+  alert(`location: ${document.location}, state: ${JSON.stringify(event.state)}`);
 }
+*/
 
-if (params.has('view')) {
-    console.log('view');
-    view = params.get('view');
-    renderBuckets();
+/*
+window.addEventListener("popstate", function(e) {
 
-    //if (view == 'buckets') {
-    //    renderBuckets();
+	// URL location
+	var location = document.location;
+
+	// state
+	var state = e.state;
+
+	// return to last state
+	if (state.view == "CONTENT") {
+		...
+	}
+
+   console.log(performance.navigation.type);
+   if(performance.navigation.type == 1){
+     location.reload(true);
+   }
+
+});
+*/
+
+/*
+window.addEventListener('popstate', function(event) {
+    // The popstate event is fired each time when the current history entry changes.
+
+    var r = confirm("You pressed a Back button! Are you sure?!");
+
+    if (r == true) {
+        // Call Back button programmatically as per user confirmation.
+        history.back();
+        // Uncomment below line to redirect to the previous page instead.
+        // window.location = document.referrer // Note: IE11 is not supporting this.
+        window.location = document.referrer; // Note: IE11 is not supporting this.
+    } else {
+        // Stay on the current page.
+        history.pushState(null, null, window.location.pathname);
+    }
+
+    history.pushState(null, null, window.location.pathname);
+
+}, false);
+*/
+
+window.addEventListener("popstate", function(e) {
+
+    // URL location
+    //var location = document.location;
+    var location = document.location;
+
+    // state
+    var state = e.state;
+
+    // return to last state
+    //if (state.view == "CONTENT") {
+    //    ...
     //}
-}
 
-if (params.has('bucket')) {
-    console.log('bucket');
+   //console.log(performance.navigation.type);
+   //if(performance.navigation.type == 1){
+     //location.reload(true);
+   //  window.location = document.referrer;
+   //}
 
-    bucket = params.get('bucket');
-    renderBucketFiles(bucket);
+    //location.reload(true);
 
-    //if (bucket == 'buckets') {
-    //      value = params.get('bucket');
-    //      renderBucketFiles(value);
+    //var perfEntries = performance.getEntriesByType("navigation");
+    //for (var i = 0; i < perfEntries.length; i++) {
+    //    console.log(perfEntries[i].type);
     //}
+
+
+});
+
+
+var perfEntries = performance.getEntriesByType("navigation");
+for (var i = 0; i < perfEntries.length; i++) {
+    console.log(perfEntries[i].type);
 }
 
-if (params.has('bucket') && params.has('file')) {
 
-    console.log('we have both');
-    bucket = params.get('bucket');
-    file   = params.get('file');
-
-    renderFileLabels(bucket, file);
-}
-
-console.log('done');
+renderBuckets();
+//renderBucketFiles('bucket_name');
+//renderFileLabels('ninfo', 'test.txt');
 
 </script>
+
+<footer>
+    <hr>
+    <button onclick="window.history.go(-1)">Go Back</button>
+</footer>
 
 </body>
 

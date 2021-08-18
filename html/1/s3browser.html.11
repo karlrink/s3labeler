@@ -128,48 +128,48 @@ async function renderFileLabels(bucket, file) {
     history.pushState({view: bucket+'/'+file}, bucket+'/'+file, "?bucket="+bucket+"&file="+file);
 }
 
+/*
+const params = new URLSearchParams(window.location.search)
+for (const param of params) {
+  console.log(param)
+}
+*/
+
+/*
+function goBack() {
+  window.history.back();
+}
+*/
+
+/*
+window.onpopstate = function(event) {
+  alert(`location: ${document.location}, state: ${JSON.stringify(event.state)}`);
+}
+*/
+
+window.addEventListener('popstate', function(event) {
+    //alert("location: " + document.location + ", state: " + JSON.stringify(event.state));
+    console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));
 
 
-const params = new URLSearchParams(window.location.search);
+params = new URLSearchParams(window.location.search);
 
-if (!params.toString()) {
-//if (!params.entries()) {
-    console.log('start');
-    renderBuckets();
+for (param of params) {
+  console.log(param)
 }
 
-if (params.has('view')) {
-    console.log('view');
-    view = params.get('view');
-    renderBuckets();
+    var location = document.location;
+    location.reload(true);
 
-    //if (view == 'buckets') {
-    //    renderBuckets();
-    //}
-}
 
-if (params.has('bucket')) {
-    console.log('bucket');
+});
 
-    bucket = params.get('bucket');
-    renderBucketFiles(bucket);
 
-    //if (bucket == 'buckets') {
-    //      value = params.get('bucket');
-    //      renderBucketFiles(value);
-    //}
-}
 
-if (params.has('bucket') && params.has('file')) {
+renderBuckets();
+//renderBucketFiles('bucket_name');
+//renderFileLabels('ninfo', 'test.txt');
 
-    console.log('we have both');
-    bucket = params.get('bucket');
-    file   = params.get('file');
-
-    renderFileLabels(bucket, file);
-}
-
-console.log('done');
 
 </script>
 

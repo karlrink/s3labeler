@@ -128,48 +128,64 @@ async function renderFileLabels(bucket, file) {
     history.pushState({view: bucket+'/'+file}, bucket+'/'+file, "?bucket="+bucket+"&file="+file);
 }
 
-
-
-const params = new URLSearchParams(window.location.search);
-
-if (!params.toString()) {
-//if (!params.entries()) {
-    console.log('start');
-    renderBuckets();
+const params = new URLSearchParams(window.location.search)
+for (const param of params) {
+  console.log(param)
 }
 
-if (params.has('view')) {
-    console.log('view');
-    view = params.get('view');
-    renderBuckets();
-
-    //if (view == 'buckets') {
-    //    renderBuckets();
-    //}
+/*
+function goBack() {
+  window.history.back();
 }
+*/
 
-if (params.has('bucket')) {
-    console.log('bucket');
-
-    bucket = params.get('bucket');
-    renderBucketFiles(bucket);
-
-    //if (bucket == 'buckets') {
-    //      value = params.get('bucket');
-    //      renderBucketFiles(value);
-    //}
+/*
+window.onpopstate = function(event) {
+  alert(`location: ${document.location}, state: ${JSON.stringify(event.state)}`);
 }
+*/
 
-if (params.has('bucket') && params.has('file')) {
+window.addEventListener('popstate', function(event) {
+    alert("location: " + document.location + ", state: " + JSON.stringify(event.state));
+});
 
-    console.log('we have both');
-    bucket = params.get('bucket');
-    file   = params.get('file');
 
-    renderFileLabels(bucket, file);
-}
+/*
+var detectBackOrForward = function(onBack, onForward) {
+  hashHistory = [window.location.hash];
+  historyLength = window.history.length;
 
-console.log('done');
+  return function() {
+    var hash = window.location.hash, length = window.history.length;
+    if (hashHistory.length && historyLength == length) {
+      if (hashHistory[hashHistory.length - 2] == hash) {
+        hashHistory = hashHistory.slice(0, -1);
+        onBack();
+      } else {
+        hashHistory.push(hash);
+        onForward();
+      }
+    } else {
+      hashHistory.push(hash);
+      historyLength = length;
+    }
+  }
+};
+
+window.addEventListener("hashchange", detectBackOrForward(
+  function() { console.log("back") },
+  function() { console.log("forward") }
+));
+
+//https://gist.github.com/sstephenson/739659
+*/
+
+
+
+
+renderBuckets();
+//renderBucketFiles('bucket_name');
+//renderFileLabels('ninfo', 'test.txt');
 
 </script>
 
