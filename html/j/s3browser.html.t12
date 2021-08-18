@@ -152,7 +152,7 @@ async function renderFileLabels(bucket, file) {
              <form action="http://127.0.0.1:8880/s3/${bucket}/${file}" method="POST">
                  <input type="text" name="label" value="label">
                  <input type="text" name="value" value="value">
-                 <input type="submit" value="add" onclick="redirect('${bucket}', '${file}');">
+                 <input type="submit" value="add" onclick="window.open('http://127.0.0.1:8880/s3/${bucket}/${file}', '_blank');"   >
              </form>
     </div>`;
 
@@ -163,12 +163,6 @@ async function renderFileLabels(bucket, file) {
 
     //history.pushState({page: 3}, "title 3", "?page=3");
     history.pushState({view: bucket+'/'+file}, bucket+'/'+file, "?bucket="+bucket+"&file="+file);
-}
-
-function redirect(bucket, file) {
-    //window.location.href="";
-        renderFileLabels(bucket, file);
-        return false;
 }
 
 async function deleteFileLabel(bucket, file, label) {

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta charset="utf-8">
+</head>
+<body>
+<script>
+
+var form = document.createElement("form");
+form.method = 'post';
+form.action = 'http://127.0.0.1:8880/s3/ninfo/test.txt';
+var input = document.createElement('input');
+input.type = "text";
+input.name = "data";
+input.value = "this is the data through POST";
+form.appendChild(input);
+form.submit();
+
+</script>
+</body> 
+</html>

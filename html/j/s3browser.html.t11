@@ -152,7 +152,7 @@ async function renderFileLabels(bucket, file) {
              <form action="http://127.0.0.1:8880/s3/${bucket}/${file}" method="POST">
                  <input type="text" name="label" value="label">
                  <input type="text" name="value" value="value">
-                 <input type="submit" value="add" onclick="redirect('${bucket}', '${file}');">
+                 <input type="submit" value="add" onclick="window.open('http://127.0.0.1:8880/s3/${bucket}/${file}', '_blank');"   >
              </form>
     </div>`;
 
@@ -165,47 +165,27 @@ async function renderFileLabels(bucket, file) {
     history.pushState({view: bucket+'/'+file}, bucket+'/'+file, "?bucket="+bucket+"&file="+file);
 }
 
-function redirect(bucket, file) {
-    //window.location.href="";
-        renderFileLabels(bucket, file);
-        return false;
-}
-
 async function deleteFileLabel(bucket, file, label) {
 
     let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file + '?delete=' + label + '';
 
     //console.log(url);
 
-    //let html = '';
+    let html = '';
 
     try {
-        let response = await fetch(url, {mode:'cors', method:'GET'});
-
-        console.log(response.ok);
-
-        if (!response.ok) {
-            throw new Error(res.statusText);
-        }
-        //location.assign();
-
-        renderFileLabels(bucket, file);
-
-
-
-        //let res = await fetch(url, {mode:'cors', method:'GET'});
+        let res = await fetch(url, {mode:'cors', method:'GET'});
         //return await res.json();
-        //let data = await res.json();
-        //html += data;
+        let data = await res.json();
+        html += data;
     } catch (error) {
         console.log(error);
-        //html += error;
+            html += error;
         //return error
     }
 
-
-   //let container = document.querySelector('.container');
-   //container.innerHTML = html;
+   let container = document.querySelector('.container');
+    container.innerHTML = html;
 
 }
 

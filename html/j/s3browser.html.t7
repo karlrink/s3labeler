@@ -38,7 +38,6 @@ async function renderBuckets_v1() {
 
     let container = document.querySelector('.container');
     container.innerHTML = html;
-    history.pushState({view: 'buckets'}, "buckets", "?view=buckets");
 }
 
 async function renderBuckets() {
@@ -69,17 +68,12 @@ async function renderBuckets() {
 
 async function getBucketFiles(bucket) {
     let url = 'http://127.0.0.1:8880/s3/' + bucket + '/';
-    let html = '';
     try {
         let res = await fetch(url, {mode:'cors'});
         return await res.json();
     } catch (error) {
         console.log(error);
-        html += error;
     }
-
-    let container = document.querySelector('.container');
-    container.innerHTML = html;
 }
 
 async function renderBucketFiles(bucket) {
@@ -104,21 +98,13 @@ async function renderBucketFiles(bucket) {
 async function getFileLabels(bucket, file) {
 
     let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file;
-
-        let html = '';
-
     try {
         let res = await fetch(url, {mode:'cors'});
         return await res.json();
     } catch (error) {
         console.log(error);
-            html += error
         //return error
     }
-
-   let container = document.querySelector('.container');
-    container.innerHTML = html;
-
 }
 
 async function renderFileLabels(bucket, file) {
@@ -138,12 +124,7 @@ async function renderFileLabels(bucket, file) {
 
       //let htmlSegment = `<div> ${key} <input type="text" name="s3bucket" value="s3bucket" disabled="disabled"> </div>`;
 
-      //let htmlSegment = `${key} <input type="text" name="${key}" value="${value}" disabled="disabled"> <br>`;
-      let htmlSegment = `<div> 
-                <input type="text" name="${key}" value="${key}" disabled="disabled"> 
-                <input type="text" name="${value}" value="${value}" disabled="disabled"> 
-                <button onclick="deleteFileLabel('${bucket}', '${file}', '${key}');">delete</button>
-                </div>`;
+      let htmlSegment = `${key} <input type="text" name="${key}" value="${value}" disabled="disabled"> <br>`;
 
       html += htmlSegment;
     }
@@ -152,7 +133,7 @@ async function renderFileLabels(bucket, file) {
              <form action="http://127.0.0.1:8880/s3/${bucket}/${file}" method="POST">
                  <input type="text" name="label" value="label">
                  <input type="text" name="value" value="value">
-                 <input type="submit" value="add" onclick="redirect('${bucket}', '${file}');">
+                 <input type="submit" value="add" onclick="window.open('http://127.0.0.1:8880/s3/${bucket}/${file}', '_blank');"   >
              </form>
     </div>`;
 
@@ -164,51 +145,6 @@ async function renderFileLabels(bucket, file) {
     //history.pushState({page: 3}, "title 3", "?page=3");
     history.pushState({view: bucket+'/'+file}, bucket+'/'+file, "?bucket="+bucket+"&file="+file);
 }
-
-function redirect(bucket, file) {
-    //window.location.href="";
-        renderFileLabels(bucket, file);
-        return false;
-}
-
-async function deleteFileLabel(bucket, file, label) {
-
-    let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file + '?delete=' + label + '';
-
-    //console.log(url);
-
-    //let html = '';
-
-    try {
-        let response = await fetch(url, {mode:'cors', method:'GET'});
-
-        console.log(response.ok);
-
-        if (!response.ok) {
-            throw new Error(res.statusText);
-        }
-        //location.assign();
-
-        renderFileLabels(bucket, file);
-
-
-
-        //let res = await fetch(url, {mode:'cors', method:'GET'});
-        //return await res.json();
-        //let data = await res.json();
-        //html += data;
-    } catch (error) {
-        console.log(error);
-        //html += error;
-        //return error
-    }
-
-
-   //let container = document.querySelector('.container');
-   //container.innerHTML = html;
-
-}
-
 
 
 console.log('start');

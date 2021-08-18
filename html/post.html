@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta charset="utf-8">
+</head>
+<body>
+<script>
+
+var formData = new FormData();
+
+formData.append("label", "LGroucho");
+formData.append("value", "VGroucho");
+
+var request = new XMLHttpRequest();
+
+request.open("POST", "http://127.0.0.1:8880/s3/ninfo/test.txt");
+request.send(formData);
+
+console.log('POSTED');
+
+//https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects
+
+</script>
+</body> 
+</html>

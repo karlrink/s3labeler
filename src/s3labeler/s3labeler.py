@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.1'
+__version__ = '1.0.1-pre2.20210818-1'
 
 import sys
 
@@ -101,6 +101,7 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
     tags        = request.args.get("tags", None)
     save        = request.args.get("save", None)
     image       = request.args.get("image", None)
+    delete      = request.args.get("delete", None)
 
     s3_client = boto3.client('s3')
 
@@ -277,11 +278,18 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
                         return jsonify(status=465, message="Failed S3Tag", label=False), 465, http_headers
 
 
-
-
                 return jsonify(wordList), 200, http_headers
             else:
                 return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404, http_headers
+
+    if delete:
+
+        delete_tag = delete_s3object_tag(s3bucket, s3object, delete)
+
+        if delete_tag is True:
+            return jsonify(status=211, message="Deleted", name=s3object, tag=delete, method="DELETE", delete=True), 211, http_headers
+
+        return jsonify(status=466, message="Failed Delete", name=s3object, tag=delete, method="DELETE", delete=False), 466, http_headers
 
 
     return jsonify(status=200, message="OK", s3object=True, name=_k), 200, http_headers 
