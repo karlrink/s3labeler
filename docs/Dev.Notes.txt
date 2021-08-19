@@ -1,5 +1,61 @@
 
 
+making it easy...
+
+?delete=name
+?label=name&value=something
+
+🐕 karl.rink@Karl-MacBook-Pro s3labeler % curl -X GET "http://127.0.0.1:8880/s3/ninfo/test.txt"
+{
+  "LGroucho": "VGroucho", 
+  "label": "value", 
+  "labelN": "valueN", 
+  "labelS": "valueS", 
+  "labeler": "karl", 
+  "labelz": "valuez", 
+  "plabeler": "karl"
+}
+🐕 karl.rink@Karl-MacBook-Pro s3labeler % curl -X GET "http://127.0.0.1:8880/s3/ninfo/test.txt?label=new_label&value=hello"
+{
+  "label": "new_label", 
+  "message": "OK", 
+  "method": "GET", 
+  "name": "test.txt", 
+  "status": 200
+}
+🐕 karl.rink@Karl-MacBook-Pro s3labeler % curl -X GET "http://127.0.0.1:8880/s3/ninfo/test.txt"                            
+{
+  "LGroucho": "VGroucho", 
+  "label": "value", 
+  "labelN": "valueN", 
+  "labelS": "valueS", 
+  "labeler": "karl", 
+  "labelz": "valuez", 
+  "new_label": "hello", 
+  "plabeler": "karl"
+}
+🐕 karl.rink@Karl-MacBook-Pro s3labeler % curl -X GET "http://127.0.0.1:8880/s3/ninfo/test.txt?delete=labelS"              
+{
+  "delete": true, 
+  "message": "Deleted", 
+  "method": "DELETE", 
+  "name": "test.txt", 
+  "status": 211, 
+  "tag": "labelS"
+}
+🐕 karl.rink@Karl-MacBook-Pro s3labeler % curl -X GET "http://127.0.0.1:8880/s3/ninfo/test.txt"              
+{
+  "LGroucho": "VGroucho", 
+  "label": "value", 
+  "labelN": "valueN", 
+  "labeler": "karl", 
+  "labelz": "valuez", 
+  "new_label": "hello", 
+  "plabeler": "karl"
+}
+🐕 karl.rink@Karl-MacBook-Pro s3labeler %
+
+
 
 https://developer.mozilla.org/en-US/docs/Glossary/Preflight_request
 

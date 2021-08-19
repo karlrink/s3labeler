@@ -95,6 +95,11 @@ curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?tags=s3"
 curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?tags=rekognition"
 ```
 
+#### set s3object tag HTTP GET
+```   
+curl -X GET "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?label=tag_name&value=something"
+```
+
 #### delete s3object tag HTTP GET
 ```   
 curl -X GET "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?delete=tag_name"

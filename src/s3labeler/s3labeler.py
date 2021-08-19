@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.1-pre2.20210819-1'
+__version__ = '1.0.1-pre2.20210819-2'
 
 import sys
 
@@ -88,6 +88,8 @@ def get_s3buckets(region=None):
 #GET    /s3/<s3bucket>/<s3object>     # List object
 #GET    /s3/<s3bucket>/<s3object>?q=  # rekognition=json|words|detect-labels
 #GET    /s3/<s3bucket>/<s3object>?q=  # tags=s3|rekognition
+#GET    /s3/<s3bucket>/<s3object>?q=  # delete=name
+#GET    /s3/<s3bucket>/<s3object>?q=  # label=name&value=something
 
 #GET    /s3/<s3bucket>/<s3object>?q=
 @app.route("/s3/<s3bucket>/<s3object>", methods=['GET'])
@@ -102,6 +104,8 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
     save        = request.args.get("save", None)
     image       = request.args.get("image", None)
     delete      = request.args.get("delete", None)
+    label       = request.args.get("label", None)
+    value       = request.args.get("value", None)
 
     s3_client = boto3.client('s3')
 
@@ -290,6 +294,15 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             return jsonify(status=211, message="Deleted", name=s3object, tag=delete, method="DELETE", delete=True), 211, http_headers
 
         return jsonify(status=466, message="Failed Delete", name=s3object, tag=delete, method="DELETE", delete=False), 466, http_headers
+
+    if label:
+
+        update = update_s3object_tag(s3bucket, s3object, label, value)
+
+        if update is True:
+            return jsonify(status=200, message="OK", name=s3object, label=label, method="GET"), 200, http_headers
+
+        return jsonify(status=465, message="Failed POST", name=s3object, label=str(label), method="GET", update=False), 465, http_headers
 
 
     return jsonify(status=200, message="OK", s3object=True, name=_k), 200, http_headers 
