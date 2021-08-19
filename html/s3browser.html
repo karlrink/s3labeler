@@ -11,45 +11,62 @@
 <body> 
     <noscript>Please Enable JavaScript</noscript>
 
+<!--
+https://example.org:8080/foo/bar?q=baz#bang
+
+href     https://example.org:8080/foo/bar?q=baz#bang
+origin   https://example.org:8080
+host     example.org:8080
+hostname example.org
+port     8080
+protocol https:
+
+https://developer.mozilla.org/en-US/docs/Web/API/Location
+-->
+
 <div class="container"></div>
 
 <script type="text/javascript">
 
-async function getBuckets_v1() {
-    let url = 'http://127.0.0.1:8880/s3/';
+var origin = 'http://127.0.0.1:8880';
+
+async function getUrl(url) {
+    //let url = 'http://127.0.0.1:8880/s3/';
+    //let url = origin + '/s3/';
+
+    let html = '';
     try {
-        let res = await fetch(url, {mode:'cors'});
-        return await res.json();
+        let response = await fetch(url, {mode:'cors'});
+        return await response.json();
     } catch (error) {
         console.log(error);
+        //return renderError(error);
+        //renderError(error);
+        //return error;
+        html += error;
     }
-}
-
-async function renderBuckets_v1() {
-    let buckets = await getBuckets();
-    let html = '';
-    buckets.forEach(bucket => {
-        //console.log(bucket)
-        //let htmlSegment = `<div class=""> <a href="http://127.0.0.1:8880/s3/${bucket}/">${bucket}</a> </div>`;
-        let htmlSegment = `<div class=""> <button onclick="renderBucketFiles('${bucket}')">${bucket}</button> </div>`;
-
-        html += htmlSegment;
-    });
-
     let container = document.querySelector('.container');
     container.innerHTML = html;
-    history.pushState({view: 'buckets'}, "buckets", "?view=buckets");
+}
+
+
+async function renderError(error) {
+    let container = document.querySelector('.container');
+    container.innerHTML = error;
 }
 
 async function renderBuckets() {
 
-    let url = 'http://127.0.0.1:8880/s3/';
+    //let url = 'http://127.0.0.1:8880/s3/';
+    let url = origin + '/s3/';
 
     let html = '';
 
     try {
         let response = await fetch(url, {mode:'cors'});
+        //let response = await getUrl(url);
         let buckets = await response.json();
+        //let buckets = await getUrl(url);
         buckets.forEach(bucket => {
         let htmlSegment = `<div class=""> <button onclick="renderBucketFiles('${bucket}')">${bucket}</button> </div>`;
 
@@ -64,11 +81,15 @@ async function renderBuckets() {
 
     //history.pushState({page: 1}, "title 1", "?page=1");
     history.pushState({view: 'buckets'}, "buckets", "?view=buckets");
+    return false;
 }
 
 
 async function getBucketFiles(bucket) {
-    let url = 'http://127.0.0.1:8880/s3/' + bucket + '/';
+
+    //let url = 'http://127.0.0.1:8880/s3/' + bucket + '/';
+    let url = origin + '/s3/' + bucket + '/';
+
     let html = '';
     try {
         let res = await fetch(url, {mode:'cors'});
@@ -103,7 +124,8 @@ async function renderBucketFiles(bucket) {
 
 async function getFileLabels(bucket, file) {
 
-    let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file;
+    //let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file;
+    let url = origin + '/s3/' + bucket + '/' + file;
 
         let html = '';
 
@@ -166,7 +188,8 @@ async function renderFileLabels(bucket, file) {
 
 async function deleteFileLabel(bucket, file, label) {
 
-    let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file + '?delete=' + label + '';
+    //let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file + '?delete=' + label + '';
+    let url = origin + '/s3/' + bucket + '/' + file + '?delete=' + label + '';
 
     try {
         let response = await fetch(url, {mode:'cors', method:'GET'});
@@ -190,7 +213,8 @@ async function deleteFileLabel(bucket, file, label) {
 
 async function addFileLabel(bucket, file) {
 
-    let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file;
+    //let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file;
+    let url = origin + '/s3/' + bucket + '/' + file;
 
     var label = document.getElementById('label').value;
     var value = document.getElementById('value').value;
@@ -208,6 +232,8 @@ async function addFileLabel(bucket, file) {
     request.send(formData);
 
     console.log('POSTED ' + request.ok);
+
+    //window.location.reload(true);
 
     //window.location.reload();
 
@@ -232,7 +258,8 @@ async function addFileLabel(bucket, file) {
 
 console.log('start');
 
-const params = new URLSearchParams(window.location.search);
+//const params = new URLSearchParams(window.location.search);
+var params = new URLSearchParams(window.location.search);
 
 if (!params.toString()) {
 //if (!params.entries()) {
