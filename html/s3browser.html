@@ -138,7 +138,7 @@ async function renderFileLabels(bucket, file) {
       let htmlSegment = `<div>
                 <input type="text" name="${key}" value="${key}" disabled="disabled">
                 <input type="text" name="${val}" value="${val}" disabled="disabled">
-                <button onclick="deleteFileLabel('${bucket}', '${file}', '${key}');">delete</button>
+                <button onclick="deleteFileLabel('${bucket}', '${file}', '${key}')">delete</button>
                 </div>`;
 
       html += htmlSegment;
@@ -148,7 +148,7 @@ async function renderFileLabels(bucket, file) {
     let htmlForm = `<div>
               <input type="text" id="label" name="label" value="label" >
               <input type="text" id="value" name="value" value="value" >
-              <button onclick="addFileLabel('${bucket}', '${file}');">add</button>
+              <button onclick="addFileLabel('${bucket}', '${file}')">add</button>
               </div>`;
 
     html += htmlForm;
@@ -209,11 +209,21 @@ async function addFileLabel(bucket, file) {
 
     console.log('POSTED ' + request.ok);
 
-    renderFileLabels(bucket, file);
+    //window.location.reload();
+
+    //history.pushState({view: bucket+'/'+file}, bucket+'/'+file, "?bucket="+bucket+"&file="+file);
+
+    //renderFileLabels(bucket, file);
+
+    //location.assign(url);
+    //location.assign('?bucket='+bucket+'&file='+file);
 
 
    //let container = document.querySelector('.container');
    //container.innerHTML = html;
+
+    //location.reload(); 
+    //return false;
 
 }
 
