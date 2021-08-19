@@ -2,13 +2,29 @@
 <html>
 
 <head>
-  <meta charset="utf-8">
-  <meta name="version" content="20210819-1">
   <title></title>
+
+  <meta charset="utf-8">
+
+  <meta name="version" content="20210819-1">
+
 </head>
 
 <body> 
     <noscript>Please Enable JavaScript</noscript>
+
+<!--
+https://example.org:8080/foo/bar?q=baz#bang
+
+href     https://example.org:8080/foo/bar?q=baz#bang
+origin   https://example.org:8080
+host     example.org:8080
+hostname example.org
+port     8080
+protocol https:
+
+https://developer.mozilla.org/en-US/docs/Web/API/Location
+-->
 
 <div class="container"></div>
 
@@ -16,15 +32,43 @@
 
 var origin = 'http://127.0.0.1:8880';
 
+async function getUrl(url) {
+    //let url = 'http://127.0.0.1:8880/s3/';
+    //let url = origin + '/s3/';
+
+    let html = '';
+    try {
+        let response = await fetch(url, {mode:'cors'});
+        return await response.json();
+    } catch (error) {
+        console.log(error);
+        //return renderError(error);
+        //renderError(error);
+        //return error;
+        html += error;
+    }
+    let container = document.querySelector('.container');
+    container.innerHTML = html;
+}
+
+
+async function renderError(error) {
+    let container = document.querySelector('.container');
+    container.innerHTML = error;
+}
+
 async function renderBuckets() {
 
+    //let url = 'http://127.0.0.1:8880/s3/';
     let url = origin + '/s3/';
 
     let html = '';
 
     try {
         let response = await fetch(url, {mode:'cors'});
+        //let response = await getUrl(url);
         let buckets = await response.json();
+        //let buckets = await getUrl(url);
         buckets.forEach(bucket => {
         let htmlSegment = `<div class=""> <button onclick="renderBucketFiles('${bucket}')">${bucket}</button> </div>`;
 
@@ -37,12 +81,15 @@ async function renderBuckets() {
     let container = document.querySelector('.container');
     container.innerHTML = html;
 
+    //history.pushState({page: 1}, "title 1", "?page=1");
     history.pushState({view: 'buckets'}, "buckets", "?view=buckets");
+    //return false;
 }
 
 
 async function getBucketFiles(bucket) {
 
+    //let url = 'http://127.0.0.1:8880/s3/' + bucket + '/';
     let url = origin + '/s3/' + bucket + '/';
 
     let html = '';
@@ -63,6 +110,7 @@ async function renderBucketFiles(bucket) {
     let files = await getBucketFiles(bucket);
     let html = '';
     files.forEach(file => {
+        //let htmlSegment = `<div class=""> <a href="http://127.0.0.1:8880/s3/${bucket}/${file}">${bucket}/${file}</a> </div>`;
         let htmlSegment = `<div class=""> <button onclick="renderFileLabels('${bucket}','${file}')">${bucket}/${file}</button> </div>`;
 
         html += htmlSegment;
@@ -71,12 +119,14 @@ async function renderBucketFiles(bucket) {
     let container = document.querySelector('.container');
     container.innerHTML = html;
 
+    //history.pushState({page: 2}, "title 2", "?page=2");
     history.pushState({view: bucket}, bucket, "?bucket="+bucket);
 }
 
 
 async function getFileLabels(bucket, file) {
 
+    //let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file;
     let url = origin + '/s3/' + bucket + '/' + file;
 
         let html = '';
@@ -87,9 +137,10 @@ async function getFileLabels(bucket, file) {
     } catch (error) {
         console.log(error);
             html += error
+        //return error
     }
 
-    let container = document.querySelector('.container');
+   let container = document.querySelector('.container');
     container.innerHTML = html;
 
 }
@@ -100,8 +151,13 @@ async function renderFileLabels(bucket, file) {
     let labels = await getFileLabels(bucket, file);
 
     let html = '';
+    //let html = '<div>' + bucket +  '/' + file + '</div>';
+    //let html = bucket +  '/' + file;
 
     for (const [key, val] of Object.entries(labels)) {
+      //console.log(`${key}: ${value}`);
+
+      //let htmlSegment = `<div class=""> <p>${key} : ${value}</p> </div>`;
 
       let htmlSegment = `<div>
                 <input type="text" name="${key}" value="${key}" disabled="disabled">
@@ -134,14 +190,17 @@ async function renderFileLabels(bucket, file) {
 
     html += htmlFooter;
 
+
     let container = document.querySelector('.container');
     container.innerHTML = html;
 
+    //history.pushState({page: 3}, "title 3", "?page=3");
     history.pushState({view: bucket+'/'+file}, bucket+'/'+file, "?bucket="+bucket+"&file="+file);
 }
 
 async function deleteFileLabel(bucket, file, label) {
 
+    //let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file + '?delete=' + label + '';
     let url = origin + '/s3/' + bucket + '/' + file + '?delete=' + label + '';
 
     try {
@@ -159,28 +218,43 @@ async function deleteFileLabel(bucket, file, label) {
         console.log(error);
     }
 
+   //let container = document.querySelector('.container');
+   //container.innerHTML = html;
+
 }
 
 async function addFileLabel(bucket, file) {
 
+    //let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file;
     let url = origin + '/s3/' + bucket + '/' + file;
 
-    let label = document.getElementById('label').value;
-    let value = document.getElementById('value').value;
+    var label = document.getElementById('label').value;
+    var value = document.getElementById('value').value;
 
-    let formData = new FormData();
+    var formData = new FormData();
 
     formData.append("label", label);
     formData.append("value", value);
 
-    let request = new XMLHttpRequest();
+    var request = new XMLHttpRequest();
 
+    //request.open("POST", "http://127.0.0.1:8880/s3/bucket/test.txt");
     request.open("POST", url);
 
     request.send(formData);
 
     console.log('POSTED ' + request.ok);
 
+    //window.location.reload(true);
+    //window.location.reload();
+    //history.pushState({view: bucket+'/'+file}, bucket+'/'+file, "?bucket="+bucket+"&file="+file);
+    //renderFileLabels(bucket, file);
+    //location.assign(url);
+    //location.assign('?bucket='+bucket+'&file='+file);
+   //let container = document.querySelector('.container');
+   //container.innerHTML = html;
+    //location.reload(); 
+    //return false;
 }
 
 async function vewFile(bucket, file) {
@@ -194,6 +268,7 @@ async function renderImage(bucket, file) {
     let url = origin + '/s3/' + bucket + '/' + file + '?image=jpeg';
 
     let windowObjectReference;
+    //var windowFeatures = "menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes";
     let windowFeatures = "menubar=no,location=yes,resizable=yes,scrollbars=yes,status=yes";
 
     function openRequestedPopup() {
@@ -250,37 +325,55 @@ async function runRekognitionSaveS3tag(bucket, file) {
 
 }
 
+
 //https://developer.mozilla.org/en-US/docs/Web/API
 //https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
 //https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
 //https://developer.mozilla.org/en-US/docs/Web/API/Window/open
 
 
-//console.log('start');
+console.log('start');
 
+//const params = new URLSearchParams(window.location.search);
 var params = new URLSearchParams(window.location.search);
 
 if (!params.toString()) {
+//if (!params.entries()) {
     renderBuckets();
 }
 
 if (params.has('view')) {
+    console.log('view');
     view = params.get('view');
     renderBuckets();
+
+    //if (view == 'buckets') {
+    //    renderBuckets();
+    //}
 }
 
 if (params.has('bucket') && !params.has('file')) {
+    console.log('bucket');
+
     bucket = params.get('bucket');
     renderBucketFiles(bucket);
+
+    //if (bucket == 'buckets') {
+    //      value = params.get('bucket');
+    //      renderBucketFiles(value);
+    //}
 }
 
 if (params.has('bucket') && params.has('file')) {
+
+    console.log('we have both');
     bucket = params.get('bucket');
     file   = params.get('file');
+
     renderFileLabels(bucket, file);
 }
 
-//console.log('done');
+console.log('done');
 
 </script>
 

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+</head>
+
+<body>
+       <noscript>Please Enable JavaScript</noscript>
+
+<script>
+
+fetch('http://127.0.0.1:8880/s3/', {
+        mode: 'cors',
+        method: 'GET',
+    })
+        .then(response => response.json())
+        .then(json => document.write(json))
+        .catch(err => document.write('Request Failed ', err));
+
+</script>
+
+<!-- https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch -->
+
+</body>
+</html>
