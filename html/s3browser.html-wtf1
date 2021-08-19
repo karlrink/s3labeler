@@ -130,31 +130,27 @@ async function renderFileLabels(bucket, file) {
     //let html = '<div>' + bucket +  '/' + file + '</div>';
     //let html = bucket +  '/' + file;
 
-    for (const [key, val] of Object.entries(labels)) {
+    for (const [key, value] of Object.entries(labels)) {
       //console.log(`${key}: ${value}`);
 
       //let htmlSegment = `<div class=""> <p>${key} : ${value}</p> </div>`;
 
       let htmlSegment = `<div>
                 <input type="text" name="${key}" value="${key}" disabled="disabled">
-                <input type="text" name="${val}" value="${val}" disabled="disabled">
+                <input type="text" name="${value}" value="${value}" disabled="disabled">
                 <button onclick="deleteFileLabel('${bucket}', '${file}', '${key}');">delete</button>
                 </div>`;
 
       html += htmlSegment;
     }
-
-
-    let htmlForm = `<div>
-              <input type="text" id="label" name="label" value="label" >
-              <input type="text" id="value" name="value" value="value" >
-              <button onclick="addFileLabel('${bucket}', '${file}');">add</button>
-              </div>`;
+    //wtf
+    htmlForm = `<div>
+                <input type="text" name="label" value="label">
+                <input type="text" name="value" value="value">
+                <button onclick="addFileLabel('${bucket}', '${file}', '${key}');">add</button>
+    </div>`;
 
     html += htmlForm;
-
-    //var label = document.getElementById('label').value;
-    //var value = document.getElementById('value').value;
 
 
     let container = document.querySelector('.container');
@@ -188,29 +184,24 @@ async function deleteFileLabel(bucket, file, label) {
 
 }
 
-async function addFileLabel(bucket, file) {
+async function addFileLabel(bucket, file, label) {
 
-    let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file;
+    let url = 'http://127.0.0.1:8880/s3/' + bucket + '/' + file + '?delete=' + label + '';
 
-    var label = document.getElementById('label').value;
-    var value = document.getElementById('value').value;
+    try {
+        let response = await fetch(url, {mode:'cors', method:'GET'});
 
-    var formData = new FormData();
+        console.log('Response.OK is ' + response.ok);
 
-    formData.append("label", label);
-    formData.append("value", value);
+        if (!response.ok) {
+            throw new Error(res.statusText);
+        }
 
-    var request = new XMLHttpRequest();
+        renderFileLabels(bucket, file);
 
-    //request.open("POST", "http://127.0.0.1:8880/s3/bucket/test.txt");
-    request.open("POST", url);
-
-    request.send(formData);
-
-    console.log('POSTED ' + request.ok);
-
-    renderFileLabels(bucket, file);
-
+    } catch (error) {
+        console.log(error);
+    }
 
    //let container = document.querySelector('.container');
    //container.innerHTML = html;
