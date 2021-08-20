@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="version" content="20210819-1">
+  <meta name="version" content="20210820-1">
   <title></title>
 </head>
 
@@ -39,62 +39,6 @@ async function renderBuckets() {
     history.pushState({view: 'buckets'}, "buckets", "?view=buckets");
 }
 
-async function getBucketFiles_v1(bucket) {
-
-    let url = origin + '/s3/' + bucket + '/';
-
-    let html = '';
-    try {
-        let response = await fetch(url, {mode:'cors'});
-        return await response.json();
-    } catch (error) {
-        console.log('Reponse Error ' + error);
-        html += error;
-    }
-
-    let container = document.querySelector('.container');
-    container.innerHTML = html;
-}
-
-async function getBucketFiles(bucket) {
-
-    let url = origin + '/s3/' + bucket + '/';
-
-    let html = '';
-
-    fetch(url, {mode:'cors', method:'GET'})
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else if (response.status === 404) {
-                return Promise.reject('NotFound 404');
-            } else {
-                return Promise.reject('HTTPError ' + response.status);
-            }
-        })
-        .then(data => console.log('data is', data))
-        .catch(error => document.write('Error ', error));
-
-
-    let container = document.querySelector('.container');
-    container.innerHTML = html;
-}
-
-async function renderBucketFiles_v1(bucket) {
-
-    let files = await getBucketFiles(bucket);
-    let html = '';
-    files.forEach(file => {
-        let htmlSegment = `<div> <button onclick="renderFileLabels('${bucket}','${file}')">${bucket}/${file}</button> </div>`;
-        html += htmlSegment;
-    });
-
-    let container = document.querySelector('.container');
-    container.innerHTML = html;
-
-    history.pushState({view: bucket}, bucket, "?bucket="+bucket);
-}
-
 async function renderBucketFiles(bucket) { 
 
     //let files = await getBucketFiles(bucket);
@@ -127,9 +71,6 @@ async function renderBucketFiles(bucket) {
     history.pushState({view: bucket}, bucket, "?bucket="+bucket);
 }
 
-
-
-
 async function getFileLabels(bucket, file) {
 
     let url = origin + '/s3/' + bucket + '/' + file;
@@ -148,7 +89,6 @@ async function getFileLabels(bucket, file) {
     container.innerHTML = html;
 
 }
-
 
 async function renderFileLabels(bucket, file) {
 
@@ -302,12 +242,6 @@ async function runRekognitionSaveS3tag(bucket, file) {
 
     openRequestedPopup();
 }
-
-//https://developer.mozilla.org/en-US/docs/Learn/HTML/Introduction_to_HTML/Document_and_website_structure
-//https://developer.mozilla.org/en-US/docs/Web/API
-//https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
-//https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
-//https://developer.mozilla.org/en-US/docs/Web/API/Window/open
 
 //console.log('start');
 
