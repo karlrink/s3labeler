@@ -65,7 +65,7 @@ async function getBucketFiles(bucket) {
     fetch(url, {mode:'cors', method:'GET'})
         .then(response => {
             if (response.ok) {
-                return response.json();
+                return await response.json();
             } else if (response.status === 404) {
                 return Promise.reject('NotFound 404');
             } else {
@@ -80,7 +80,8 @@ async function getBucketFiles(bucket) {
     container.innerHTML = html;
 }
 
-async function renderBucketFiles_v1(bucket) {
+
+async function renderBucketFiles(bucket) {
 
     let files = await getBucketFiles(bucket);
     let html = '';
@@ -94,40 +95,6 @@ async function renderBucketFiles_v1(bucket) {
 
     history.pushState({view: bucket}, bucket, "?bucket="+bucket);
 }
-
-async function renderBucketFiles(bucket) { 
-
-    //let files = await getBucketFiles(bucket);
-
-    /* javascript fetch handle 404 */
-
-    let url = origin + '/s3/' + bucket + '/';
-
-    let files = await fetch(url, {mode:'cors', method:'GET'})
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else if (response.status === 404) {
-                return Promise.reject('NotFound 404');
-            } else {
-                return Promise.reject('HTTPError ' + response.status);
-            }
-        })
-        .catch(error => document.write('Error ', error));
-
-    let html = '';
-    files.forEach(file => {
-        let htmlSegment = `<div> <button onclick="renderFileLabels('${bucket}','${file}')">${bucket}/${file}</button> </div>`;
-        html += htmlSegment;
-    });
-
-    let container = document.querySelector('.container');
-    container.innerHTML = html;
-
-    history.pushState({view: bucket}, bucket, "?bucket="+bucket);
-}
-
-
 
 
 async function getFileLabels(bucket, file) {
