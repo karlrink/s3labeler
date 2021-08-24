@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="version" content="20210820-1">
+  <meta name="version" content="20210823-1">
   <title></title>
 </head>
 
@@ -137,10 +137,12 @@ async function renderFileLabels(bucket, file) {
 
 async function deleteFileLabel(bucket, file, label) {
 
-    let url = origin + '/s3/' + bucket + '/' + file + '?delete=' + label + '';
+    //let url = origin + '/s3/' + bucket + '/' + file + '?delete=' + label + '';
+    let url = origin + '/s3/' + bucket + '/' + file + '?tag=' + label + '';
 
     try {
-        let response = await fetch(url, {mode:'cors', method:'GET'});
+        //let response = await fetch(url, {mode:'cors', method:'GET'});
+        let response = await fetch(url, {mode:'cors', method:'DELETE'});
 
         console.log('Response.OK is ' + response.ok);
 
