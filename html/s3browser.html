@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="version" content="20210820-1">
+  <meta name="version" content="20210825-1">
   <title></title>
 </head>
 
@@ -170,11 +170,18 @@ async function addFileLabel(bucket, file) {
 
     let request = new XMLHttpRequest();
 
+    request.onreadystatechange = function() {
+        if (request.readyState == XMLHttpRequest.DONE) {
+        //alert(request.responseText);
+        document.write(request.responseText);
+        }
+    }
+
     request.open("POST", url);
 
     request.send(formData);
 
-    console.log('POSTED ' + request.ok);
+    console.log('POSTED');
 
 }
 
