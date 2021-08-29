@@ -40,6 +40,9 @@ Usage: ./s3labeler.py option
         rekognition <s3bucket>/<s3object> words
         rekognition <s3bucket>/<s3object> s3tag
 
+        rekognition <s3bucket>/<s3object> confidence
+        rekognition <s3bucket>/<s3object> s3tag confidence top 3
+
         object      <s3bucket>/<s3object>
         b2sum       <s3bucket>/<s3object>
         identify|id <s3bucket>/<s3object>
@@ -185,9 +188,28 @@ curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=json"
 curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=words"
 ```
  
-#### set rekognition words to s3object tag set
+#### set rekognition words to s3object tag
 ```
 curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=words&save=s3tag"
+```
+
+#### get rekognition confidence HTTP GET
+```
+curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=confidence"
+```
+
+#### get rekognition confidence top 3 HTTP GET
+```
+curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=confidence&top=3"
+```
+
+#### set rekognition confidence to s3object tag (all confidence words)
+```
+curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=confidence&save=s3tag"
+```
+#### set rekognition confidence to s3object tag (top 3 confidence)
+```
+curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=confidence&top=3&save=s3tag"
 ```
 
 ### run image through aws rekognition

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.3'
+__version__ = '1.0.3.dev-20210829-1'
 
 import sys
 
@@ -26,6 +26,9 @@ usage = "Usage: " + sys.argv[0] + " option" + """
         rekognition <s3bucket>/<s3object> detect-labels
         rekognition <s3bucket>/<s3object> words
         rekognition <s3bucket>/<s3object> s3tag
+
+        rekognition <s3bucket>/<s3object> confidence
+        rekognition <s3bucket>/<s3object> s3tag confidence
 
         object      <s3bucket>/<s3object>
         b2sum       <s3bucket>/<s3object>
@@ -961,6 +964,39 @@ def main():
 
                 print(json.dumps(List, indent=2))
                 sys.exit(0)
+
+            if option == 'confidence':
+
+                rekognition_json_file = 'rekognition/' + s3object + '.json'
+                s3 = boto3.resource('s3')
+                obj = s3.Object(s3bucket, rekognition_json_file)
+                try:
+                    body = obj.get()['Body'].read()
+
+                except botocore.exceptions.ClientError as e:
+                    if e.response['Error']['Code'] == 'NoSuchKey':
+                        print(json.dumps({'NoSuchKey':rekognition_json_file}, indent=2))
+                    else:
+                        print(json.dumps({'ClientError':str(e)}))
+                    sys.exit(1)
+
+                content = body.decode("utf-8", "strict").rstrip()
+
+                data = json.loads(content)
+
+                Dict={}
+                for key in data['Labels']:
+                    #List.append(key['Name'])
+                    _Name = key['Name']
+                    _Confidence = key['Confidence']
+
+                    Dict[_Name]=_Confidence
+
+                print(json.dumps(Dict, indent=2))
+                sys.exit(0)
+
+
+
 
 
 

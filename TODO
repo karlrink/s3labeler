@@ -1,2 +1,1 @@
-record pagination
-http cors OPTIONS
+rest.api record pagination

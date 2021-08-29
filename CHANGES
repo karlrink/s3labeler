@@ -1,3 +1,4 @@
+1.0.4 - confidence
 1.0.3 - flask-cors
 1.0.2 - http.get ?delete=label, ?label=name&value=something
 1.0.1 - http.post
