@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.3.dev-20210829-4'
+__version__ = '1.0.3.dev-20210829-5'
 
 import sys
 
@@ -18,6 +18,8 @@ usage = "Usage: " + sys.argv[0] + " option" + """
         label|set  <s3bucket>/<s3object> '{"label":"value"}'
         delete|del <s3bucket>/<s3object> label
 
+        view       <s3bucket>/<s3object>
+
         get    <s3bucket>/<s3object>
         save   <s3bucket>/<s3object> destination
         upload source <s3bucket>/<s3object>
@@ -30,6 +32,7 @@ usage = "Usage: " + sys.argv[0] + " option" + """
 
         rekognition <s3bucket>/<s3object> confidence
         rekognition <s3bucket>/<s3object> s3tag confidence
+        rekognition <s3bucket>/<s3object> s3tag confidence top 3
 
         object      <s3bucket>/<s3object>
         b2sum       <s3bucket>/<s3object>
@@ -40,6 +43,7 @@ usage = "Usage: " + sys.argv[0] + " option" + """
         --help
         --version
 """
+        # browser    <s3bucket>/<s3object>
 
 import boto3
 import botocore
@@ -47,6 +51,8 @@ import botocore
 import json
 
 from hashlib import blake2b, blake2s
+
+#import webbrowser
 
 from flask import Flask
 from flask import request
@@ -722,8 +728,14 @@ def main():
         if sys.argv[1] == "--help":
             sys.exit(print(usage))
 
+        ##############################################################################################
+        ##############################################################################################
+
         if sys.argv[1] == "--version":
             sys.exit(print(__version__))
+
+        ##############################################################################################
+        ##############################################################################################
 
         if sys.argv[1] == "buckets" or sys.argv[1] == "list-buckets":
 
@@ -756,6 +768,9 @@ def main():
             else:
                 print(json.dumps({'delete':False}))
                 sys.exit(1)
+
+        ##############################################################################################
+        ##############################################################################################
 
 
         if sys.argv[1] == "set" or sys.argv[1] == "label":
@@ -790,6 +805,8 @@ def main():
                 print(json.dumps({'label':False}))
                 sys.exit(1)
             
+        ##############################################################################################
+        ##############################################################################################
 
         if sys.argv[1] == "ls" or sys.argv[1] == "list":
             s3path = sys.argv[2]
@@ -846,6 +863,8 @@ def main():
             print(json.dumps(s3Tags, indent=2))
             sys.exit(0)
 
+        ##############################################################################################
+        ##############################################################################################
 
 
         if sys.argv[1] == "get":
@@ -862,6 +881,9 @@ def main():
 
             print(content.rstrip())
             sys.exit(0) 
+
+        ##############################################################################################
+        ##############################################################################################
 
         if sys.argv[1] == "save":
 
@@ -1168,6 +1190,9 @@ def main():
             print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
             sys.exit(0)
 
+        ##############################################################################################
+        ##############################################################################################
+
         if sys.argv[1] == "identify" or sys.argv[1] == "id":
 
             s3path = sys.argv[2]
@@ -1233,6 +1258,9 @@ def main():
             print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
             sys.exit(0)
 
+        ##############################################################################################
+        ##############################################################################################
+
         if sys.argv[1] == "b2sum":
 
             s3path = sys.argv[2]
@@ -1288,6 +1316,9 @@ def main():
             print(json.dumps(Objects, indent=2, sort_keys=True, default=str))
             sys.exit(0)
 
+        ##############################################################################################
+        ##############################################################################################
+
 
         if sys.argv[1] == "upload":
 
@@ -1307,6 +1338,176 @@ def main():
 
             print(json.dumps({'upload':True}, indent=2))
             sys.exit(0)
+
+        ##############################################################################################
+        ##############################################################################################
+
+        if sys.argv[1] == "browser":
+            
+            s3path = sys.argv[2]
+            s3bucket = s3path.split("/", 1)[0]
+            s3object = s3path.split("/", 1)[1]
+
+            #print(s3bucket)
+            #print(s3object)
+
+            #s3 = boto3.resource('s3')
+            s3 = boto3.client('s3')
+            #obj = s3.Object(s3bucket, s3object)
+
+            #try:
+            #    body = obj.get()['Body'].read()
+            #except botocore.exceptions.ClientError as e:
+            #    #return jsonify(status=599, message="ClientError", error=str(e)), 599
+            #    print(json.dumps({'ClientError':str(e)}, indent=2))
+
+            #return body                 #<class 'bytes'>
+            #return body.decode('utf-8') #<class 'str'>
+
+            from tempfile import mkstemp
+            #fd, path = mkstemp(suffix=".jpeg")
+            #fd, path = mkstemp(suffix=s3object)
+
+            suffix = str(s3object).replace('/', '_')
+
+            fd, path = mkstemp(suffix=suffix)
+
+            #print(str(fd) + ' ' + str(path))
+
+            #destination = path + str(fd)
+
+            try:
+                #s3.download_file(s3bucket, s3object, destination)
+                s3.download_file(s3bucket, s3object, path)
+                #print(str(path))
+
+            except botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == '404':
+                    print(json.dumps({'Not Found':s3object}, indent=2))
+                else:
+                    print(json.dumps({'ClientError':str(e)}, indent=2))
+                sys.exit(1)
+
+
+
+            import webbrowser
+            #webbrowser.open("https://google.com")
+            webbrowser.open('file://' + str(path))
+
+            #print("Browser")
+
+            #print(json.dumps({'tempfile': path}, indent=2))
+            print(json.dumps({'tempfile': path}))
+            sys.exit(0)
+
+        ##############################################################################################
+        ##############################################################################################
+
+        if sys.argv[1] == "view":
+
+            s3path = sys.argv[2]
+            s3bucket = s3path.split("/", 1)[0]
+            s3object = s3path.split("/", 1)[1]
+
+            #print(s3bucket)
+            #print(s3object)
+
+            #s3 = boto3.resource('s3')
+            s3 = boto3.client('s3')
+
+            #import tempfile
+            #fp = tempfile.TemporaryFile()
+
+            #print(str('FP is ' + str(fp)))
+
+            suffix = str(s3object).replace('/', '_')
+
+            from tempfile import mkstemp
+            #fd, path = mkstemp(suffix=".jpeg")
+            fd, path = mkstemp(suffix=suffix)
+
+            #print(str(fd) + ' ' + str(path))
+
+            #destination = path + str(fd)
+
+            try:
+                #s3.download_file(s3bucket, s3object, destination)
+                s3.download_file(s3bucket, s3object, path)
+                #print(str(path))
+
+            except botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == '404':
+                    print(json.dumps({'Not Found':s3object}, indent=2))
+                else:
+                    print(json.dumps({'ClientError':str(e)}, indent=2))
+                sys.exit(1)
+
+            import os
+
+            if sys.platform == 'darwin':
+                os.system("open " + str(path))
+                print(json.dumps({'tempfile': path}))
+                sys.exit(0)
+
+            elif sys.platform == 'linux' or sys.platform == 'linux2':
+                os.system("xdg-open tmp.png")
+                print(json.dumps({'tempfile': path}))
+                sys.exit(0)
+
+            elif sys.platform == 'win32' or sys.platform == 'win64':
+                os.system("powershell -c tmp.png")
+                print(json.dumps({'tempfile': path}))
+                sys.exit(0)
+
+            elif sys.platform == 'cygwin':
+                os.system("")
+                print(json.dumps({'tempfile': path, 'cygwin':'unknown command line'}))
+                sys.exit(1)
+
+            else:
+                print(json.dumps({'tempfile': path, 'unknown':str(sys.platform)}))
+                sys.exit(1)
+
+
+            #os.system("open " + str(path))
+            #os.open(str(path))
+
+            #mac
+            #os.system("open tmp.png")
+
+            #linux
+            #os.system("xdg-open tmp.png")
+
+            #win
+            #os.system("powershell -c tmp.png")
+
+           
+
+
+#            obj = s3.Object(s3bucket, s3object)
+#
+#            try:
+#                body = obj.get()['Body'].read()
+#            except botocore.exceptions.ClientError as e:
+#                #return jsonify(status=599, message="ClientError", error=str(e)), 599
+#                print(json.dumps({'ClientError':str(e)}, indent=2))
+#
+#            #return body                 #<class 'bytes'>
+#            #return body.decode('utf-8') #<class 'str'>
+#
+#            from PIL import Image
+#
+#            #im = Image.open(r"C:\Users\System-Pc\Desktop\lion.png")
+#            im = Image.open(body)
+#            im.show()
+
+            print(json.dumps({'tempfile': path}))
+            sys.exit(0)
+
+        ##############################################################################################
+        ##############################################################################################
+
+
 
 
         if sys.argv[1] == "server":
