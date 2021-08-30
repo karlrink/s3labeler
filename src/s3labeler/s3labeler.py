@@ -734,6 +734,9 @@ def main():
             
             sys.exit(print(json.dumps(buckets, indent=2)))
 
+        ##############################################################################################
+        ##############################################################################################
+
         if sys.argv[1] == "del" or sys.argv[1] == "delete":
             s3path = sys.argv[2]
             tag    = sys.argv[3]
@@ -889,6 +892,8 @@ def main():
             print(json.dumps({'saved':destination}, indent=2))
             sys.exit(0)
 
+        ##############################################################################################
+        ##############################################################################################
 
         if sys.argv[1] == "rekognition":
 
@@ -932,19 +937,49 @@ def main():
                     #print(option4)
 
                     if option4 == 'words':
-                        print('words')
-                        sys.exit(0)
+                        #print('words')
+                        List=[]
+                        for key in data['Labels']:
+                            List.append(key['Name'])
+                        listToStr = ' '.join([str(elem) for elem in List])
+                        tag = 'rekognition-words'
+                        update = update_s3object_tag(s3bucket, s3object, tag, listToStr)
+                        if update == True:
+                            print(json.dumps({'label':True}))
+                            sys.exit(0)
+                        else:
+                            print(json.dumps({'label':False}))
+                            sys.exit(1)
+
 
                     if option4 == 'confidence':
-                        print('confidence')
-                        sys.exit(0)
+                        #print('confidence')
+                        Dict={}
+                        for key in data['Labels']:
+                            _Name = key['Name']
+                            _Confidence = key['Confidence']
+                            Dict[_Name]= str(_Confidence)
+
+                        updated=0
+                        for k,v in Dict.items():
+                            update = update_s3object_tag(s3bucket, s3object, k, v)
+                            updated += 1
+
+                        if updated > 0:
+                            print(json.dumps({'label':True}))
+                            sys.exit(0)
+                        else:
+                            print(json.dumps({'label':False}))
+                            sys.exit(1)
+
+                        sys.exit(1)
 
                     else:
                         print('Unknown option ' + option4)
                         sys.exit(1)
 
                 else:
-                    print('options are words|confidence')
+                    print('options are words or confidence')
                     sys.exit(1)
 
 
@@ -1029,6 +1064,7 @@ def main():
 
 
 
+            ##############################################################################################
 
 
 
@@ -1084,6 +1120,8 @@ def main():
             print(content)
             sys.exit(0)
 
+        ##############################################################################################
+        ##############################################################################################
 
         if sys.argv[1] == "object":
             s3path = sys.argv[2]
