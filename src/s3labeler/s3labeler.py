@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.3.dev-20210829-5'
+__version__ = '1.0.3.dev-20210829-6'
 
 import sys
 
@@ -18,6 +18,7 @@ usage = "Usage: " + sys.argv[0] + " option" + """
         label|set  <s3bucket>/<s3object> '{"label":"value"}'
         delete|del <s3bucket>/<s3object> label
 
+        browser    <s3bucket>/<s3object>
         view       <s3bucket>/<s3object>
 
         get    <s3bucket>/<s3object>
@@ -31,8 +32,12 @@ usage = "Usage: " + sys.argv[0] + " option" + """
         rekognition <s3bucket>/<s3object> s3tag words
 
         rekognition <s3bucket>/<s3object> confidence
+        rekognition <s3bucket>/<s3object> confidence top 3
+        rekognition <s3bucket>/<s3object> confidence top 90 percent
+
         rekognition <s3bucket>/<s3object> s3tag confidence
         rekognition <s3bucket>/<s3object> s3tag confidence top 3
+        rekognition <s3bucket>/<s3object> s3tag confidence top 90 percent
 
         object      <s3bucket>/<s3object>
         b2sum       <s3bucket>/<s3object>
@@ -977,11 +982,70 @@ def main():
 
                     if option4 == 'confidence':
                         #print('confidence')
+
+                        try: option5 = sys.argv[5] 
+                        except IndexError: option5 = None
+
+                        try: option6 = sys.argv[6] 
+                        except IndexError: option6 = None
+
+                        try: option7 = sys.argv[7] 
+                        except IndexError: option7 = None
+
+                        #print(str(option5)) #top
+                        #print(str(option6)) #3 number
+                        #print(str(option7)) #percent
+
                         Dict={}
-                        for key in data['Labels']:
-                            _Name = key['Name']
-                            _Confidence = key['Confidence']
-                            Dict[_Name]= str(_Confidence)
+
+                        if option5 == 'top' and option7 == None:
+                            #print('run top num ')
+
+                            count=0
+
+                            for key in data['Labels']:
+                                count += 1
+                                #print(count)
+                                #print('- ' + option6)
+                                if count <= int(option6):
+                                    _Name = key['Name']
+                                    _Confidence = key['Confidence']
+                                    Dict[_Name]= str(_Confidence)
+                                    #Dict[_Name]= _Confidence
+
+
+                                #_Name = key['Name']
+                                #_Confidence = key['Confidence']
+                                #Dict[_Name]= str(_Confidence)
+
+                                #count += 1
+                                #if count == option6:
+                                #    print(option6)
+
+                            #for k,v in Dict.items():
+                            #    print(k, ' ', v)
+                            #sys.exit(0)
+
+                        elif option5 == 'top' and option7 == 'percent':
+                            #print('run top percent ')
+                            for key in data['Labels']:
+                                _Name = key['Name']
+                                _Confidence = key['Confidence']
+
+                                if int(option6) <= int(_Confidence):
+                                    Dict[_Name]= str(_Confidence)
+
+                            #sys.exit(0)
+
+                        else:
+
+                            #Dict={}
+                            for key in data['Labels']:
+                                _Name = key['Name']
+                                _Confidence = key['Confidence']
+                                Dict[_Name]= str(_Confidence)
+
+                        ###########################################################
 
                         updated=0
                         for k,v in Dict.items():
@@ -989,8 +1053,6 @@ def main():
                                 update = update_s3object_tag(s3bucket, s3object, k, v)
                                 updated += 1
                             except botocore.exceptions.ClientError as e:
-                                #print('Error ' + str(e))
-                                #print(json.dumps({'label':False, 'error': str(e), 's3tag': str(k), 's3val': str(v)  }))
                                 print(json.dumps({'label':False, 'error': str(e), 's3tag': str(k)}))
                                 sys.exit(1)
 
@@ -1063,6 +1125,19 @@ def main():
 
             if option == 'confidence':
 
+                try: option4 = sys.argv[4] 
+                except IndexError: option4 = None
+
+                try: option5 = sys.argv[5] 
+                except IndexError: option5 = None
+
+                try: option6 = sys.argv[6] 
+                except IndexError: option6 = None
+
+                #print(str(option4)) #top
+                #print(str(option5)) #3 number
+                #print(str(option6)) #percent
+
                 rekognition_json_file = 'rekognition/' + s3object + '.json'
                 s3 = boto3.resource('s3')
                 obj = s3.Object(s3bucket, rekognition_json_file)
@@ -1081,12 +1156,38 @@ def main():
                 data = json.loads(content)
 
                 Dict={}
-                for key in data['Labels']:
-                    #List.append(key['Name'])
-                    _Name = key['Name']
-                    _Confidence = key['Confidence']
 
-                    Dict[_Name]=_Confidence
+                if option4 == 'top' and option6 == None:
+                    #print('run top num')
+                    count=0
+                    for key in data['Labels']:
+                        count += 1
+                        if count <= int(option5):
+                            _Name = key['Name']
+                            _Confidence = key['Confidence']
+                            Dict[_Name]= str(_Confidence)
+
+                    #sys.exit(0)
+
+                elif option4 == 'top' and option6 == 'percent':
+                    #print('run5')
+                    for key in data['Labels']:
+                        _Name = key['Name']
+                        _Confidence = key['Confidence']
+
+                        if int(option5) <= int(_Confidence):
+                            Dict[_Name]= str(_Confidence)
+
+                    #sys.exit(0)
+
+                else:
+
+                    for key in data['Labels']:
+                        #List.append(key['Name'])
+                        _Name = key['Name']
+                        _Confidence = key['Confidence']
+
+                        Dict[_Name]=_Confidence
 
                 print(json.dumps(Dict, indent=2))
                 sys.exit(0)

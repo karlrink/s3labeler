@@ -1,0 +1,6 @@
+# requirements.txt
+boto3
+botocore
+pillow
+flask
+flask-cors
