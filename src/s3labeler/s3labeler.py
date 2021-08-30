@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.3.dev-20210829-3'
+__version__ = '1.0.3.dev-20210829-4'
 
 import sys
 
@@ -24,8 +24,9 @@ usage = "Usage: " + sys.argv[0] + " option" + """
 
         rekognition <s3bucket>/<s3object>
         rekognition <s3bucket>/<s3object> detect-labels
+
         rekognition <s3bucket>/<s3object> words
-        rekognition <s3bucket>/<s3object> s3tag
+        rekognition <s3bucket>/<s3object> s3tag words
 
         rekognition <s3bucket>/<s3object> confidence
         rekognition <s3bucket>/<s3object> s3tag confidence
@@ -962,8 +963,14 @@ def main():
 
                         updated=0
                         for k,v in Dict.items():
-                            update = update_s3object_tag(s3bucket, s3object, k, v)
-                            updated += 1
+                            try:
+                                update = update_s3object_tag(s3bucket, s3object, k, v)
+                                updated += 1
+                            except botocore.exceptions.ClientError as e:
+                                #print('Error ' + str(e))
+                                #print(json.dumps({'label':False, 'error': str(e), 's3tag': str(k), 's3val': str(v)  }))
+                                print(json.dumps({'label':False, 'error': str(e), 's3tag': str(k)}))
+                                sys.exit(1)
 
                         if updated > 0:
                             print(json.dumps({'label':True}))
