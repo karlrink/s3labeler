@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.3.dev-20210829-6'
+__version__ = '1.0.3.dev-20210829-7'
 
 import sys
 
@@ -117,6 +117,8 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
     delete      = request.args.get("delete", None)
     label       = request.args.get("label", None)
     value       = request.args.get("value", None)
+    top         = request.args.get("top", None)
+    percent     = request.args.get("percent", None)
 
     s3_client = boto3.client('s3')
 
@@ -209,6 +211,8 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
     if rekognition:
 
+        ######################################################################################################################################
+
         if rekognition == 'detect-labels':
 
             #either specify region or auto get region from boto call
@@ -242,6 +246,7 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
             else:
                 return jsonify(response), 200
 
+        ######################################################################################################################################
 
         if rekognition == 'json':
             rekognition_json_file = 'rekognition/' + s3object + '.json'
@@ -250,6 +255,8 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
                 return rekognition_json_content, 200
             else:
                 return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404
+
+        ######################################################################################################################################
 
         if rekognition == 'words':
 
@@ -296,6 +303,120 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
                 return jsonify(wordList), 200
             else:
                 return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404
+
+        ######################################################################################################################################
+
+        if rekognition == 'confidence':
+
+            rekognition_json_file = 'rekognition/' + s3object + '.json'
+            rekognition_json_content = get_s3object_body(s3bucket, rekognition_json_file)
+
+            if rekognition_json_content:
+
+                #wordList = extract_rekognition_words(rekognition_json_content)
+
+                s3 = boto3.resource('s3')
+                obj = s3.Object(s3bucket, rekognition_json_file)
+
+                try:
+                    body = obj.get()['Body'].read()
+                except botocore.exceptions.ClientError as e:
+                    if e.response['Error']['Code'] == 'NoSuchKey':
+                        return jsonify(status=404, message="Not Found", s3object=False, key=rekognition_json_file), 404
+                    else:
+                        return jsonify(status=599, message="ClientError", s3object=False, key=rekognition_json_file, error=str(e)), 599
+
+                content = body.decode("utf-8", "strict").rstrip()
+                data = json.loads(content)
+
+
+                Dict={}
+
+                ############################################################################################################################
+                if top:
+
+                    if percent:
+
+                        for key in data['Labels']:
+                            _Name = key['Name']
+                            _Confidence = key['Confidence']
+                            if int(top) <= int(_Confidence):
+                                Dict[_Name]= str(_Confidence)
+                    else:
+
+                        count=0
+                        for key in data['Labels']:
+                            count += 1
+                            if count <= int(top):
+                                _Name = key['Name']
+                                _Confidence = key['Confidence']
+                                Dict[_Name]= str(_Confidence)
+
+                else:
+                    for key in data['Labels']:
+                        _Name = key['Name']
+                        _Confidence = key['Confidence']
+                        Dict[_Name]= str(_Confidence)
+
+
+                ############################################################################################################################
+                if save == 's3tag':
+                    #print('s3tag.here')
+
+                    #s3 = boto3.resource('s3')
+                    #obj = s3.Object(s3bucket, rekognition_json_file)
+                    #try:
+                    #    body = obj.get()['Body'].read()
+
+                    #except botocore.exceptions.ClientError as e:
+                    #    if e.response['Error']['Code'] == 'NoSuchKey':
+                    #        return jsonify(status=404, message="Not Found", s3object=False, key=rekognition_json_file), 404
+                    #    else:
+                    #        return jsonify(status=599, message="ClientError", s3object=False, key=rekognition_json_file, error=str(e)), 599
+
+                    #content = body.decode("utf-8", "strict").rstrip()
+
+                    #data = json.loads(content)
+
+                    #List=[]
+                    #for key in data['Labels']:
+                    #    List.append(key['Name'])
+                    #listToStr = ' '.join([str(elem) for elem in List])
+                    #tag = 'rekognition-words'
+                    #update = update_s3object_tag(s3bucket, s3object, tag, listToStr)
+
+                    updated=0
+                    for k,v in Dict.items():
+                        try:
+                            update = update_s3object_tag(s3bucket, s3object, k, v)
+                            updated += 1
+                        except botocore.exceptions.ClientError as e:
+                            #print(json.dumps({'label':False, 'error': str(e), 's3tag': str(k)}))
+                            #sys.exit(1)
+                            return jsonify(status=465, message="Failed S3Tag", label=False, error=str(e)), 465
+
+                    if updated > 0:
+                        return jsonify(status=201, message="Created S3Tag", label=True), 201
+                    else:
+                        return jsonify(status=465, message="Failed S3Tag", label=False), 465
+
+                    #if update == True:
+                    #    return jsonify(status=201, message="Created S3Tag", label=True), 201
+                    #else:
+                    #    return jsonify(status=465, message="Failed S3Tag", label=False), 465
+
+
+                #return jsonify(wordList), 200
+                #print('hit')
+                return jsonify(Dict), 200
+                ############################################################################################################################
+            else:
+                return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404
+
+
+
+
+        ######################################################################################################################################
 
     if delete:
 

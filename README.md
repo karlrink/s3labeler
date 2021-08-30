@@ -202,6 +202,10 @@ curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=confidence"
 ```
 curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=confidence&top=3"
 ```
+#### get rekognition confidence top 90 percent HTTP GET
+```
+curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=confidence&top=90&percent=true"
+```
 
 #### set rekognition confidence to s3object tag (all confidence words)
 ```
@@ -210,6 +214,10 @@ curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=confidence&save
 #### set rekognition confidence to s3object tag (top 3 confidence)
 ```
 curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=confidence&top=3&save=s3tag"
+```
+#### set rekognition confidence to s3object tag (top 90 precent)
+```
+curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=confidence&top=90&percent=true&save=s3tag"
 ```
 
 ### run image through aws rekognition
