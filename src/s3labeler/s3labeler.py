@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.3.dev-20210829-7'
+__version__ = '1.0.4'
 
 import sys
 
@@ -361,29 +361,6 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
 
                 ############################################################################################################################
                 if save == 's3tag':
-                    #print('s3tag.here')
-
-                    #s3 = boto3.resource('s3')
-                    #obj = s3.Object(s3bucket, rekognition_json_file)
-                    #try:
-                    #    body = obj.get()['Body'].read()
-
-                    #except botocore.exceptions.ClientError as e:
-                    #    if e.response['Error']['Code'] == 'NoSuchKey':
-                    #        return jsonify(status=404, message="Not Found", s3object=False, key=rekognition_json_file), 404
-                    #    else:
-                    #        return jsonify(status=599, message="ClientError", s3object=False, key=rekognition_json_file, error=str(e)), 599
-
-                    #content = body.decode("utf-8", "strict").rstrip()
-
-                    #data = json.loads(content)
-
-                    #List=[]
-                    #for key in data['Labels']:
-                    #    List.append(key['Name'])
-                    #listToStr = ' '.join([str(elem) for elem in List])
-                    #tag = 'rekognition-words'
-                    #update = update_s3object_tag(s3bucket, s3object, tag, listToStr)
 
                     updated=0
                     for k,v in Dict.items():
@@ -391,8 +368,6 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
                             update = update_s3object_tag(s3bucket, s3object, k, v)
                             updated += 1
                         except botocore.exceptions.ClientError as e:
-                            #print(json.dumps({'label':False, 'error': str(e), 's3tag': str(k)}))
-                            #sys.exit(1)
                             return jsonify(status=465, message="Failed S3Tag", label=False, error=str(e)), 465
 
                     if updated > 0:
@@ -400,21 +375,10 @@ def get_s3bucketobject(s3bucket=None,s3object=None):
                     else:
                         return jsonify(status=465, message="Failed S3Tag", label=False), 465
 
-                    #if update == True:
-                    #    return jsonify(status=201, message="Created S3Tag", label=True), 201
-                    #else:
-                    #    return jsonify(status=465, message="Failed S3Tag", label=False), 465
-
-
-                #return jsonify(wordList), 200
-                #print('hit')
                 return jsonify(Dict), 200
                 ############################################################################################################################
             else:
                 return jsonify(status=404, message="Not Found", s3object=False, rekognition_json_location=rekognition_json_file), 404
-
-
-
 
         ######################################################################################################################################
 
@@ -1078,12 +1042,9 @@ def main():
 
                 try: option4 = sys.argv[4] 
                 except IndexError: option4 = None
-                #print('option4 ' + str(option4))
-                #sys.exit(99)
 
                 if option4:
                     # words||confidence
-                    #print(option4)
 
                     if option4 == 'words':
                         #print('words')
@@ -1102,7 +1063,6 @@ def main():
 
 
                     if option4 == 'confidence':
-                        #print('confidence')
 
                         try: option5 = sys.argv[5] 
                         except IndexError: option5 = None
@@ -1120,35 +1080,19 @@ def main():
                         Dict={}
 
                         if option5 == 'top' and option7 == None:
-                            #print('run top num ')
 
                             count=0
 
                             for key in data['Labels']:
                                 count += 1
-                                #print(count)
-                                #print('- ' + option6)
                                 if count <= int(option6):
                                     _Name = key['Name']
                                     _Confidence = key['Confidence']
                                     Dict[_Name]= str(_Confidence)
-                                    #Dict[_Name]= _Confidence
 
-
-                                #_Name = key['Name']
-                                #_Confidence = key['Confidence']
-                                #Dict[_Name]= str(_Confidence)
-
-                                #count += 1
-                                #if count == option6:
-                                #    print(option6)
-
-                            #for k,v in Dict.items():
-                            #    print(k, ' ', v)
-                            #sys.exit(0)
 
                         elif option5 == 'top' and option7 == 'percent':
-                            #print('run top percent ')
+
                             for key in data['Labels']:
                                 _Name = key['Name']
                                 _Confidence = key['Confidence']
@@ -1156,11 +1100,8 @@ def main():
                                 if int(option6) <= int(_Confidence):
                                     Dict[_Name]= str(_Confidence)
 
-                            #sys.exit(0)
-
                         else:
 
-                            #Dict={}
                             for key in data['Labels']:
                                 _Name = key['Name']
                                 _Confidence = key['Confidence']
@@ -1196,23 +1137,6 @@ def main():
 
 
                 sys.exit(0)
-
-#                List=[]
-#                for key in data['Labels']:
-#                    List.append(key['Name'])
-#
-#                listToStr = ' '.join([str(elem) for elem in List])
-#
-#                tag = 'rekognition-words'
-#
-#                update = update_s3object_tag(s3bucket, s3object, tag, listToStr)
-#
-#                if update == True:
-#                    print(json.dumps({'label':True}))
-#                    sys.exit(0)
-#                else:
-#                    print(json.dumps({'label':False}))
-#                    sys.exit(1)
 
             ##############################################################################################
 
@@ -1279,7 +1203,6 @@ def main():
                 Dict={}
 
                 if option4 == 'top' and option6 == None:
-                    #print('run top num')
                     count=0
                     for key in data['Labels']:
                         count += 1
@@ -1288,10 +1211,8 @@ def main():
                             _Confidence = key['Confidence']
                             Dict[_Name]= str(_Confidence)
 
-                    #sys.exit(0)
 
                 elif option4 == 'top' and option6 == 'percent':
-                    #print('run5')
                     for key in data['Labels']:
                         _Name = key['Name']
                         _Confidence = key['Confidence']
@@ -1299,25 +1220,17 @@ def main():
                         if int(option5) <= int(_Confidence):
                             Dict[_Name]= str(_Confidence)
 
-                    #sys.exit(0)
-
                 else:
 
                     for key in data['Labels']:
-                        #List.append(key['Name'])
                         _Name = key['Name']
                         _Confidence = key['Confidence']
-
                         Dict[_Name]=_Confidence
 
                 print(json.dumps(Dict, indent=2))
                 sys.exit(0)
 
-
-
             ##############################################################################################
-
-
 
             if option == 'detect-labels':
 
@@ -1570,38 +1483,16 @@ def main():
             s3bucket = s3path.split("/", 1)[0]
             s3object = s3path.split("/", 1)[1]
 
-            #print(s3bucket)
-            #print(s3object)
-
-            #s3 = boto3.resource('s3')
             s3 = boto3.client('s3')
-            #obj = s3.Object(s3bucket, s3object)
-
-            #try:
-            #    body = obj.get()['Body'].read()
-            #except botocore.exceptions.ClientError as e:
-            #    #return jsonify(status=599, message="ClientError", error=str(e)), 599
-            #    print(json.dumps({'ClientError':str(e)}, indent=2))
-
-            #return body                 #<class 'bytes'>
-            #return body.decode('utf-8') #<class 'str'>
 
             from tempfile import mkstemp
-            #fd, path = mkstemp(suffix=".jpeg")
-            #fd, path = mkstemp(suffix=s3object)
 
             suffix = str(s3object).replace('/', '_')
 
             fd, path = mkstemp(suffix=suffix)
 
-            #print(str(fd) + ' ' + str(path))
-
-            #destination = path + str(fd)
-
             try:
-                #s3.download_file(s3bucket, s3object, destination)
                 s3.download_file(s3bucket, s3object, path)
-                #print(str(path))
 
             except botocore.exceptions.ClientError as e:
                 if e.response['Error']['Code'] == '404':
@@ -1610,15 +1501,9 @@ def main():
                     print(json.dumps({'ClientError':str(e)}, indent=2))
                 sys.exit(1)
 
-
-
             import webbrowser
-            #webbrowser.open("https://google.com")
             webbrowser.open('file://' + str(path))
 
-            #print("Browser")
-
-            #print(json.dumps({'tempfile': path}, indent=2))
             print(json.dumps({'tempfile': path}))
             sys.exit(0)
 
@@ -1631,31 +1516,15 @@ def main():
             s3bucket = s3path.split("/", 1)[0]
             s3object = s3path.split("/", 1)[1]
 
-            #print(s3bucket)
-            #print(s3object)
-
-            #s3 = boto3.resource('s3')
             s3 = boto3.client('s3')
-
-            #import tempfile
-            #fp = tempfile.TemporaryFile()
-
-            #print(str('FP is ' + str(fp)))
 
             suffix = str(s3object).replace('/', '_')
 
             from tempfile import mkstemp
-            #fd, path = mkstemp(suffix=".jpeg")
             fd, path = mkstemp(suffix=suffix)
 
-            #print(str(fd) + ' ' + str(path))
-
-            #destination = path + str(fd)
-
             try:
-                #s3.download_file(s3bucket, s3object, destination)
                 s3.download_file(s3bucket, s3object, path)
-                #print(str(path))
 
             except botocore.exceptions.ClientError as e:
                 if e.response['Error']['Code'] == '404':
@@ -1691,9 +1560,6 @@ def main():
                 sys.exit(1)
 
 
-            #os.system("open " + str(path))
-            #os.open(str(path))
-
             #mac
             #os.system("open tmp.png")
 
@@ -1703,33 +1569,11 @@ def main():
             #win
             #os.system("powershell -c tmp.png")
 
-           
-
-
-#            obj = s3.Object(s3bucket, s3object)
-#
-#            try:
-#                body = obj.get()['Body'].read()
-#            except botocore.exceptions.ClientError as e:
-#                #return jsonify(status=599, message="ClientError", error=str(e)), 599
-#                print(json.dumps({'ClientError':str(e)}, indent=2))
-#
-#            #return body                 #<class 'bytes'>
-#            #return body.decode('utf-8') #<class 'str'>
-#
-#            from PIL import Image
-#
-#            #im = Image.open(r"C:\Users\System-Pc\Desktop\lion.png")
-#            im = Image.open(body)
-#            im.show()
-
             print(json.dumps({'tempfile': path}))
             sys.exit(0)
 
         ##############################################################################################
         ##############################################################################################
-
-
 
 
         if sys.argv[1] == "server":
