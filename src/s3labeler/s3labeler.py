@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.3.dev-20210829-1'
+__version__ = '1.0.3.dev-20210829-3'
 
 import sys
 
@@ -901,6 +901,8 @@ def main():
             try: s3object = s3path.split("/", 1)[1]
             except IndexError: s3object = ''
 
+            ##############################################################################################
+
             if option == 's3tag':
 
                 rekognition_json_file = 'rekognition/' + s3object + '.json'
@@ -920,24 +922,52 @@ def main():
 
                 data = json.loads(content)
 
-                List=[]
-                for key in data['Labels']:
-                    List.append(key['Name'])
+                try: option4 = sys.argv[4] 
+                except IndexError: option4 = None
+                #print('option4 ' + str(option4))
+                #sys.exit(99)
 
-                listToStr = ' '.join([str(elem) for elem in List])
+                if option4:
+                    # words||confidence
+                    #print(option4)
 
-                tag = 'rekognition-words'
+                    if option4 == 'words':
+                        print('words')
+                        sys.exit(0)
 
-                update = update_s3object_tag(s3bucket, s3object, tag, listToStr)
+                    if option4 == 'confidence':
+                        print('confidence')
+                        sys.exit(0)
 
-                if update == True:
-                    print(json.dumps({'label':True}))
-                    sys.exit(0)
+                    else:
+                        print('Unknown option ' + option4)
+                        sys.exit(1)
+
                 else:
-                    print(json.dumps({'label':False}))
+                    print('options are words|confidence')
                     sys.exit(1)
 
 
+                sys.exit(0)
+
+#                List=[]
+#                for key in data['Labels']:
+#                    List.append(key['Name'])
+#
+#                listToStr = ' '.join([str(elem) for elem in List])
+#
+#                tag = 'rekognition-words'
+#
+#                update = update_s3object_tag(s3bucket, s3object, tag, listToStr)
+#
+#                if update == True:
+#                    print(json.dumps({'label':True}))
+#                    sys.exit(0)
+#                else:
+#                    print(json.dumps({'label':False}))
+#                    sys.exit(1)
+
+            ##############################################################################################
 
             if option == 'words':
 
@@ -964,6 +994,8 @@ def main():
 
                 print(json.dumps(List, indent=2))
                 sys.exit(0)
+
+            ##############################################################################################
 
             if option == 'confidence':
 
