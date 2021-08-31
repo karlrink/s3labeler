@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <meta name="version" content="20210825-1">
+  <meta name="version" content="20210831-1">
   <title></title>
 </head>
 
@@ -238,7 +238,8 @@ async function runRekognitionDetectLabels(bucket, file) {
 async function runRekognitionSaveS3tag(bucket, file) {
     // curl "http://127.0.0.1:8880/s3/<s3bucket>/<s3object>?rekognition=words&save=s3tag"
     console.log('runRekognitionSaveS3tag');
-    let url = origin + '/s3/' + bucket + '/' + file + '?rekognition=words&save=s3tag';
+    //let url = origin + '/s3/' + bucket + '/' + file + '?rekognition=words&save=s3tag';
+    let url = origin + '/s3/' + bucket + '/' + file + '?rekognition=confidence&save=s3tag';
 
     let windowObjectReference;
     let windowFeatures = "menubar=no,location=yes,resizable=yes,scrollbars=yes,status=yes";
