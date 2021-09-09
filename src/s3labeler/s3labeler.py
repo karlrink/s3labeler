@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '1.0.4'
+__version__ = '1.0.4-1'
 
 import sys
 
-if sys.version_info < (3, 8, 1):
-    raise RuntimeError('Requires Python version 3.8.1 or higher. This version: ' + str(sys.version_info))
+if sys.version_info < (3, 6, 1):
+    raise RuntimeError('Requires Python version 3.6.1 or higher. This version: ' + str(sys.version_info))
 
 usage = "Usage: " + sys.argv[0] + " option" + """
 

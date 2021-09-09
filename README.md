@@ -7,7 +7,7 @@ label - attached to an object and giving information about it
 ## S3 Object Labeling Tool   
 
 [![Package Version](https://img.shields.io/pypi/v/s3labeler.svg)](https://pypi.python.org/pypi/s3labeler/)
-[![Python 3.8](https://img.shields.io/badge/python-3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
+[![Python 3.6](https://img.shields.io/badge/python-3.6-blue.svg)](https://www.python.org/downloads/release/python-360/)
 
 
 ## install
