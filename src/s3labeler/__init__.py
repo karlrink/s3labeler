@@ -1,5 +1,6 @@
 
 # -*- coding: utf-8 -*-
 
-from .s3labeler import *
+"""s3labeler.__init__: execute when directory is called."""
 
+from .s3labeler import *
