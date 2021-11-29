@@ -1,0 +1,10 @@
+
+#pip3 install pylint
+
+python3 -m pylint ../src/s3labeler/s3labeler.py
+
+python3 -m pylint ../src/s3labeler/__init__.py
+
+python3 -m pylint ../src/s3labeler/__main__.py
+
+
